@@ -30,6 +30,6 @@ class TestGroupSplitter:
         LB = 0
         for i, f in enumerate(fractions):
             UB = LB + f
-            if (x >= LB) & (x < (LB + f)):
+            if (x >= LB) & (x < UB):
                 return group_names[i]
             LB = UB
