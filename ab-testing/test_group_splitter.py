@@ -16,7 +16,7 @@ class TestGroupSplitter:
         self.group_names = group_names
 
     def split(self):
-        if sum(self.fractions) != 1:
+        if sum(self.fractions) < 0.99:
             raise ValueError('Fractions must sum to 1!')
         segments = self.customer_df[[self.customer_key]]
         segments['randCol'] = np.random.rand(len(segments))
