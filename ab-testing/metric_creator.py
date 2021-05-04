@@ -2,6 +2,8 @@ from google.cloud import bigquery
 import pandas as pd
 import yaml
 
+from tools.tools import write_to_table, delete_from_table
+
 
 class MetricCreator:
 
@@ -16,7 +18,6 @@ class MetricCreator:
             self.fw_params = yaml.safe_load(config)
         
         self.client = bigquery.Client(project=self.fw_params['PROJECT'])
-        self.dataset = bigquery.Dataset('{PROJECT}.ab_test'.format(PROJECT=self.fw_params['PROJECT']))
         
         self.metric_name = metric_name
         self.description = description
@@ -33,64 +34,24 @@ class MetricCreator:
                 'sql': [self.sql]
             }
         )
-        self.write_to_table(
-            df=metric_entry, 
+        write_to_table(
+            df=metric_entry,
+            client=self.client,
+            project=self.fw_params['PROJECT'],
             table_name='metrics', 
             key='metric_name', 
             key_value=self.metric_name, 
             mode=mode
         )
         
+        
     def delete_metric(self, mode='add'):
         
         # Remove from metrics table
-        self.delete_from_table(
+        delete_from_table(
+            client=self.client,
+            project=self.fw_params['PROJECT'],
             table_name='metrics', 
             key='metric_name', 
             key_value=self.metric_name
-        )
-
-            
-    def write_to_table(self, df, table_name, key, key_value, mode):
-        if mode == 'add':
-            check = self.client.query(
-            """
-                SELECT
-                    {key}
-                FROM {PROJECT}.ab_test.{table_name}
-                WHERE {key} = '{key_value}'
-            """.format(
-                PROJECT=self.fw_params['PROJECT'],
-                table_name=table_name,
-                key=key,
-                key_value=key_value
-                )
-            ).to_dataframe()
-            if not check.empty:
-                raise ValueError(f'{key} with the value \'{key_value}\' already exists.')
-        elif mode == 'update':
-            self.delete_from_table(table_name, key, key_value)
-        else:
-            raise ValueError("The mode parameter can have the values \'add\' or \'update\'.")
-
-        # Job config
-        job_config = bigquery.LoadJobConfig()
-        job_config.autodetect = True
-        table = self.dataset.table(table_name)
-        job = self.client.load_table_from_dataframe(
-            dataframe=df, destination=table, job_config=job_config
-        )
-        job.result()
-        
-    def delete_from_table(self, table_name, key, key_value):
-        self.client.query(
-        """
-            DELETE FROM {PROJECT}.ab_test.{table_name}
-            WHERE {key} = '{key_value}'
-        """.format(
-            PROJECT=self.fw_params['PROJECT'],
-            table_name=table_name,
-            key=key,
-            key_value=key_value
-            )
         )
