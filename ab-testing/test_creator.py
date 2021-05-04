@@ -23,7 +23,7 @@ class TestCreator:
             self.test_params = yaml.safe_load(config)
         
 
-    def create_test(self):
+    def create_test(self, mode='add'):
         
         # Add test to tests table
         test_entry = pd.DataFrame(
@@ -33,7 +33,13 @@ class TestCreator:
                 'customer_key': [self.test_params['customer_key']]
             }
         )
-        self.write_to_table(test_entry, "tests", overwrite=True)
+        self.write_to_table(
+            df=test_entry, 
+            table_name="tests", 
+            key='test_name', 
+            key_value=self.test_params['test_name'], 
+            mode=mode
+        )
 
         # Add groups to groups table
         groups_entry = pd.DataFrame(
@@ -44,7 +50,13 @@ class TestCreator:
                 'size': [g['size'] for g in self.test_params['groups']]
             }
         )
-        self.write_to_table(groups_entry, "groups", overwrite=True)
+        self.write_to_table(
+            df=groups_entry, 
+            table_name="groups", 
+            key='test_name', 
+            key_value=self.test_params['test_name'], 
+            mode=mode
+        )
 
         # Add metrics to test_metrics table
         metric_entry = pd.DataFrame(
@@ -53,7 +65,13 @@ class TestCreator:
                 'metric_name': [self.test_params['metric_name']]
             }
         )
-        self.write_to_table(metric_entry, "test_metrics", overwrite=True)
+        self.write_to_table(
+            df=metric_entry, 
+            table_name="test_metrics", 
+            key='test_name', 
+            key_value=self.test_params['test_name'], 
+            mode=mode
+        )
 
         # Create pandas df to pass to splitter
         customer_df = self.client.query(
@@ -82,18 +100,92 @@ class TestCreator:
         segments.insert(loc=0, column='test_name', value=self.test_params['test_name'])
 
         # Add group segments to customer_segments table
-        self.write_to_table(segments, "customer_segments", overwrite=True)
+        self.write_to_table(
+            df=segments, 
+            table_name="customer_segments",
+            key='test_name', 
+            key_value=self.test_params['test_name'], 
+            mode=mode
+        )
+        
+        
+    def delete_test(self):
+        # Remove from tests table
+        self.delete_from_table( 
+            table_name="tests", 
+            key='test_name', 
+            key_value=self.test_params['test_name']
+        )
+        
+        # Remove from groups table
+        self.delete_from_table(
+            table_name="groups", 
+            key='test_name', 
+            key_value=self.test_params['test_name']
+        )
+        
+        # Remove from test metrics table
+        self.delete_from_table(
+            table_name="test_metrics", 
+            key='test_name', 
+            key_value=self.test_params['test_name']
+        )
 
-            
-    def write_to_table(self, df, table_name, overwrite=False):
-        # Job config
-        if overwrite:
-            job_config = bigquery.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+        # Remove from customer segments table
+        self.delete_from_table(
+            table_name="customer_segments",
+            key='test_name', 
+            key_value=self.test_params['test_name']
+        )
+        
+        # Remove from test results table
+        self.delete_from_table(
+            table_name="test_results", 
+            key='test_name', 
+            key_value=self.test_params['test_name']
+        )
+        
+        
+    def write_to_table(self, df, table_name, key, key_value, mode):
+        if mode == 'add':
+            check = self.client.query(
+            """
+                SELECT
+                    {key}
+                FROM {PROJECT}.ab_test.{table_name}
+                WHERE {key} = '{key_value}'
+            """.format(
+                PROJECT=self.fw_params['PROJECT'],
+                table_name=table_name,
+                key=key,
+                key_value=key_value
+                )
+            ).to_dataframe()
+            if not check.empty:
+                raise ValueError(f'{key} with the value \'{key_value}\' already exists.')
+        elif mode == 'update':
+            self.delete_from_table(table_name, key, key_value)
         else:
-            job_config = bigquery.LoadJobConfig()
+            raise ValueError("The mode parameter can have the values \'add\' or \'update\'.")
+
+        # Job config
+        job_config = bigquery.LoadJobConfig()
         job_config.autodetect = True
         table = self.dataset.table(table_name)
         job = self.client.load_table_from_dataframe(
             dataframe=df, destination=table, job_config=job_config
         )
         job.result()
+        
+    def delete_from_table(self, table_name, key, key_value):
+        self.client.query(
+        """
+            DELETE FROM {PROJECT}.ab_test.{table_name}
+            WHERE {key} = '{key_value}'
+        """.format(
+            PROJECT=self.fw_params['PROJECT'],
+            table_name=table_name,
+            key=key,
+            key_value=key_value
+            )
+        )
