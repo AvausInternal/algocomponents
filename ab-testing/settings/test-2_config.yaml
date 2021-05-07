@@ -1,0 +1,14 @@
+test_name: Test 2
+source_table: algo-factory-dev.instacart_tf.orders
+customer_key: user_id
+metric_name: Order count
+groups:
+- name: A
+  size: 0.3333333333333333
+  is_control: false
+- name: B
+  size: 0.3333333333333333
+  is_control: false
+- name: C
+  size: 0.3333333333333333
+  is_control: true

@@ -1,20 +1,26 @@
 from google.cloud import bigquery
 import pandas as pd
+import yaml
 from scipy import stats
+
+from tools.tools import write_to_table, delete_from_table
 
 
 class TestEvaluator:
-    PROJECT = "algo-factory-dev"
 
     def __init__(
             self,
             test_name
     ):
+        # Load framework config parameters
+        with open('settings/fw_config.yaml') as config:
+            self.fw_params = yaml.safe_load(config)
+        
+        self.client = bigquery.Client(project=self.fw_params['PROJECT'])
+        
         self.test_name = test_name
-        self.client = bigquery.Client(project=self.PROJECT)
-        self.dataset = bigquery.Dataset('{PROJECT}.ab_test'.format(PROJECT=self.PROJECT))
 
-    def evaluate_test(self):
+    def evaluate_test(self, mode='add'):
         # Fetch metric sql query
         df = self.client.query(
             """
@@ -24,14 +30,14 @@ class TestEvaluator:
                 INNER JOIN {PROJECT}.ab_test.metrics m
                     ON t.metric_name = m.metric_name
                 WHERE t.test_name = '{test_name}'
-            """.format(PROJECT=self.PROJECT, test_name=self.test_name)
+            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
         ).to_dataframe()
         metric_name = df['metric_name'][0]
         metric_query = df['sql'][0]
 
         # Generate metric on customer level
         customer_metric = self.client.query(metric_query).to_dataframe()
-
+        
         # Fetch customer key for the test
         customer_key = self.client.query(
             """
@@ -39,7 +45,7 @@ class TestEvaluator:
                     *
                 FROM {PROJECT}.ab_test.tests
                 WHERE test_name = '{test_name}'
-            """.format(PROJECT=self.PROJECT, test_name=self.test_name)
+            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
         ).to_dataframe()['customer_key'][0]
 
         # Fetch customer segments
@@ -50,7 +56,7 @@ class TestEvaluator:
                     customer_key AS {customer_key}
                 FROM {PROJECT}.ab_test.customer_segments
                 WHERE test_name = '{test_name}'
-            """.format(PROJECT=self.PROJECT, test_name=self.test_name, customer_key=customer_key)
+            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name, customer_key=customer_key)
         ).to_dataframe()
 
         # Join segment data to customer metrics table
@@ -69,9 +75,9 @@ class TestEvaluator:
                     is_control
                 FROM {PROJECT}.ab_test.groups
                 WHERE test_name = '{test_name}'
-            """.format(PROJECT='algo-factory-dev', test_name='Test 1')
+            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
         ).to_dataframe()
-
+        
         pops = {}
         for g in groups_df['group_name']:
             pops[g] = list(joined_df.where(joined_df['group_name'] == g).dropna()['metric'])
@@ -94,18 +100,12 @@ class TestEvaluator:
         # Prepend test name info
         test_results.insert(loc=0, column='test_name', value=self.test_name)
 
-        self.write_to_table(test_results, 'test_results', overwrite=True)
-
-    def write_to_table(self, df, table_name, overwrite=False):
-        # Job config
-        if overwrite:
-            job_config = bigquery.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
-        else:
-            job_config = bigquery.LoadJobConfig()
-        job_config.autodetect = True
-        table = self.dataset.table(table_name)
-        job = self.client.load_table_from_dataframe(
-            dataframe=df, destination=table, job_config=job_config
+        write_to_table(
+            df=test_results,
+            client=self.client,
+            project=self.fw_params['PROJECT'],
+            table_name="test_results", 
+            key='test_name', 
+            key_value=self.test_name, 
+            mode=mode
         )
-        job.result()
-
