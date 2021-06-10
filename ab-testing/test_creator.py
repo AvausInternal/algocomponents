@@ -81,15 +81,23 @@ class TestCreator:
             mode=mode
         )
 
+        # Set the stratification columns
+        try: 
+            stratification_column_string = f"{', '.join([''] + self.test_params['stratify_by'] )}"
+        except(KeyError):
+            stratification_column_string = ""
+        
         # Create pandas df to pass to splitter
         customer_df = self.client.query(
             """
                 SELECT DISTINCT
                     {customer_key}
+                    {strat_cols}
                 FROM {source_table}
             """.format(
                 customer_key=self.test_params['customer_key'], 
-                source_table=self.test_params['source_table']
+                source_table=self.test_params['source_table'],
+                strat_cols=stratification_column_string
             )
         ).to_dataframe()
         customer_df[self.test_params['customer_key']] = customer_df[self.test_params['customer_key']].astype("string")
@@ -100,6 +108,7 @@ class TestCreator:
             self.test_params['customer_key'],
             fractions=tuple(g['size'] for g in self.test_params['groups']),
             group_names=tuple(g['name'] for g in self.test_params['groups']),
+            strat_columns=self.test_params.get('stratify_by',[])
         )
 
         # Create test and control group segments
