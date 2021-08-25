@@ -28,7 +28,7 @@ def write_to_table(
         if not check.empty:
             raise ValueError(f'{key} with the value \'{key_value}\' already exists.')
     elif mode == 'update':
-        delete_from_table(table_name, key, key_value)
+        delete_from_table(client, project, table_name, key, key_value)
     else:
         raise ValueError("The mode parameter can have the values \'add\' or \'update\'.")
 
