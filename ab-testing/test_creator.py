@@ -30,7 +30,9 @@ class TestCreator:
             data={
                 'test_name': [self.test_params['test_name']],
                 'eligible_customers': [self.test_params['source_table']],
-                'customer_key': [self.test_params['customer_key']]
+                'customer_key': [self.test_params['customer_key']],
+                'start_date': [self.test_params.get('start_date', '')],
+                'end_date': [self.test_params.get('end_date', '')],
             }
         )
         write_to_table(
@@ -90,6 +92,7 @@ class TestCreator:
                 source_table=self.test_params['source_table']
             )
         ).to_dataframe()
+        customer_df[self.test_params['customer_key']] = customer_df[self.test_params['customer_key']].astype("string")
 
         # Instantiate test group splitter
         splitter = TestGroupSplitter(
