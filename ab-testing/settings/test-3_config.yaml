@@ -1,0 +1,14 @@
+test_name: Test 3
+source_table: data-factory-286109.marketo_dump.leads
+customer_key: id
+metric_name: Activities count
+stratify_by:
+- segment_name
+- store_key
+groups:
+- name: test
+  size: 0.5
+  is_control: false
+- name: control
+  size: 0.5
+  is_control: true

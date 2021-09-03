@@ -3,6 +3,8 @@ import pandas as pd
 import yaml
 from scipy import stats
 
+from datetime import date
+
 from tools.tools import write_to_table, delete_from_table
 
 
@@ -20,8 +22,27 @@ class TestEvaluator:
         
         self.test_name = test_name
 
-    def evaluate_test(self, mode='add'):
-        # Fetch metric sql query
+    def evaluate_test(self, mode='add', ignore_dates=False):
+        # Fetch test parameters
+        test_df = self.client.query(
+            """
+                SELECT
+                    *
+                FROM {PROJECT}.ab_test.tests
+                WHERE test_name = '{test_name}'
+            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
+        ).to_dataframe()
+        customer_key = test_df['customer_key'][0]
+        start_date = test_df['start_date'][0]
+        end_date = test_df['end_date'][0]
+        
+        today = str(date.today())
+        
+        if (not ignore_dates) & (end_date != '') & (today <= end_date):
+            print(f"'{self.test_name}' cannot be evaluated yet. It runs between {start_date} and {end_date}.")
+            return
+        
+        # Fetch metric name and sql query
         df = self.client.query(
             """
                 SELECT
@@ -33,20 +54,13 @@ class TestEvaluator:
             """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
         ).to_dataframe()
         metric_name = df['metric_name'][0]
-        metric_query = df['sql'][0]
+        metric_query = df['sql'][0].format(START_DATE=start_date, END_DATE=end_date)
 
         # Generate metric on customer level
         customer_metric = self.client.query(metric_query).to_dataframe()
         
-        # Fetch customer key for the test
-        customer_key = self.client.query(
-            """
-                SELECT
-                    *
-                FROM {PROJECT}.ab_test.tests
-                WHERE test_name = '{test_name}'
-            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
-        ).to_dataframe()['customer_key'][0]
+        # Convert customer_key to string type
+        customer_metric[customer_key] = customer_metric[customer_key].astype("string")
 
         # Fetch customer segments
         segments = self.client.query(
@@ -61,7 +75,7 @@ class TestEvaluator:
 
         # Join segment data to customer metrics table
         joined_df = customer_metric.join(segments.set_index(customer_key),
-                                         on='{customer_key}'.format(customer_key=customer_key), how='inner')
+                                         on=customer_key, how='inner')
 
         # Calculate mean and standard deviation of metric for the segments
         result_mean = joined_df.groupby('group_name')['metric'].mean()
