@@ -3,7 +3,7 @@ start_date: '2011-08-01'
 end_date: '2011-08-31'
 source_table: algo-factory-dev.instacart_tf.orders_unique
 customer_key: order_id
-metric_name: Average revenue
+metric_name: last order
 stratify_by:
 - eval_set
 - order_number
