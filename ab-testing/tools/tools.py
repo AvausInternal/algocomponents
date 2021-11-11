@@ -6,6 +6,7 @@ def write_to_table(
     df,
     client,
     project,
+    dataset_name,
     table_name,
     key, 
     key_value, 
@@ -16,10 +17,11 @@ def write_to_table(
         """
             SELECT
                 {key}
-            FROM {PROJECT}.ab_test.{table_name}
+            FROM {PROJECT}.{DATASET_NAME}.{table_name}
             WHERE {key} = '{key_value}'
         """.format(
             PROJECT=project,
+            DATASET_NAME=dataset_name,
             table_name=table_name,
             key=key,
             key_value=key_value
@@ -32,7 +34,7 @@ def write_to_table(
     else:
         raise ValueError("The mode parameter can have the values \'add\' or \'update\'.")
 
-    dataset = bigquery.Dataset('{PROJECT}.ab_test'.format(PROJECT=project))
+    dataset = bigquery.Dataset('{PROJECT}.{DATASET_NAME}'.format(PROJECT=project, DATASET_NAME=dataset_name))
     
     # Job config
     job_config = bigquery.LoadJobConfig()
@@ -47,16 +49,18 @@ def write_to_table(
 def delete_from_table(
     client,
     project,
+    dataset_name,
     table_name, 
     key, 
     key_value
 ):
     client.query(
     """
-        DELETE FROM {PROJECT}.ab_test.{table_name}
+        DELETE FROM {PROJECT}.{DATASET_NAME}.{table_name}
         WHERE {key} = '{key_value}'
     """.format(
         PROJECT=project,
+        DATASET_NAME=dataset_name,
         table_name=table_name,
         key=key,
         key_value=key_value
