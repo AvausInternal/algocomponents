@@ -28,9 +28,13 @@ class TestEvaluator:
             """
                 SELECT
                     *
-                FROM {PROJECT}.ab_test.tests
+                FROM {PROJECT}.{DATASET_NAME}.tests
                 WHERE test_name = '{test_name}'
-            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
+            """.format(
+                PROJECT=self.fw_params['PROJECT'],
+                DATASET_NAME=self.fw_params['DATASET_NAME'],
+                test_name=self.test_name
+            )
         ).to_dataframe()
         customer_key = test_df['customer_key'][0]
         start_date = test_df['start_date'][0]
@@ -47,11 +51,14 @@ class TestEvaluator:
             """
                 SELECT
                     *
-                FROM {PROJECT}.ab_test.test_metrics t
-                INNER JOIN {PROJECT}.ab_test.metrics m
+                FROM {PROJECT}.{DATASET_NAME}.test_metrics t
+                INNER JOIN {PROJECT}.{DATASET_NAME}.metrics m
                     ON t.metric_name = m.metric_name
                 WHERE t.test_name = '{test_name}'
-            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
+            """.format(
+                PROJECT=self.fw_params['PROJECT'],
+                DATASET_NAME=self.fw_params['DATASET_NAME'],
+                test_name=self.test_name)
         ).to_dataframe()
         metric_name = df['metric_name'][0]
         metric_query = df['sql'][0].format(START_DATE=start_date, END_DATE=end_date)
@@ -68,9 +75,14 @@ class TestEvaluator:
                 SELECT
                     group_name,
                     customer_key AS {customer_key}
-                FROM {PROJECT}.ab_test.customer_segments
+                FROM {PROJECT}.{DATASET_NAME}.customer_segments
                 WHERE test_name = '{test_name}'
-            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name, customer_key=customer_key)
+            """.format(
+                PROJECT=self.fw_params['PROJECT'],
+                DATASET_NAME=self.fw_params['DATASET_NAME'],
+                test_name=self.test_name,
+                customer_key=customer_key
+            )
         ).to_dataframe()
 
         # Join segment data to customer metrics table
@@ -87,9 +99,13 @@ class TestEvaluator:
                 SELECT
                     group_name,
                     is_control
-                FROM {PROJECT}.ab_test.groups
+                FROM {PROJECT}.{DATASET_NAME}.groups
                 WHERE test_name = '{test_name}'
-            """.format(PROJECT=self.fw_params['PROJECT'], test_name=self.test_name)
+            """.format(
+                PROJECT=self.fw_params['PROJECT'],
+                DATASET_NAME=self.fw_params['DATASET_NAME'],
+                test_name=self.test_name
+            )
         ).to_dataframe()
         
         pops = {}
