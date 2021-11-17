@@ -26,7 +26,7 @@ class TestGroupSplitter:
         if self.strat_columns:
             segments['rank'] = segments.groupby(self.strat_columns)['rand_col'].rank(pct=True)
         else:        
-            segments['rank'] = segments[self.customer_key].rank(pct=True)  
+            segments['rank'] = segments['rand_col'].rank(pct=True)
             
         boundaries = self._get_boundaries(self.fractions, self.group_names)
         segments['group_name'] = segments['rank']\
