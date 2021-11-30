@@ -38,6 +38,7 @@ class MetricCreator:
             df=metric_entry,
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name='metrics', 
             key='metric_name', 
             key_value=self.metric_name, 
@@ -51,6 +52,7 @@ class MetricCreator:
         delete_from_table(
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name='metrics', 
             key='metric_name', 
             key_value=self.metric_name
