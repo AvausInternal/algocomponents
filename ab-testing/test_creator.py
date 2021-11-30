@@ -39,6 +39,7 @@ class TestCreator:
             df=test_entry,
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="tests", 
             key='test_name', 
             key_value=self.test_params['test_name'], 
@@ -58,6 +59,7 @@ class TestCreator:
             df=groups_entry,
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="groups", 
             key='test_name', 
             key_value=self.test_params['test_name'], 
@@ -75,6 +77,7 @@ class TestCreator:
             df=metric_entry,
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="test_metrics", 
             key='test_name', 
             key_value=self.test_params['test_name'], 
@@ -122,6 +125,7 @@ class TestCreator:
             df=segments,
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="customer_segments",
             key='test_name', 
             key_value=self.test_params['test_name'], 
@@ -134,6 +138,7 @@ class TestCreator:
         delete_from_table(
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="tests", 
             key='test_name', 
             key_value=self.test_params['test_name']
@@ -143,6 +148,7 @@ class TestCreator:
         delete_from_table(
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="groups", 
             key='test_name', 
             key_value=self.test_params['test_name']
@@ -152,6 +158,7 @@ class TestCreator:
         delete_from_table(
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="test_metrics", 
             key='test_name', 
             key_value=self.test_params['test_name']
@@ -161,6 +168,7 @@ class TestCreator:
         delete_from_table(
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="customer_segments",
             key='test_name', 
             key_value=self.test_params['test_name']
@@ -170,6 +178,7 @@ class TestCreator:
         delete_from_table(
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="test_results", 
             key='test_name', 
             key_value=self.test_params['test_name']

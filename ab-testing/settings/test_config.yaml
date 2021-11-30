@@ -1,16 +1,19 @@
-test_name: Test 1
-start_date: '2021-08-25'
-end_date: '2021-08-27'
-source_table: algo-factory-dev.instacart_tf.orders
-customer_key: user_id
-metric_name: Order count
+test_name: Test 5
+start_date: '2011-08-01'
+end_date: '2011-08-31'
+source_table: algo-factory-dev.instacart_tf.orders_unique
+customer_key: order_id
+metric_name: last order
+stratify_by:
+- eval_set
+- order_number
 groups:
 - name: A
-  size: 0.25
+  size: 0.5
   is_control: false
 - name: B
-  size: 0.25
-  is_control: false
-- name: C
-  size: 0.5
+  size: 0.3
   is_control: true
+- name: C
+  size: 0.2
+  is_control: false

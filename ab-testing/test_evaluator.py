@@ -134,6 +134,7 @@ class TestEvaluator:
             df=test_results,
             client=self.client,
             project=self.fw_params['PROJECT'],
+            dataset_name=self.fw_params['DATASET_NAME'],
             table_name="test_results", 
             key='test_name', 
             key_value=self.test_name, 
