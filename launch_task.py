@@ -1,82 +1,83 @@
+import argparse
 import importlib
 import inspect
 import os
 import sys
 
-import definitions
+from definitions import ROOT_DIR
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Missing file name of task to start")
-        return
-    task_file_name = sys.argv[1]
-
+def main(task_file_name: str):
+    ignored_files = ["__init__.py"]
+    ignored_dirs = ["venv", ".git"]
     all_modules = find_modules(
-        ignored_files=["__init__.py"],
-        ignored_dirs=["venv", ".git"],
+        ignored_files=ignored_files,
+        ignored_dirs=ignored_dirs,
     )
 
     if task_file_name not in all_modules.keys():
-        print(f"Did not find file \"{task_file_name}\"")
-        print("Following files available:")
-
+        module_list = ""
         for module_name, module_path in all_modules.items():
-            print(f"{module_name}: {module_path}")
-        return
+            module_list += f"{module_name}: {module_path}\n"
 
-    sys.path.append(definitions.ROOT_DIR)
+        raise AttributeError(f"Did not find file \"{task_file_name}\"\n"
+                             f"Ignored these files: {ignored_files}\n"
+                             f"Ignored these dirs: {ignored_dirs}\n"
+                             f"The following files available:\n"
+                             f"{module_list}")
+
+    sys.path.append(ROOT_DIR)
     module_path = all_modules[task_file_name]
     module = importlib.import_module(module_path)
 
     classes_in_module = get_classes_in_module(module)
 
     if len(classes_in_module) == 0:
-        print(f"\"{task_file_name}\" found at {module_path} "
-              f"but has no classes, cannot start.")
-        return
+        raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
+                             f"but has no classes, cannot start.")
 
     if len(classes_in_module) > 1:
-        print(f"\"{task_file_name}\" found at {module_path} "
-              f"but has more than one class, cannot start.")
-        return
+        raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
+                             f"but has more than one class, cannot start.")
 
     task = classes_in_module[0]()
-
     start_method = getattr(task, "start", None)
     if not callable(start_method):
-        print(f"\"{task_file_name}\" found at {module_path} "
-              f"has only one method but has no start method, cannot start.")
-        return
+        raise AttributeError(f"\"{task_file_name}\" found at {module_path} has "
+                             f"one class but no start method, cannot start.")
 
     task.start()
 
 
 def find_modules(ignored_files, ignored_dirs):
     modules_found = {}
-    for root, dirs, files in os.walk(definitions.ROOT_DIR):
-        if any(ignored_dir in root for ignored_dir in ignored_dirs):
+    for root, _, files in os.walk(ROOT_DIR):
+
+        # root/path/project/path
+        relative_path = root[len(ROOT_DIR)+1:]
+        # project/path
+        if any(ignored_dir in relative_path for ignored_dir in ignored_dirs):
             continue
+
         for file in files:
-            if file in ignored_files:
-                continue
             if not file.endswith(".py"):
+                continue
+            if file in ignored_files:
                 continue
 
             # file.py
             file = file[:-3]
             # file
 
-            if file in modules_found.keys():
-                print("Found duplicate file names")
-
-            full_path = os.path.join(root, file)
-            # /root/path/project/path/file
-
-            project_path = full_path[len(definitions.ROOT_DIR)+1:]
+            file_path = os.path.join(relative_path, file)
             # project/path/file
 
-            import_format = project_path.replace("/", ".")
+            if file in modules_found.keys():
+                print(f"Found duplicate file names for {file}")
+                print(f"    {file_path}")
+                print(f"    {modules_found[file].replace('.', '/')}")
+
+            import_format = file_path.replace("/", ".")
             # project.path.file
 
             modules_found[file] = import_format
@@ -96,5 +97,13 @@ def get_classes_in_module(module):
     return classes
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--task", dest="task_file_name")
+    parsed_kwargs = vars(parser.parse_args())
+    return parsed_kwargs
+
+
 if __name__ == "__main__":
-    main()
+    kwargs = parse_args()
+    main(**kwargs)
