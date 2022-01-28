@@ -8,6 +8,8 @@ from definitions import ROOT_DIR
 
 
 def main(task_file_name: str):
+    """Find a task by file name and start it with it's .start()-method"""
+
     ignored_files = ["__init__.py"]
     ignored_dirs = ["venv", ".git"]
     all_modules = find_modules(
@@ -50,6 +52,8 @@ def main(task_file_name: str):
 
 
 def find_modules(ignored_files, ignored_dirs):
+    """Find all python modules in the repository"""
+
     modules_found = {}
     for root, _, files in os.walk(ROOT_DIR):
 
@@ -86,12 +90,27 @@ def find_modules(ignored_files, ignored_dirs):
 
 
 def get_classes_in_module(module):
+    """Finds all classes declared in a module, aka a .py-file"""
     classes = []
+
     for _, obj in inspect.getmembers(module):
+
+        # If the obj is not a class, or if it is abstract, skip it
         if not inspect.isclass(obj) or inspect.isabstract(obj):
             continue
+
+        # At this point, we know obj is a non-abstract class. But we do not know
+        # if it is from the module we are inspecting, or if it is imported.
+        # obj.__module__ is the name of the file in which obj is declared, and
+        # module.__name__ is the name of the file we are inspecting (they are
+        # both.written.like.this). If these are not the same, it means the obj
+        # we are currently looking at is declared in another file, so it is
+        # imported. Therefore, we skip it.
         if obj.__module__ != module.__name__:
             continue
+
+        # Any remaining objects are classes declared in the module we are
+        # inspecting, and shall be returned.
         classes.append(obj)
 
     return classes
