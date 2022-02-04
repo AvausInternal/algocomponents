@@ -137,6 +137,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# local sqlite database file
+local_sqlite.db
+
 # PyCharm project file
 .idea
 
