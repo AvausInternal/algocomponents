@@ -1,6 +1,6 @@
-import configparser
 import os
 import sys
+from configparser import ConfigParser
 from datetime import datetime
 
 from common.loggiedoggie import LoggieDoggie
@@ -19,18 +19,26 @@ class Task(LoggieDoggie):
 
     _default_section = "DEFAULT"
 
-    def __init__(self, section: str = None):
+    def __init__(self, config: ConfigParser = None, section: str = None):
         super().__init__()
 
         self.section = section or self._default_section
 
         self.classpath = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
 
-        self.config = configparser.ConfigParser()
+        self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
 
-        # Read global config first, so that local config can overwrite it
+        # First read global config
         self.config.read(GLOBAL_CONFIG)
+
+        # Then append or overwrite from config inheritance
+        if config:
+            for section in config:
+                for key, value in config[section].items():
+                    self.config[section][key] = value
+
+        # Then append or overwrite from the local config file
         self.config.read(os.path.join(self.classpath, "config/config.ini"))
 
         self.task_name = type(self).__name__

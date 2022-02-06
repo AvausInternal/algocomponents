@@ -1,6 +1,7 @@
 import os
 import re
 from abc import ABC
+from configparser import ConfigParser
 
 from task_classes.group_task import GroupTask
 from task_classes.local_sqlite_adapter import LocalSqliteAdapter
@@ -24,9 +25,10 @@ class SQLPipeline(GroupTask, ABC):
             self,
             sql_folder: str = None,
             sql_adapter: SQLAdapter = None,
+            config: ConfigParser = None,
             section: str = None,
     ):
-        super().__init__(section=section)
+        super().__init__(config=config, section=section)
 
         self.sql_adapter = sql_adapter or LocalSqliteAdapter(self.config)
         self.sql_folder = sql_folder or os.path.join(self.classpath, "sql")
@@ -60,6 +62,7 @@ class SQLPipeline(GroupTask, ABC):
                 SQLTask(
                     sql_file_path=full_path,
                     sql_adapter=self.sql_adapter,
+                    config=self.config,
                     section=self.section,
                 )
             )
