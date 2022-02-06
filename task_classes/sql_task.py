@@ -25,7 +25,10 @@ class SQLTask(Task):
         self.sql_adapter.connect()
 
     def run(self):
-        self.sql_adapter.run_sql_file(self.sql_file_path)
+        self.sql_adapter.run_sql_file(
+            path=self.sql_file_path,
+            format_variables=dict(self.config[self.section]),
+        )
 
     def shutdown(self):
         self.sql_adapter.disconnect()
