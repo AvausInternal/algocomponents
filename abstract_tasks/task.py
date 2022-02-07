@@ -21,6 +21,7 @@ class Task(ABC):
         self.classpath = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
 
         self.config = configparser.ConfigParser()
+        self.config.optionxform = str  # Preserve casing in config file
         self.config.read(os.path.join(self.classpath, "config/config.ini"))
 
     @property
