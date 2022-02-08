@@ -1,12 +1,13 @@
 import configparser
-import logging
 import os
 import sys
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+from common.loggiedoggie import LoggieDoggie
 
-class Task(ABC):
+
+class Task(LoggieDoggie, ABC):
     """A generic task which starts using its start()-method
 
     The task initiates a logger, finds its classpath (where it is located), and
@@ -16,7 +17,7 @@ class Task(ABC):
     """
 
     def __init__(self):
-        self.logger = self.__get_logger()
+        super().__init__()
 
         self.classpath = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
 
@@ -49,18 +50,3 @@ class Task(ABC):
 
     def shutdown(self):
         pass
-
-    def __get_logger(self):
-        logging.basicConfig(filename="log.log")
-
-        logger = logging.getLogger(f"{self.task_name}_log")
-        logger.setLevel(logging.INFO)
-
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        handler.setFormatter(formatter)
-
-        logger.addHandler(handler)
-
-        return logger
