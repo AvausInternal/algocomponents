@@ -1,13 +1,12 @@
 import configparser
 import os
 import sys
-from abc import ABC, abstractmethod
 from datetime import datetime
 
 from common.loggiedoggie import LoggieDoggie
 
 
-class Task(LoggieDoggie, ABC):
+class Task(LoggieDoggie):
     """A generic task which starts using its start()-method
 
     The task initiates a logger, finds its classpath (where it is located), and
@@ -25,10 +24,7 @@ class Task(LoggieDoggie, ABC):
         self.config.optionxform = str  # Preserve casing in config file
         self.config.read(os.path.join(self.classpath, "config/config.ini"))
 
-    @property
-    @abstractmethod
-    def task_name(self):
-        pass
+        self.task_name = type(self).__name__
 
     def start(self):
         run_start = datetime.now()
