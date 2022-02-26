@@ -7,7 +7,7 @@ import sys
 from definitions import ROOT_DIR
 
 
-def main(task_file_name: str):
+def main(task_file_name: str, section: str):
     """Find a task by file name and start it with it's .start()-method"""
 
     ignored_files = ["__init__.py"]
@@ -42,7 +42,7 @@ def main(task_file_name: str):
         raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
                              f"but has more than one class, cannot start.")
 
-    task = classes_in_module[0]()
+    task = classes_in_module[0](section=section)
     start_method = getattr(task, "start", None)
     if not callable(start_method):
         raise AttributeError(f"\"{task_file_name}\" found at {module_path} has "
@@ -118,7 +118,12 @@ def get_classes_in_module(module):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--task", dest="task_file_name")
+    parser.add_argument(
+        "--task", dest="task_file_name", required=True
+    )
+    parser.add_argument(
+        "--sec", "--section", dest="section", default="DEFAULT"
+    )
     parsed_kwargs = vars(parser.parse_args())
     return parsed_kwargs
 
