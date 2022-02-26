@@ -7,7 +7,7 @@ import sys
 from definitions import ROOT_DIR
 
 
-def main(task_file_name: str, section: str):
+def main(task_file_name: str, section: str, **task_kwargs):
     """Find a task by file name and start it with it's .start()-method"""
 
     ignored_files = ["__init__.py"]
@@ -42,7 +42,7 @@ def main(task_file_name: str, section: str):
         raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
                              f"but has more than one class, cannot start.")
 
-    task = classes_in_module[0](section=section)
+    task = classes_in_module[0](section=section, **task_kwargs)
     start_method = getattr(task, "start", None)
     if not callable(start_method):
         raise AttributeError(f"\"{task_file_name}\" found at {module_path} has "
@@ -124,10 +124,23 @@ def parse_args():
     parser.add_argument(
         "--sec", "--section", dest="section", default="DEFAULT"
     )
-    parsed_kwargs = vars(parser.parse_args())
-    return parsed_kwargs
+    known_kwargs_namespace, unknown_kwargs_list = parser.parse_known_args()
+
+    known_kwargs = vars(known_kwargs_namespace)
+    unknown_kwargs = parse_unknown_kwargs(unknown_kwargs_list)
+
+    return known_kwargs, unknown_kwargs
+
+
+def parse_unknown_kwargs(unknown_kwargs_list):
+    unknown_kwargs = {}
+    for kwarg_string in unknown_kwargs_list:
+        arg, val = kwarg_string.lstrip("-").split("=")
+        unknown_kwargs[arg] = val
+
+    return unknown_kwargs
 
 
 if __name__ == "__main__":
-    kwargs = parse_args()
-    main(**kwargs)
+    launch_task_kwargs, task_specific_kwargs = parse_args()
+    main(**launch_task_kwargs, **task_specific_kwargs)
