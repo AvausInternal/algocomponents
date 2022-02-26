@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 
 from common.loggiedoggie import LoggieDoggie
+from definitions import GLOBAL_CONFIG
 
 
 class Task(LoggieDoggie):
@@ -22,6 +23,9 @@ class Task(LoggieDoggie):
 
         self.config = configparser.ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
+
+        # Read global config first, so that local config can overwrite it
+        self.config.read(GLOBAL_CONFIG)
         self.config.read(os.path.join(self.classpath, "config/config.ini"))
 
         self.task_name = type(self).__name__
