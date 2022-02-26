@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 
 from common.loggiedoggie import LoggieDoggie
+from common.tools import config_to_str
 from definitions import GLOBAL_CONFIG
 
 
@@ -16,8 +17,12 @@ class Task(LoggieDoggie):
     class resides. The config is an ini-file, parsed with pythons ConfigParser.
     """
 
-    def __init__(self):
+    _default_section = "DEFAULT"
+
+    def __init__(self, section: str = None):
         super().__init__()
+
+        self.section = section or self._default_section
 
         self.classpath = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
 
@@ -33,7 +38,9 @@ class Task(LoggieDoggie):
     def start(self):
         run_start = datetime.now()
 
-        self.logger.info(f"Starting task {self.task_name}")
+        self.logger.info(f"Starting task {self.task_name} "
+                         f"with section {self.section}")
+        self.logger.info(config_to_str(self.config))
 
         self.startup()
         self.run()

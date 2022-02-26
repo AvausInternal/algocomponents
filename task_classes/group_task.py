@@ -5,8 +5,12 @@ from typing import List
 class GroupTask(Task):
     """GroupTask iterates over a list of tasks and starts them."""
 
-    def __init__(self, task_list: List[Task] = None):
-        super().__init__()
+    def __init__(
+            self,
+            task_list: List[Task] = None,
+            section: str = None,
+    ):
+        super().__init__(section=section)
         self.task_list = task_list or []
 
     def run(self):
