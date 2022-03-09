@@ -20,11 +20,15 @@ class SQLPipeline(GroupTask, ABC):
 
     sql_file_pattern = "[0-9]+_"  # Numeric followed by underscore
 
-    def __init__(self, sql_adapter: SQLAdapter = None):
+    def __init__(
+            self,
+            sql_folder: str = None,
+            sql_adapter: SQLAdapter = None,
+    ):
         super().__init__()
 
         self.sql_adapter = sql_adapter or LocalSqliteAdapter(self.config)
-        self.sql_folder = os.path.join(self.classpath, "sql")
+        self.sql_folder = sql_folder or os.path.join(self.classpath, "sql")
 
         self.task_list = self.get_sql_tasks()
 
