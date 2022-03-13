@@ -16,7 +16,7 @@ class LocalSqliteAdapter(SQLAdapter):
     db_file = "local_sqlite.db"
 
     def __init__(self, config):
-        super().__init__(config=config)
+        super().__init__(overriding_config=config)
         self.db_path = os.path.join(ALGO_FACTORY_ROOT_DIR, self.db_file)
         self.connection = None
         self.cursor = None

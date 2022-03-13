@@ -18,7 +18,7 @@ class GCPAdapter(SQLAdapter):
     default_max_rows = 20
 
     def __init__(self, config):
-        super().__init__(config=config)
+        super().__init__(overriding_config=config)
         self.client = None 
         self.credentials = None 
         self.key_path = os.path.join(ROOT_DIR, ".gcp_credentials.json")
