@@ -2,7 +2,15 @@
 
 This repository contains the common code that Avaus Marketing Innovations AB uses in their deliveries. It aims to make writing code faster, easier and more fun.
 
-### Commit formatting
+### Commit customs
+
+#### Size
+
+Commits should be large enough so that they can easily be described as a single, impactful change.
+
+Commits should also be small enough so that you can easily get an overview of what the change is.
+
+#### Formatting
 
 The 50/72 standard introduced by Tim Pope is used for the commit messages:
 
