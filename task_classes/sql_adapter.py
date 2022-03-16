@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from configparser import ConfigParser
+from typing import Dict
 
 from common.loggiedoggie import LoggieDoggie
 from definitions import GLOBAL_CONFIG
@@ -44,11 +45,12 @@ class SQLAdapter(LoggieDoggie, ABC):
     def run_sql(self, sql: str):
         pass
 
-    def run_sql_file(self, path: str):
+    def run_sql_file(self, path: str, format_variables: Dict[str, str]):
         with open(path) as f:
             sql = f.read()
             queries = sql.split(";")
             for query in queries:
                 query = query.strip()
                 if query:
+                    query = query.format(**format_variables)
                     self.run_sql(query)
