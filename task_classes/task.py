@@ -57,3 +57,6 @@ class Task(LoggieDoggie):
 
     def shutdown(self):
         pass
+
+    def add_to_config(self, key, value):
+        self.config[self.section][key] = value
