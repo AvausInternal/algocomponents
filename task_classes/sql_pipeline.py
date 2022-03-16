@@ -24,8 +24,9 @@ class SQLPipeline(GroupTask, ABC):
             self,
             sql_folder: str = None,
             sql_adapter: SQLAdapter = None,
+            section: str = None,
     ):
-        super().__init__()
+        super().__init__(section=section)
 
         self.sql_adapter = sql_adapter or LocalSqliteAdapter(self.config)
         self.sql_folder = sql_folder or os.path.join(self.classpath, "sql")
@@ -56,7 +57,11 @@ class SQLPipeline(GroupTask, ABC):
         for sql_file in sql_files:
             full_path = os.path.join(self.sql_folder, sql_file)
             task_list.append(
-                SQLTask(sql_file_path=full_path, sql_adapter=self.sql_adapter)
+                SQLTask(
+                    sql_file_path=full_path,
+                    sql_adapter=self.sql_adapter,
+                    section=self.section,
+                )
             )
 
         return task_list

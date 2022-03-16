@@ -11,8 +11,13 @@ class SQLTask(Task):
     queries, or default to using the LocalSqliteAdapter.
     """
 
-    def __init__(self, sql_file_path: str, sql_adapter: SQLAdapter = None):
-        super().__init__()
+    def __init__(
+            self,
+            sql_file_path: str,
+            sql_adapter: SQLAdapter = None,
+            section: str = None,
+    ):
+        super().__init__(section=section)
         self.sql_adapter = sql_adapter or LocalSqliteAdapter(self.config)
         self.sql_file_path = sql_file_path
 
