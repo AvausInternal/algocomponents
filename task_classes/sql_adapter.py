@@ -1,18 +1,32 @@
 from abc import ABC, abstractmethod
+from configparser import ConfigParser
 
 from common.loggiedoggie import LoggieDoggie
+from definitions import GLOBAL_CONFIG
 
 
 class SQLAdapter(LoggieDoggie, ABC):
     """An abstract adapter used for connecting to a service and running queries.
 
+    SQLAdapter will by default read the global config file. If a config is
+    given, the global config file will still be parsed but the supplied config
+    will take precedence over the global config file.
+
     The purpose of the sql adapter is to generalize how we set up connections to
     different services. There will be one adapter per service.
     """
 
-    def __init__(self, config):
+    def __init__(self, overriding_config: ConfigParser):
         super().__init__()
-        self.config = config
+        self.config = ConfigParser()
+        self.config.optionxform = str  # Preserve casing in config file
+        self.config.read(GLOBAL_CONFIG)
+
+        # Append or overwrite values from overriding_config to config
+        if overriding_config:
+            for section in overriding_config:
+                for key, value in overriding_config[section].items():
+                    self.config[section][key] = value
 
     @abstractmethod
     def connect(self):
