@@ -35,6 +35,9 @@ class GCPAdapter(SQLAdapter):
         self.client.close() 
 
     def run_sql(self, sql: str):
+        sql = sql.strip()
+        self.logger.info(f"Executing the following query: \n{sql}")
+
         query_job = self.client.query(sql)
         rows = query_job.result()  
 
