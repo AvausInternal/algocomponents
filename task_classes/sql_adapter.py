@@ -17,7 +17,7 @@ class SQLAdapter(LoggieDoggie, ABC):
     different services. There will be one adapter per service.
     """
 
-    def __init__(self, overriding_config: ConfigParser):
+    def __init__(self, overriding_config: ConfigParser = None):
         super().__init__()
         self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
