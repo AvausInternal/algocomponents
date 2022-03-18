@@ -20,15 +20,11 @@ class GCPAdapter(SQLAdapter):
     def __init__(self, config):
         super().__init__(overriding_config=config)
         self.client = None 
-        self.credentials = None 
-        self.key_path = os.path.join(ROOT_DIR, ".gcp_credentials.json")
 
     def connect(self):
-        self.credentials = service_account.Credentials.from_service_account_file(self.key_path)
-        self.client = bigquery.Client(credentials=self.credentials, project=self.credentials.project_id)
+        self.client = bigquery.Client()
 
     def check_connection(self):
-        self.logger.info(self.credentials)
         self.logger.info(self.client)
 
     def disconnect(self):
