@@ -1,3 +1,5 @@
+from configparser import ConfigParser
+
 from task_classes.local_sqlite_adapter import LocalSqliteAdapter
 from task_classes.sql_adapter import SQLAdapter
 from task_classes.task import Task
@@ -15,9 +17,10 @@ class SQLTask(Task):
             self,
             sql_file_path: str,
             sql_adapter: SQLAdapter = None,
+            config: ConfigParser = None,
             section: str = None,
     ):
-        super().__init__(section=section)
+        super().__init__(config=config, section=section)
         self.sql_adapter = sql_adapter or LocalSqliteAdapter(self.config)
         self.sql_file_path = sql_file_path
 
