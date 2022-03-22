@@ -34,9 +34,7 @@ class LocalSqliteAdapter(SQLAdapter):
 
     def run_sql(self, sql: str):
         sql = sql.strip()
-        self.logger.info("Executing the following query:")
-        for sql_row in sql.split("\n"):
-            self.logger.info(sql_row)
+        self.logger.info(f"Executing the following query: \n{sql}")
 
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
