@@ -31,9 +31,11 @@ def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
                              f"{module_list}")
 
     sys.path.append(ROOT_DIR)
-    module_path = all_modules[task_file_name]
-    module = importlib.import_module(module_path)
 
+    module_path = all_modules[task_file_name]
+    module_name = module_path.replace(os.sep, '.')
+    module = importlib.import_module(module_name)
+    
     classes_in_module = get_classes_in_module(module)
 
     if len(classes_in_module) == 0:
@@ -89,12 +91,10 @@ def find_modules(ignored_files, ignored_dirs):
             if file in modules_found.keys():
                 print(f"Found duplicate file names for {file}")
                 print(f"    {file_path}")
-                print(f"    {modules_found[file].replace('.', '/')}")
+                print(f"    {modules_found[file]}")
 
-            import_format = file_path.replace("/", ".")
             # project.path.file
-
-            modules_found[file] = import_format
+            modules_found[file] = file_path
 
     return modules_found
 
@@ -104,7 +104,6 @@ def get_classes_in_module(module):
     classes = []
 
     for _, obj in inspect.getmembers(module):
-
         # If the obj is not a class, or if it is abstract, skip it
         if not inspect.isclass(obj) or inspect.isabstract(obj):
             continue
@@ -122,7 +121,7 @@ def get_classes_in_module(module):
         # Any remaining objects are classes declared in the module we are
         # inspecting, and shall be returned.
         classes.append(obj)
-
+        
     return classes
 
 

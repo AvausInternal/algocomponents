@@ -41,7 +41,7 @@ class Task(LoggieDoggie):
                     self.config[section][key] = value
 
         # Then append or overwrite from the local config file
-        self.config.read(os.path.join(self.classpath, "config/config.ini"))
+        self.config.read(os.path.join(self.classpath, "config", "config.ini"))
 
         self.task_name = type(self).__name__
 
