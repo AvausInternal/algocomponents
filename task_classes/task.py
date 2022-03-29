@@ -35,6 +35,8 @@ class Task(LoggieDoggie):
         # Then append or overwrite from config inheritance
         if config:
             for section in config:
+                if section not in self.config.keys():
+                    self.config.add_section(section)
                 for key, value in config[section].items():
                     self.config[section][key] = value
 

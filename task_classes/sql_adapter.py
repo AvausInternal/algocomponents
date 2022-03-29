@@ -26,6 +26,8 @@ class SQLAdapter(LoggieDoggie, ABC):
         # Append or overwrite values from overriding_config to config
         if overriding_config:
             for section in overriding_config:
+                if section not in self.config.keys():
+                    self.config.add_section(section)
                 for key, value in overriding_config[section].items():
                     self.config[section][key] = value
 
