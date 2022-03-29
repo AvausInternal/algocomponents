@@ -23,6 +23,7 @@ class LocalSqliteAdapter(SQLAdapter):
         self.cursor = None
 
     def connect(self):
+        self.logger.info(f"LocalSqliteAdapter establishing connection...")
         self.connection = sqlite3.connect(self.db_path)
         self.cursor = self.connection.cursor()
 
@@ -32,6 +33,7 @@ class LocalSqliteAdapter(SQLAdapter):
 
     def disconnect(self):
         self.connection.close()
+        self.logger.info(f"LocalSqliteAdapter disconnected.")
 
     def run_sql(self, sql: str):
         sql = sql.strip()

@@ -30,7 +30,12 @@ class SQLPipeline(GroupTask, ABC):
     ):
         super().__init__(config=config, section=section)
 
-        self.sql_adapter = sql_adapter or LocalSqliteAdapter(self.config)
+        self.sql_adapter = sql_adapter
+        self.instantiated_sql_adapter = False
+        if not self.sql_adapter:
+            self.instantiated_sql_adapter = True
+            self.sql_adapter = LocalSqliteAdapter(self.config)
+
         self.sql_folder = sql_folder or os.path.join(self.classpath, "sql")
 
         self.task_list = self.get_sql_tasks()
@@ -68,3 +73,11 @@ class SQLPipeline(GroupTask, ABC):
             )
 
         return task_list
+
+    def startup(self):
+        if self.instantiated_sql_adapter:
+            self.sql_adapter.connect()
+
+    def shutdown(self):
+        if self.instantiated_sql_adapter:
+            self.sql_adapter.disconnect()
