@@ -1,4 +1,6 @@
 import os
+from configparser import ConfigParser
+
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
@@ -17,7 +19,7 @@ class GCPAdapter(SQLAdapter):
 
     default_max_rows = 20
 
-    def __init__(self, config):
+    def __init__(self, config: ConfigParser = None):
         super().__init__(overriding_config=config)
         self.client = None 
         self.credentials = None 
