@@ -31,6 +31,12 @@ class SQLAdapter(LoggieDoggie, ABC):
                 for key, value in overriding_config[section].items():
                     self.config[section][key] = value
 
+        class_name = type(self).__name__
+        if class_name in self.config:
+            self.adapter_format_variables = self.config[class_name]
+        else:
+            self.adapter_format_variables = self.config["DEFAULT"]
+
     @abstractmethod
     def connect(self):
         pass
@@ -54,5 +60,6 @@ class SQLAdapter(LoggieDoggie, ABC):
             for query in queries:
                 query = query.strip()
                 if query:
+                    format_variables.update(self.adapter_format_variables)
                     query = query.format(**format_variables)
                     self.run_sql(query)
