@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-from definitions import ALGO_FACTORY_ROOT_DIR
+from definitions import ALGO_COMPONENTS_ROOT_DIR
 from task_classes.sql_adapter import SQLAdapter
 
 
@@ -17,7 +17,7 @@ class LocalSqliteAdapter(SQLAdapter):
 
     def __init__(self, config):
         super().__init__(overriding_config=config)
-        self.db_path = os.path.join(ALGO_FACTORY_ROOT_DIR, self.db_file)
+        self.db_path = os.path.join(ALGO_COMPONENTS_ROOT_DIR, self.db_file)
         self.connection = None
         self.cursor = None
 
