@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from typing import List
 
 from algocomponents.adapters import SQLAdapter
 
@@ -45,6 +46,17 @@ class GCPAdapter(SQLAdapter):
         if table.startswith(gcp_project + "."):
             table = table[len(gcp_project) + 1 :]
         return f"`{gcp_project}.{table}`"
+
+    def table_exists(self, table: str) -> bool:
+        try:
+            self.client.get_table(table)
+            return True
+        except:
+            return False
+
+    def get_table_columns(self, table: str) -> List[str]:
+        schema = self.client.get_table(table).schema
+        return [column.name for column in schema]
 
     def _run_formatted_sql(self, sql: str):
         query_job = self.client.query(sql)
