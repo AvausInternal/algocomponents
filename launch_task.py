@@ -5,9 +5,11 @@ import os
 import sys
 
 from definitions import ROOT_DIR
+from task_classes.gcp_adapter import GCPAdapter
+from task_classes.local_sqlite_adapter import LocalSqliteAdapter
 
 
-def main(task_file_name: str, section: str, **task_kwargs):
+def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
     """Find a task by file name and start it with it's .start()-method"""
 
     ignored_files = ["__init__.py"]
@@ -42,7 +44,12 @@ def main(task_file_name: str, section: str, **task_kwargs):
         raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
                              f"but has more than one class, cannot start.")
 
-    task = classes_in_module[0](section=section, **task_kwargs)
+    sql_adapter = get_adapter(adapter_type)
+    if sql_adapter is not None:
+        task = classes_in_module[0](section=section, sql_adapter=sql_adapter, **task_kwargs)
+    else:
+        task = classes_in_module[0](section=section, **task_kwargs)
+
     start_method = getattr(task, "start", None)
     if not callable(start_method):
         raise AttributeError(f"\"{task_file_name}\" found at {module_path} has "
@@ -116,6 +123,33 @@ def get_classes_in_module(module):
     return classes
 
 
+def get_adapter(adapter_type: str):
+    if adapter_type is None:
+        return None
+    if adapter_type.lower() in [
+        "gcp_adapter",
+        "gcpadapter",
+        "gcp",
+        "g",
+        "googlecloudplatform",
+        "google",
+        "bigquery",
+        "bq",
+    ]:
+        return GCPAdapter()
+    if adapter_type.lower() in [
+        "local_sqlite_adapter",
+        "localsqliteadapter",
+        "sqlite_adapter",
+        "sqliteadapter",
+        "local_adapter",
+        "localadapter",
+        "local",
+        "l",
+    ]:
+        return LocalSqliteAdapter()
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -123,6 +157,9 @@ def parse_args():
     )
     parser.add_argument(
         "--sec", "--section", dest="section", default="DEFAULT"
+    )
+    parser.add_argument(
+        "--ada", "--adapter", dest="adapter_type"
     )
     known_kwargs_namespace, unknown_kwargs_list = parser.parse_known_args()
 
