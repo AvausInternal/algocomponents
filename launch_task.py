@@ -46,6 +46,7 @@ def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
 
     sql_adapter = get_adapter(adapter_type)
     if sql_adapter is not None:
+        sql_adapter.connect()
         task = classes_in_module[0](section=section, sql_adapter=sql_adapter, **task_kwargs)
     else:
         task = classes_in_module[0](section=section, **task_kwargs)
@@ -56,6 +57,8 @@ def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
                              f"one class but no start method, cannot start.")
 
     task.start()
+    if sql_adapter is not None:
+        sql_adapter.disconnect()
 
 
 def find_modules(ignored_files, ignored_dirs):
