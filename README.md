@@ -1,6 +1,6 @@
-# Algo Factory
+# Algo Components
 
-This repository contains the common code that Avaus Marketing Innovations AB uses in their deliveries. It aims to make writing code faster, easier and more fun.
+This repository contains the algo components that Avaus Marketing Innovations AB use in their deliveries. They aim to make writing code faster, easier and more fun.
 
 ### Commit customs
 
