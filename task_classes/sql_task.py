@@ -21,11 +21,18 @@ class SQLTask(Task):
             section: str = None,
     ):
         super().__init__(config=config, section=section)
-        self.sql_adapter = sql_adapter or LocalSqliteAdapter(self.config)
+
+        self.sql_adapter = sql_adapter
+        self.instantiated_sql_adapter = False
+        if not self.sql_adapter:
+            self.instantiated_sql_adapter = True
+            self.sql_adapter = LocalSqliteAdapter(self.config)
+
         self.sql_file_path = sql_file_path
 
     def startup(self):
-        self.sql_adapter.connect()
+        if self.instantiated_sql_adapter:
+            self.sql_adapter.connect()
 
     def run(self):
         self.sql_adapter.run_sql_file(
@@ -34,4 +41,5 @@ class SQLTask(Task):
         )
 
     def shutdown(self):
-        self.sql_adapter.disconnect()
+        if self.instantiated_sql_adapter:
+            self.sql_adapter.disconnect()

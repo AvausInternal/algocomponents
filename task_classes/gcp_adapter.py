@@ -24,13 +24,15 @@ class GCPAdapter(SQLAdapter):
         self.client = None 
 
     def connect(self):
+        self.logger.info(f"GCPAdapter establishing connection...")
         self.client = bigquery.Client()
 
     def check_connection(self):
         self.logger.info(self.client)
 
     def disconnect(self):
-        self.client.close() 
+        self.client.close()
+        self.logger.info(f"GCPAdapter disconnected.")
 
     def run_sql(self, sql: str):
         sql = sql.strip()
