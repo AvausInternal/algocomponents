@@ -3,8 +3,8 @@ import sys
 from configparser import ConfigParser
 from datetime import datetime
 
-from common.loggiedoggie import LoggieDoggie
-from common.tools import config_to_str
+from algocomponents.utils.loggiedoggie import LoggieDoggie
+from algocomponents.utils.tools import config_to_str
 from definitions import GLOBAL_CONFIG
 
 

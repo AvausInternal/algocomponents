@@ -5,8 +5,8 @@ import os
 import sys
 
 from definitions import ROOT_DIR
-from task_classes.gcp_adapter import GCPAdapter
-from task_classes.local_sqlite_adapter import LocalSqliteAdapter
+from algocomponents.adapters.gcp_adapter import GCPAdapter
+from algocomponents.adapters.local_sqlite_adapter import LocalSqliteAdapter
 
 
 def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):

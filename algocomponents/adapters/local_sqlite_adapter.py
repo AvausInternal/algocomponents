@@ -3,7 +3,7 @@ import sqlite3
 from configparser import ConfigParser
 
 from definitions import ALGO_COMPONENTS_ROOT_DIR
-from task_classes.sql_adapter import SQLAdapter
+from algocomponents.adapters.sql_adapter import SQLAdapter
 
 
 class LocalSqliteAdapter(SQLAdapter):

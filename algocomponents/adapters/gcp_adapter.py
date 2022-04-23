@@ -1,11 +1,8 @@
-import os
 from configparser import ConfigParser
 
 from google.cloud import bigquery
-from google.oauth2 import service_account
 
-from definitions import ROOT_DIR
-from task_classes.sql_adapter import SQLAdapter
+from algocomponents.adapters.sql_adapter import SQLAdapter
 
 
 class GCPAdapter(SQLAdapter):

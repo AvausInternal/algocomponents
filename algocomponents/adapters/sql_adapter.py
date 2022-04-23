@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from configparser import ConfigParser
 from typing import Dict
 
-from common.loggiedoggie import LoggieDoggie
+from algocomponents.utils.loggiedoggie import LoggieDoggie
 from definitions import GLOBAL_CONFIG
 
 

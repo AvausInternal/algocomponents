@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-from task_classes.task import Task
+from algocomponents.tasks.task import Task
 from typing import List
 
 
