@@ -1,9 +1,9 @@
+import os
 from abc import ABC, abstractmethod
 from configparser import ConfigParser
 from typing import Dict
 
 from algocomponents.utils import LoggieDoggie
-from definitions import GLOBAL_CONFIG
 
 
 class SQLAdapter(LoggieDoggie, ABC):
@@ -17,11 +17,14 @@ class SQLAdapter(LoggieDoggie, ABC):
     different services. There will be one adapter per service.
     """
 
-    def __init__(self, overriding_config: ConfigParser = None):
+    def __init__(
+            self,
+            overriding_config: ConfigParser = None
+    ):
         super().__init__()
         self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
-        self.config.read(GLOBAL_CONFIG)
+        self.config.read(os.path.join("config", "config.ini"))
 
         # Append or overwrite values from overriding_config to config
         if overriding_config:

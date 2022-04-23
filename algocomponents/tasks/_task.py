@@ -4,7 +4,6 @@ from configparser import ConfigParser
 from datetime import datetime
 
 from algocomponents.utils import LoggieDoggie, config_to_str
-from definitions import GLOBAL_CONFIG
 
 
 class Task(LoggieDoggie):
@@ -18,7 +17,11 @@ class Task(LoggieDoggie):
 
     _default_section = "DEFAULT"
 
-    def __init__(self, config: ConfigParser = None, section: str = None):
+    def __init__(
+            self,
+            config: ConfigParser = None,
+            section: str = None,
+    ):
         super().__init__()
 
         self.section = section or self._default_section
@@ -29,7 +32,7 @@ class Task(LoggieDoggie):
         self.config.optionxform = str  # Preserve casing in config file
 
         # First read global config
-        self.config.read(GLOBAL_CONFIG)
+        self.config.read(os.path.join("config", "config.ini"))
 
         # Then append or overwrite from config inheritance
         if config:
