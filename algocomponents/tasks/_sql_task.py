@@ -1,8 +1,7 @@
 from configparser import ConfigParser
 
-from algocomponents.adapters.local_sqlite_adapter import LocalSqliteAdapter
-from algocomponents.adapters.sql_adapter import SQLAdapter
-from algocomponents.tasks.task import Task
+from algocomponents.adapters import SQLAdapter, LocalSqliteAdapter
+from algocomponents.tasks import Task
 
 
 class SQLTask(Task):

@@ -2,7 +2,7 @@ from configparser import ConfigParser
 
 from google.cloud import bigquery
 
-from algocomponents.adapters.sql_adapter import SQLAdapter
+from algocomponents.adapters import SQLAdapter
 
 
 class GCPAdapter(SQLAdapter):

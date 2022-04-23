@@ -1,7 +1,7 @@
 from configparser import ConfigParser
-
-from algocomponents.tasks.task import Task
 from typing import List
+
+from algocomponents.tasks import Task
 
 
 class GroupTask(Task):

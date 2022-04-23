@@ -3,10 +3,8 @@ import re
 from abc import ABC
 from configparser import ConfigParser
 
-from algocomponents.tasks.group_task import GroupTask
-from algocomponents.adapters.local_sqlite_adapter import LocalSqliteAdapter
-from algocomponents.adapters.sql_adapter import SQLAdapter
-from algocomponents.tasks.sql_task import SQLTask
+from algocomponents.adapters import SQLAdapter, LocalSqliteAdapter
+from algocomponents.tasks import GroupTask, SQLTask
 
 
 class SQLPipeline(GroupTask, ABC):
