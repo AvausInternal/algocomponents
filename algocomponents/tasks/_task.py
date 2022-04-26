@@ -2,6 +2,7 @@ import os
 import sys
 from configparser import ConfigParser
 from datetime import datetime
+from types import ModuleType
 
 from algocomponents.utils import LoggieDoggie, config_to_str
 
@@ -26,7 +27,11 @@ class Task(LoggieDoggie):
 
         self.section = section or self._default_section
 
-        self.classpath = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
+        module = sys.modules[self.__class__.__module__]
+        if isinstance(module, ModuleType):
+            self.classpath = os.path.dirname(module.__file__)
+        else:
+            self.classpath = ""
 
         self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
