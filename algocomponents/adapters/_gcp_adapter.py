@@ -1,7 +1,5 @@
 from configparser import ConfigParser
 
-from google.cloud import bigquery
-
 from algocomponents.adapters import SQLAdapter
 
 
@@ -22,6 +20,10 @@ class GCPAdapter(SQLAdapter):
 
     def connect(self):
         self.logger.info(f"GCPAdapter establishing connection...")
+
+        # Import inside method to allow non GCP-users of algocomponents
+        # to use library without having to install the google package
+        from google.cloud import bigquery
         self.client = bigquery.Client()
 
     def check_connection(self):
