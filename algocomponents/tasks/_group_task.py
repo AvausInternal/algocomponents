@@ -14,7 +14,10 @@ class GroupTask(Task):
             section: str = None,
     ):
         super().__init__(config=config, section=section)
-        self.task_list = task_list or []
+        if task_list:
+            self.task_list = task_list
+        if not hasattr(self, "task_list"):
+            self.task_list = []
 
     def run(self):
         for task in self.task_list:
