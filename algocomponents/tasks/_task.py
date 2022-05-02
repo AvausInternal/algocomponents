@@ -76,4 +76,4 @@ class Task(LoggieDoggie):
         pass
 
     def add_to_config(self, key, value):
-        self.config[self.section][key] = value
+        self.config[self.section][key] = str(value)

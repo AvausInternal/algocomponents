@@ -21,7 +21,7 @@ class GroupTask(Task):
             task.start()
 
     def add_to_config(self, key, value):
-        self.config[self.section][key] = value
+        self.config[self.section][key] = str(value)
 
         for task in self.task_list:
             task.add_to_config(key, value)
