@@ -7,7 +7,7 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
     """Find a task by file name and start it with it's .start()-method"""
 
     ignored_files = ["__init__.py"]
-    ignored_dirs = ["venv", ".git"]
+    ignored_dirs = ["venv", ".git", "algocomponents"]
     all_modules = _find_modules(
         ignored_files=ignored_files,
         ignored_dirs=ignored_dirs,
