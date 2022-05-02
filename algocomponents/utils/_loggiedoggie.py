@@ -2,8 +2,6 @@ import logging
 import os
 import sys
 
-from definitions import ROOT_DIR
-
 
 class LoggieDoggie:
     """Instantiates and distributes a logger, available in self.logger
@@ -29,8 +27,7 @@ class LoggieDoggie:
         formatter = logging.Formatter(self.logger_format, self.date_format)
 
         # Create handler for file output
-        log_file_path = os.path.join(ROOT_DIR, self.log_file_name)
-        file_handler = logging.FileHandler(filename=log_file_path)
+        file_handler = logging.FileHandler(filename=self.log_file_name)
         file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(formatter)
 

@@ -1,11 +1,6 @@
-import os
 from configparser import ConfigParser
 
-from google.cloud import bigquery
-from google.oauth2 import service_account
-
-from definitions import ROOT_DIR
-from task_classes.sql_adapter import SQLAdapter
+from algocomponents.adapters import SQLAdapter
 
 
 class GCPAdapter(SQLAdapter):
@@ -25,6 +20,10 @@ class GCPAdapter(SQLAdapter):
 
     def connect(self):
         self.logger.info(f"GCPAdapter establishing connection...")
+
+        # Import inside method to allow non GCP-users of algocomponents
+        # to use library without having to install the google package
+        from google.cloud import bigquery
         self.client = bigquery.Client()
 
     def check_connection(self):

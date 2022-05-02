@@ -2,10 +2,9 @@ import os
 import sys
 from configparser import ConfigParser
 from datetime import datetime
+from types import ModuleType
 
-from common.loggiedoggie import LoggieDoggie
-from common.tools import config_to_str
-from definitions import GLOBAL_CONFIG
+from algocomponents.utils import LoggieDoggie, config_to_str
 
 
 class Task(LoggieDoggie):
@@ -19,18 +18,26 @@ class Task(LoggieDoggie):
 
     _default_section = "DEFAULT"
 
-    def __init__(self, config: ConfigParser = None, section: str = None):
+    def __init__(
+            self,
+            config: ConfigParser = None,
+            section: str = None,
+    ):
         super().__init__()
 
         self.section = section or self._default_section
 
-        self.classpath = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
+        module = sys.modules[self.__class__.__module__]
+        if isinstance(module, ModuleType):
+            self.classpath = os.path.dirname(module.__file__)
+        else:
+            self.classpath = ""
 
         self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
 
         # First read global config
-        self.config.read(GLOBAL_CONFIG)
+        self.config.read(os.path.join("config", "config.ini"))
 
         # Then append or overwrite from config inheritance
         if config:

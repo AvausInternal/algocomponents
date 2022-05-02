@@ -1,9 +1,9 @@
+import os
 from abc import ABC, abstractmethod
 from configparser import ConfigParser
 from typing import Dict
 
-from common.loggiedoggie import LoggieDoggie
-from definitions import GLOBAL_CONFIG
+from algocomponents.utils import LoggieDoggie
 
 
 class SQLAdapter(LoggieDoggie, ABC):
@@ -17,11 +17,14 @@ class SQLAdapter(LoggieDoggie, ABC):
     different services. There will be one adapter per service.
     """
 
-    def __init__(self, overriding_config: ConfigParser = None):
+    def __init__(
+            self,
+            overriding_config: ConfigParser = None
+    ):
         super().__init__()
         self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
-        self.config.read(GLOBAL_CONFIG)
+        self.config.read(os.path.join("config", "config.ini"))
 
         # Append or overwrite values from overriding_config to config
         if overriding_config:
@@ -55,11 +58,17 @@ class SQLAdapter(LoggieDoggie, ABC):
 
     def run_sql_file(self, path: str, format_variables: Dict[str, str]):
         with open(path) as f:
-            sql = f.read()
-            queries = sql.split(";")
-            for query in queries:
-                query = query.strip()
-                if query:
-                    format_variables.update(self.adapter_format_variables)
-                    query = query.format(**format_variables)
-                    self.run_sql(query)
+            sql_string = f.read()
+            self.run_sql_string(
+                sql_string=sql_string,
+                format_variables=format_variables
+            )
+
+    def run_sql_string(self, sql_string: str, format_variables: Dict[str, str]):
+        queries = sql_string.split(";")
+        for query in queries:
+            query = query.strip()
+            if query:
+                format_variables.update(self.adapter_format_variables)
+                query = query.format(**format_variables)
+                self.run_sql(query)

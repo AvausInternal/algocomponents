@@ -1,20 +1,14 @@
-import argparse
 import importlib
 import inspect
 import os
-import sys
-
-from definitions import ROOT_DIR
-from task_classes.gcp_adapter import GCPAdapter
-from task_classes.local_sqlite_adapter import LocalSqliteAdapter
 
 
-def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
+def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
     """Find a task by file name and start it with it's .start()-method"""
 
     ignored_files = ["__init__.py"]
     ignored_dirs = ["venv", ".git"]
-    all_modules = find_modules(
+    all_modules = _find_modules(
         ignored_files=ignored_files,
         ignored_dirs=ignored_dirs,
     )
@@ -30,13 +24,11 @@ def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
                              f"The following files available:\n"
                              f"{module_list}")
 
-    sys.path.append(ROOT_DIR)
-
     module_path = all_modules[task_file_name]
     module_name = module_path.replace(os.sep, '.')
     module = importlib.import_module(module_name)
     
-    classes_in_module = get_classes_in_module(module)
+    classes_in_module = _get_classes_in_module(module)
 
     if len(classes_in_module) == 0:
         raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
@@ -46,7 +38,7 @@ def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
         raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
                              f"but has more than one class, cannot start.")
 
-    sql_adapter = get_adapter(adapter_type)
+    sql_adapter = _get_adapter(adapter_type)
     if sql_adapter is not None:
         sql_adapter.connect()
         task = classes_in_module[0](section=section, sql_adapter=sql_adapter, **task_kwargs)
@@ -63,14 +55,15 @@ def main(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
         sql_adapter.disconnect()
 
 
-def find_modules(ignored_files, ignored_dirs):
+def _find_modules(ignored_files, ignored_dirs):
     """Find all python modules in the repository"""
 
     modules_found = {}
-    for root, _, files in os.walk(ROOT_DIR):
+    current_dir = os.getcwd()
+    for root, _, files in os.walk(current_dir):
 
         # root/path/project/path
-        relative_path = root[len(ROOT_DIR)+1:]
+        relative_path = root[len(current_dir)+1:]
         # project/path
         if any(ignored_dir in relative_path for ignored_dir in ignored_dirs):
             continue
@@ -99,7 +92,7 @@ def find_modules(ignored_files, ignored_dirs):
     return modules_found
 
 
-def get_classes_in_module(module):
+def _get_classes_in_module(module):
     """Finds all classes declared in a module, aka a .py-file"""
     classes = []
 
@@ -125,7 +118,7 @@ def get_classes_in_module(module):
     return classes
 
 
-def get_adapter(adapter_type: str):
+def _get_adapter(adapter_type: str):
     if adapter_type is None:
         return None
     if adapter_type.lower() in [
@@ -138,6 +131,7 @@ def get_adapter(adapter_type: str):
         "bigquery",
         "bq",
     ]:
+        from algocomponents.adapters import GCPAdapter
         return GCPAdapter()
     if adapter_type.lower() in [
         "local_sqlite_adapter",
@@ -149,37 +143,5 @@ def get_adapter(adapter_type: str):
         "local",
         "l",
     ]:
+        from algocomponents.adapters import LocalSqliteAdapter
         return LocalSqliteAdapter()
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--task", dest="task_file_name", required=True
-    )
-    parser.add_argument(
-        "--sec", "--section", dest="section", default="DEFAULT"
-    )
-    parser.add_argument(
-        "--ada", "--adapter", dest="adapter_type"
-    )
-    known_kwargs_namespace, unknown_kwargs_list = parser.parse_known_args()
-
-    known_kwargs = vars(known_kwargs_namespace)
-    unknown_kwargs = parse_unknown_kwargs(unknown_kwargs_list)
-
-    return known_kwargs, unknown_kwargs
-
-
-def parse_unknown_kwargs(unknown_kwargs_list):
-    unknown_kwargs = {}
-    for kwarg_string in unknown_kwargs_list:
-        arg, val = kwarg_string.lstrip("-").split("=")
-        unknown_kwargs[arg] = val
-
-    return unknown_kwargs
-
-
-if __name__ == "__main__":
-    launch_task_kwargs, task_specific_kwargs = parse_args()
-    main(**launch_task_kwargs, **task_specific_kwargs)
