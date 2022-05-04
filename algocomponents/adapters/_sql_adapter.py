@@ -51,6 +51,14 @@ class SQLAdapter(LoggieDoggie, ABC):
     def disconnect(self):
         self.logger.info(f"{self.class_name} disconnected.")
 
+    @abstractmethod
+    def table_exists(self, table: str) -> bool:
+        pass
+
+    @abstractmethod
+    def get_table_columns(self, table: str) -> List[str]:
+        pass
+
     def run_sql_file(self, path: str, format_variables: Dict[str, str]):
         with open(path) as f:
             sql_string = f.read()
