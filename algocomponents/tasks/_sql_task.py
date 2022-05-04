@@ -34,10 +34,6 @@ class SQLTask(Task):
         assert self.sql_file_path or self.sql_string,\
             "SQLTask Must get either sql_file_paht or sql_string, got neither."
 
-    def startup(self):
-        if self.instantiated_sql_adapter:
-            self.sql_adapter.connect()
-
     def run(self):
         if self.sql_string:
             self.sql_adapter.run_sql_string(
