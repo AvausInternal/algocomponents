@@ -21,22 +21,25 @@ class LocalSqliteAdapter(SQLAdapter):
         self.cursor = None
 
     def connect(self):
-        self.logger.info(f"LocalSqliteAdapter establishing connection...")
+        super().connect()
         self.connection = sqlite3.connect(self.db_path)
         self.cursor = self.connection.cursor()
-
-    def check_connection(self):
-        self.logger.info(self.connection)
         self.logger.info(sqlite3.version)
+
+    def is_connected(self):
+        if self.cursor is None:
+            return False
+        try:
+            self.cursor.execute("SELECT 1")
+            return True
+        except sqlite3.ProgrammingError:
+            return False
 
     def disconnect(self):
         self.connection.close()
-        self.logger.info(f"LocalSqliteAdapter disconnected.")
+        super().disconnect()
 
-    def run_sql(self, sql: str):
-        sql = sql.strip()
-        self.logger.info(f"Executing the following query: \n{sql}")
-
+    def _run_formatted_sql(self, sql: str):
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
 

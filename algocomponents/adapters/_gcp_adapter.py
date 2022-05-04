@@ -16,27 +16,25 @@ class GCPAdapter(SQLAdapter):
 
     def __init__(self, config: ConfigParser = None):
         super().__init__(overriding_config=config)
-        self.client = None 
+        self.client = None
+        self.connected = False
 
     def connect(self):
-        self.logger.info(f"GCPAdapter establishing connection...")
-
+        super().connect()
         # Import inside method to allow non GCP-users of algocomponents
         # to use library without having to install the google package
         from google.cloud import bigquery
         self.client = bigquery.Client()
 
-    def check_connection(self):
-        self.logger.info(self.client)
+    def is_connected(self):
+        return self.client is not None
 
     def disconnect(self):
         self.client.close()
-        self.logger.info(f"GCPAdapter disconnected.")
+        self.client = None
+        super().disconnect()
 
-    def run_sql(self, sql: str):
-        sql = sql.strip()
-        self.logger.info(f"Executing the following query: \n{sql}")
-
+    def _run_formatted_sql(self, sql: str):
         query_job = self.client.query(sql)
         rows = query_job.result()  
 
