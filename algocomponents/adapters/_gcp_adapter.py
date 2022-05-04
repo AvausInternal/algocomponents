@@ -7,12 +7,9 @@ class GCPAdapter(SQLAdapter):
     """Used to run queries on BigQuery.
 
     This adapter is intended for running queries on Google BigQuery.
-    The script expects a file named .credentials.json to exist in
-    ROOT_DIR. It should contain a service account key with permissions:
-    BigQuery Data Owner in dataset and BigQuery Job User in project.
+    The script expects that the user is authenticated in the affected 
+    gcp project using googles python client libraries and setup instructions. 
     """
-
-    default_max_rows = 20
 
     def __init__(self, config: ConfigParser = None):
         super().__init__(overriding_config=config)
