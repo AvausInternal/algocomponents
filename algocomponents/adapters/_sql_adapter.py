@@ -45,7 +45,7 @@ class SQLAdapter(LoggieDoggie, ABC):
         self.logger.info(f"{self.class_name} establishing connection...")
 
     @abstractmethod
-    def check_connection(self):
+    def is_connected(self):
         pass
 
     @abstractmethod
@@ -70,6 +70,9 @@ class SQLAdapter(LoggieDoggie, ABC):
                 self.run_sql(query)
 
     def run_sql(self, sql: str):
+        if not self.is_connected():
+            self.connect()
+
         sql = sql.strip()
         self.logger.info(f"Executing the following query: \n{sql}")
 
