@@ -34,15 +34,15 @@ class SQLAdapter(LoggieDoggie, ABC):
                 for key, value in overriding_config[section].items():
                     self.config[section][key] = value
 
-        class_name = type(self).__name__
-        if class_name in self.config:
-            self.adapter_format_variables = self.config[class_name]
+        self.class_name = type(self).__name__
+        if self.class_name in self.config:
+            self.adapter_format_variables = self.config[self.class_name]
         else:
             self.adapter_format_variables = self.config["DEFAULT"]
 
     @abstractmethod
     def connect(self):
-        pass
+        self.logger.info(f"{self.class_name} establishing connection...")
 
     @abstractmethod
     def check_connection(self):
@@ -50,11 +50,7 @@ class SQLAdapter(LoggieDoggie, ABC):
 
     @abstractmethod
     def disconnect(self):
-        pass
-
-    @abstractmethod
-    def run_sql(self, sql: str):
-        pass
+        self.logger.info(f"{self.class_name} disconnected.")
 
     def run_sql_file(self, path: str, format_variables: Dict[str, str]):
         with open(path) as f:
@@ -72,3 +68,13 @@ class SQLAdapter(LoggieDoggie, ABC):
                 format_variables.update(self.adapter_format_variables)
                 query = query.format(**format_variables)
                 self.run_sql(query)
+
+    def run_sql(self, sql: str):
+        sql = sql.strip()
+        self.logger.info(f"Executing the following query: \n{sql}")
+
+        self._run_formatted_sql(sql=sql)
+
+    @abstractmethod
+    def _run_formatted_sql(self, sql: str):
+        pass
