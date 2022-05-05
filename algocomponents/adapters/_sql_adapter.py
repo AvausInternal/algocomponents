@@ -63,7 +63,8 @@ class SQLAdapter(LoggieDoggie, ABC):
         with open(path) as f:
             sql_string = f.read()
             self.run_sql_string(
-                sql_string=sql_string, format_variables=format_variables
+                sql_string=sql_string,
+                format_variables=format_variables,
             )
 
     def run_sql_string(self, sql_string: str, format_variables: Dict[str, str]):
@@ -82,7 +83,6 @@ class SQLAdapter(LoggieDoggie, ABC):
 
         sql = sql.strip()
         self.logger.info(f"Executing the following query: \n{sql}")
-
         self._run_formatted_sql(sql=sql)
 
     @abstractmethod
@@ -163,3 +163,11 @@ class SQLAdapter(LoggieDoggie, ABC):
             tables = [t for t in tables if t not in ctes]
 
         return tables
+
+    @abstractmethod
+    def query_job_as_pandas(self):
+        pass
+
+    @abstractmethod
+    def query_job_as_csv(self, path: str):
+        pass

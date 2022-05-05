@@ -16,6 +16,7 @@ class GCPAdapter(SQLAdapter):
         super().__init__(overriding_config=config)
         self.client = None
         self.connected = False
+        self.query_job = None
 
     def connect(self):
         super().connect()
@@ -62,13 +63,22 @@ class GCPAdapter(SQLAdapter):
         return columns_names
 
     def _run_formatted_sql(self, sql: str):
-        query_job = self.client.query(sql)
+        self.query_job = self.client.query(sql)
         self.logger.info(
-            "This query will process {} bytes.".format(query_job.total_bytes_processed)
+            "This query will process {} bytes.".format(
+                self.query_job.total_bytes_processed
+            )
         )
-        rows = query_job.result()
+        rows = self.query_job.result()
 
         if rows.total_rows != 0:
             self.logger.info("Result")
             for row in rows:
                 self.logger.info(list(row.items()))
+
+    def query_job_as_pandas(self):
+        return self.query_job.to_dataframe()
+
+    def query_job_as_csv(self, path: str):
+        dataframe = self.query_job_as_pandas()
+        dataframe.to_csv(path)
