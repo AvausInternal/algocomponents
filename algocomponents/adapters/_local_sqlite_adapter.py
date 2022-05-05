@@ -59,10 +59,23 @@ class LocalSqliteAdapter(SQLAdapter):
         return columns_names
 
     def _run_formatted_sql(self, sql: str):
-        self.cursor.execute(sql)
-        rows = self.cursor.fetchall()
+        query_job = self.cursor.execute(sql)
+        self.rows = self.cursor.fetchall()
+        self.columns = [column[0] for column in query_job.description]
 
-        if rows:
+        if self.rows:
             self.logger.info("Result")
-            for row in rows:
+            for row in self.rows:
                 self.logger.info(row)
+
+    def query_job_as_pandas(self):
+        import pandas
+
+        return pandas.DataFrame.from_records(
+            data=self.rows,
+            columns=self.columns,
+        )
+
+    def query_job_as_csv(self, path: str):
+        dataframe = self.query_job_as_pandas()
+        dataframe.to_csv(path)
