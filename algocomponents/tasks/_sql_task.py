@@ -26,7 +26,7 @@ class SQLTask(Task):
         self.instantiated_sql_adapter = False
         if not self.sql_adapter:
             self.instantiated_sql_adapter = True
-            self.sql_adapter = LocalSqliteAdapter(self.config)
+            self.sql_adapter = LocalSqliteAdapter()
 
         self.sql_file_path = sql_file_path
         self.sql_string = sql_string
