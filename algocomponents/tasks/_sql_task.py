@@ -32,11 +32,7 @@ class SQLTask(Task):
         self.sql_string = sql_string
 
         assert self.sql_file_path or self.sql_string,\
-            "SQLTask Must get either sql_file_paht or sql_string, got neither."
-
-    def startup(self):
-        if self.instantiated_sql_adapter:
-            self.sql_adapter.connect()
+            "SQLTask Must get either sql_file_path or sql_string, got neither."
 
     def run(self):
         if self.sql_string:
