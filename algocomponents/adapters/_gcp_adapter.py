@@ -35,7 +35,7 @@ class GCPAdapter(SQLAdapter):
         query_job = self.client.query(sql)
         rows = query_job.result()  
 
-        if rows: 
+        if rows.total_rows != 0: 
             self.logger.info("Result")
             for row in rows: 
                 self.logger.info(list(row.items()))
