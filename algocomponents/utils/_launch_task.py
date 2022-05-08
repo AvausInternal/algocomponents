@@ -145,3 +145,19 @@ def _get_adapter(adapter_type: str):
     ]:
         from algocomponents.adapters import LocalSqliteAdapter
         return LocalSqliteAdapter()
+    if adapter_type.lower() in [
+        "spark_adapter",
+        "sparkadapter",
+        "spark",
+        "s",
+    ]:
+        from algocomponents.adapters import SparkAdapter
+        return SparkAdapter()
+    if adapter_type.lower() in [
+        "databricks_adapter",
+        "databricksadapter",
+        "databricks",
+        "db",
+    ]:
+        from algocomponents.adapters import DatabricksAdapter
+        return DatabricksAdapter()
