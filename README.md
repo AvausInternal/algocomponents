@@ -15,3 +15,9 @@ Commits should also be small enough so that you can easily get an overview of wh
 The 50/72 standard introduced by Tim Pope is used for the commit messages:
 
 https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+
+#### CI CD Artifact Registry
+
+When you merge code to master the CI/CD will try to create new version in artifact registry.
+Remember to change version number everytime you want to push something to master, otherwise creation of artifact
+will fail.
