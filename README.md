@@ -18,6 +18,7 @@ https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 
 #### CI CD Artifact Registry
 
-When you merge code to master the CI/CD will try to create new version in artifact registry.
-Remember to change version number everytime you want to push something to master, otherwise creation of artifact
-will fail.
+When you merge code to master, the CI/CD will try to create a new version in the artifact registry.
+
+Remember to change the version number everytime you want to push something to master. Otherwise,
+the creation of an artifact will fail.
