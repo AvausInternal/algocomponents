@@ -50,14 +50,24 @@ class Task(LoggieDoggie):
         # Then append or overwrite from the local config file
         self.config.read(os.path.join(self.classpath, "config", "config.ini"))
 
+        log_level = self.config[self.section]["log_level"]
+
+        if log_level not in self.log_levels.keys():
+            raise AttributeError(
+                f"Tried to set log level to {log_level} which is not in {list(self.log_levels.keys())}"
+            )
+
         self.task_name = type(self).__name__
 
     def start(self):
         run_start = datetime.now()
 
+        log_level = self.config[self.section]["log_level"]
+        self.set_log_level(self.log_levels[log_level])
+
         self.logger.info(f"Starting task {self.task_name} "
                          f"with section {self.section}")
-        self.logger.info(config_to_str(self.config))
+        self.logger.debug(config_to_str(self.config))
 
         self.startup()
         self.run()
