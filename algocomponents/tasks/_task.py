@@ -3,6 +3,7 @@ import sys
 from configparser import ConfigParser
 from datetime import datetime
 from types import ModuleType
+import logging
 
 from algocomponents.utils import LoggieDoggie, config_to_str
 
@@ -17,6 +18,14 @@ class Task(LoggieDoggie):
     """
 
     _default_section = "DEFAULT"
+    log_levels = {
+        "NOTSET" : logging.NOTSET,
+        "DEBUG" : logging.DEBUG,
+        "INFO" : logging.INFO,
+        "WARNING" : logging.WARNING,
+        "ERROR" : logging.ERROR,
+        "CRITICAL" : logging.CRITICAL
+    }
 
     def __init__(
             self,
@@ -52,12 +61,17 @@ class Task(LoggieDoggie):
 
         self.task_name = type(self).__name__
 
-    def start(self):
+
+    def start(self):        
         run_start = datetime.now()
+
+        # Set log level to log_level specified in config file
+        if self.config[self.section]["log_level"] in self.log_levels.keys():
+            self.logger.setLevel(level=self.log_levels[self.config[self.section]["log_level"]])
 
         self.logger.info(f"Starting task {self.task_name} "
                          f"with section {self.section}")
-        self.logger.info(config_to_str(self.config))
+        self.logger.debug(config_to_str(self.config))
 
         self.startup()
         self.run()
