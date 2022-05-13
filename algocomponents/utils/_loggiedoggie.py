@@ -14,6 +14,14 @@ class LoggieDoggie:
     logger_name = "loggie_doggie"
     logger_format = "%(asctime)s [%(filename)s:%(lineno)d] %(levelname)s: %(message)s"
     date_format = "%Y-%m-%d %H:%M:%S"
+    log_levels = {
+        "NOTSET": logging.NOTSET,
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    }
 
     def __init__(self):
         self.logger = logging.getLogger(self.logger_name)
@@ -41,3 +49,7 @@ class LoggieDoggie:
         logger.addHandler(terminal_handler)
 
         return logger
+
+    def set_log_level(self, log_level: int):
+        logger = logging.getLogger(self.logger_name)
+        logger.setLevel(level=log_level)
