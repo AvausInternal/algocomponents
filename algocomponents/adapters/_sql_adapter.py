@@ -1,7 +1,8 @@
 import os
+import re
 from abc import ABC, abstractmethod
 from configparser import ConfigParser
-from typing import Dict
+from typing import Dict, List
 
 from algocomponents.utils import LoggieDoggie
 
@@ -81,3 +82,31 @@ class SQLAdapter(LoggieDoggie, ABC):
     @abstractmethod
     def _run_formatted_sql(self, sql: str):
         pass
+
+    def find_cte_names(self, sql: str) -> List[str]:
+        # Use ?: in a group to make it a non-capturing group, preventing
+        # re.findall from only returning the match for the paranthesis
+        match = re.findall(r"\s+(?:with)\s+[\w.-]+", sql.lower())
+        if not match:
+            return []
+
+        # Split every element in the list by space and take the last element,
+        # which will be the table name. set() is used to make list unique
+        return list(set(map(lambda x: x.split("\n")[-1].split(" ")[-1], match)))
+
+    def find_table_names(self, sql: str, ignore_ctes: bool = True):
+        # Use ?: in a group to make it a non-capturing group, preventing
+        # re.findall from only returning the match for the paranthesis
+        match = re.findall(r"\s+(?:from|join|table)\s+[\w.-]+", sql.lower())
+        if not match:
+            return []
+
+        # Split every element in the list by space and take the last element,
+        # which will be the table name. set() is used to make list unique
+        tables = list(set(map(lambda x: x.split("\n")[-1].split(" ")[-1], match)))
+
+        if ignore_ctes:
+            ctes = self.find_cte_names(sql)
+            tables = [t for t in tables if t not in ctes]
+
+        return tables
