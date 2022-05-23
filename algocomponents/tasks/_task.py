@@ -23,7 +23,8 @@ class Task(LoggieDoggie):
             config: ConfigParser = None,
             section: str = None,
     ):
-        super().__init__()
+        self.task_name = type(self).__name__
+        super().__init__(logger_name=self.task_name)
 
         self.section = section or self._default_section
 
@@ -57,13 +58,10 @@ class Task(LoggieDoggie):
                 f"Tried to set log level to {log_level} which is not in {list(self.log_levels.keys())}"
             )
 
-        self.task_name = type(self).__name__
+        self.set_log_level(self.log_levels[log_level])
 
     def start(self):
         run_start = datetime.now()
-
-        log_level = self.config[self.section]["log_level"]
-        self.set_log_level(self.log_levels[log_level])
 
         self.logger.info(f"Starting task {self.task_name} "
                          f"with section {self.section}")

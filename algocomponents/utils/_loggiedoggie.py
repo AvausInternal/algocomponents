@@ -11,7 +11,6 @@ class LoggieDoggie:
     """
 
     log_file_name = "log.log"
-    logger_name = "loggie_doggie"
     logger_format = "%(asctime)s [%(filename)s:%(lineno)d] %(levelname)s: %(message)s"
     date_format = "%Y-%m-%d %H:%M:%S"
     log_levels = {
@@ -23,7 +22,8 @@ class LoggieDoggie:
         "CRITICAL": logging.CRITICAL,
     }
 
-    def __init__(self):
+    def __init__(self, logger_name: str = None):
+        self.logger_name = logger_name
         self.logger = logging.getLogger(self.logger_name)
         if not self.logger.hasHandlers():
             self.logger = self.__init_logger()
