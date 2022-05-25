@@ -97,9 +97,27 @@ class SQLAdapter(LoggieDoggie, ABC):
         pass
 
     def find_cte_names(self, sql: str) -> List[str]:
-        # Use ?: in a group to make it a non-capturing group, preventing
-        # re.findall from only returning the match for the paranthesis
-        match = re.findall(r"\s+(?:with)\s+[\w.-]+", sql.lower())
+        # Remove newlines from sql
+        sql = sql.replace("\n", " ")
+        # Transform multi-whitespaces into single whitespace
+        sql = ' '.join(sql.split())
+
+        # regex explanation
+        match = re.findall(
+            # First, at least 1 newline or whitespace
+            r"\s+"
+
+            # with, followed by 1 or more newline or whitespace
+            # ?: is used to make it a non-capturing group. preventing re.findall
+            # from only returning the match for the paranthesis
+            r"(?:with)\s+"
+
+            # The actual cte, which can consist of words, .'s and -'s
+            r"[\w.-]+",
+
+            # Perform operation on lowercase of sql
+            sql.lower()
+        )
         if not match:
             return []
 
@@ -108,9 +126,30 @@ class SQLAdapter(LoggieDoggie, ABC):
         return list(set(map(lambda x: x.split("\n")[-1].split(" ")[-1], match)))
 
     def find_table_names(self, sql: str, ignore_ctes: bool = True):
-        # Use ?: in a group to make it a non-capturing group, preventing
-        # re.findall from only returning the match for the paranthesis
-        match = re.findall(r"\s+(?:from|join|table)\s+[\w.-]+", sql.lower())
+        # Remove newlines from sql
+        sql = sql.replace("\n", " ")
+        # Transform multi-whitespaces into single whitespace
+        sql = ' '.join(sql.split())
+
+        # regex explanation
+        match = re.findall(
+            # First, at least 1 newline or whitespace
+            r"\s+"
+
+            # from, join or table, followed by 1 or more newline or whitespace
+            # ?: is used to make it a non-capturing group. preventing re.findall
+            # from only returning the match for the paranthesis
+            r"(?:from|join|table)\s+"
+
+            # Maybe if exists / if not exists, then maybe newline / whitespace
+            r"(?:if exists|if not exists)*\s*"
+
+            # The actual table, which can consist of words, .'s and -'s
+            r"[\w.-]+",
+
+            # Perform operation on lowercase of sql
+            sql.lower()
+        )
         if not match:
             return []
 
