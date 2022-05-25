@@ -53,6 +53,18 @@ class TestAdapterFindTableNames(TestCase):
         CROSS JOIN avg
     """
 
+    drop_table_statement = """
+        DROP TABLE client_db.customer_product_table
+    """
+
+    drop_table_statement_with_if = """
+        DROP TABLE IF EXISTS client_db.customer_product_table
+    """
+
+    create_table_statement_with_if = """
+        CREATE TABLE IF NOT EXISTS client_db.customer_product_table
+    """
+
     def test_finding_single_table(self):
         table_names = self.sql_adapter.find_table_names(sql=self.simple_query)
         self.assertEqual(table_names, ["tmp"])
@@ -128,6 +140,18 @@ class TestAdapterFindTableNames(TestCase):
             "client_db.sales_table",
             "other_client_db.customer_product_sales_table",
         ])
+
+    def test_finding_tables_in_drop_statement(self):
+        table_names = self.sql_adapter.find_table_names(sql=self.drop_table_statement)
+        self.assertEqual(table_names, ["client_db.customer_product_table"])
+
+    def test_finding_tables_in_drop_statement_with_if(self):
+        table_names = self.sql_adapter.find_table_names(sql=self.drop_table_statement_with_if)
+        self.assertEqual(table_names, ["client_db.customer_product_table"])
+
+    def test_finding_tables_in_create_statement_with_if(self):
+        table_names = self.sql_adapter.find_table_names(sql=self.create_table_statement_with_if)
+        self.assertEqual(table_names, ["client_db.customer_product_table"])
 
     @staticmethod
     def sql_query_format_scrambler(string):
