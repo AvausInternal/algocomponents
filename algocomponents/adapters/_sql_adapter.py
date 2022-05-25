@@ -68,6 +68,7 @@ class SQLAdapter(LoggieDoggie, ABC):
             if query:
                 format_variables.update(self.adapter_format_variables)
                 query = query.format(**format_variables)
+                query = self.format_table_names(query=query)
                 self.run_sql(query)
 
     def run_sql(self, sql: str):
@@ -81,6 +82,18 @@ class SQLAdapter(LoggieDoggie, ABC):
 
     @abstractmethod
     def _run_formatted_sql(self, sql: str):
+        pass
+
+    def format_table_names(self, query: str, ignore_ctes: bool = True):
+        query = query.replace("`", "")
+        tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
+        for table in tables:
+            reformatted_table = self._format_table_name(table=table)
+            query = query.replace(table, reformatted_table)
+        return query
+
+    @abstractmethod
+    def _format_table_name(self, table: str):
         pass
 
     def find_cte_names(self, sql: str) -> List[str]:
