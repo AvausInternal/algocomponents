@@ -36,14 +36,14 @@ class LoggieDoggie:
 
         # Create handler for file output
         file_handler = logging.FileHandler(filename=self.log_file_name)
-        file_handler.setLevel(logging.INFO)
+        file_handler.setLevel(logging.NOTSET)
         file_handler.setFormatter(formatter)
 
         logger.addHandler(file_handler)
 
         # Create handler for terminal output
         terminal_handler = logging.StreamHandler(sys.stdout)
-        terminal_handler.setLevel(logging.INFO)
+        terminal_handler.setLevel(logging.NOTSET)
         terminal_handler.setFormatter(formatter)
 
         logger.addHandler(terminal_handler)
