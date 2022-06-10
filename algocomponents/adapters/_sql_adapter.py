@@ -125,7 +125,7 @@ class SQLAdapter(LoggieDoggie, ABC):
 
         # Split every element in the list by space and take the last element,
         # which will be the table name. set() is used to make list unique
-        return list(set(map(lambda x: x.split("\n")[-1].split(" ")[-1], match)))
+        return list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
 
     def find_table_names(self, sql: str, ignore_ctes: bool = True):
         # Remove newlines from sql
@@ -159,7 +159,7 @@ class SQLAdapter(LoggieDoggie, ABC):
 
         # Split every element in the list by space and take the last element,
         # which will be the table name. set() is used to make list unique
-        tables = list(set(map(lambda x: x.split("\n")[-1].split(" ")[-1], match)))
+        tables = list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
 
         if ignore_ctes:
             ctes = self.find_cte_names(sql)
