@@ -26,6 +26,9 @@ class SparkAdapter(SQLAdapter):
         self.spark = None
         super().disconnect()
 
+    def _format_table_name(self, table: str):
+        return table
+
     def _run_formatted_sql(self, sql: str):
         sdf = self.spark.sql(sql)
         sdf.show()
