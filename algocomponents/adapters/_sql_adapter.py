@@ -115,8 +115,10 @@ class SQLAdapter(LoggieDoggie, ABC):
             # The actual cte, which can consist of words, .'s and -'s
             r"[\w.-]+",
 
-            # Perform operation on lowercase of sql
-            sql.lower()
+            # Search in the sql string
+            sql,
+            # Ignore case
+            re.IGNORECASE
         )
         if not match:
             return []
@@ -147,8 +149,10 @@ class SQLAdapter(LoggieDoggie, ABC):
             # The actual table, which can consist of words, .'s and -'s
             r"[\w.-]+",
 
-            # Perform operation on lowercase of sql
-            sql.lower()
+            # Search in the sql string
+            sql,
+            # Ignore case
+            re.IGNORECASE
         )
         if not match:
             return []

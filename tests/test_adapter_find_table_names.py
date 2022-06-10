@@ -74,13 +74,13 @@ class TestAdapterFindTableNames(TestCase):
         table_names = self.sql_adapter.find_table_names(
             sql=simple_query_poor_formatting
         )
-        map(str.lower, table_names)
+        table_names = map(str.lower, table_names)
 
         assert(table_names == ["tmp"])
 
     def test_finding_multiple_tables(self):
         table_names = self.sql_adapter.find_table_names(sql=self.advanced_query)
-        map(str.lower, table_names)
+        table_names = map(str.lower, table_names)
 
         assert(sorted(table_names) == [
             "client_db.customer_product_table",
@@ -91,7 +91,7 @@ class TestAdapterFindTableNames(TestCase):
     def test_finding_multiple_tables_bad_formatting(self):
         advanced_query_poor_formatting = self.sql_query_format_scrambler(self.advanced_query)
         table_names = self.sql_adapter.find_table_names(sql=advanced_query_poor_formatting)
-        map(str.lower, table_names)
+        table_names = map(str.lower, table_names)
 
         assert(sorted(table_names) == [
             "client_db.customer_product_table",
@@ -101,7 +101,7 @@ class TestAdapterFindTableNames(TestCase):
 
     def test_finding_multiple_tables_with_gcp_project(self):
         table_names = self.sql_adapter.find_table_names(sql=self.advanced_query_with_gcp_project)
-        map(str.lower, table_names)
+        table_names = map(str.lower, table_names)
 
         assert(sorted(table_names) == [
             "gcp-project.client_db.customer_product_table",
@@ -112,7 +112,7 @@ class TestAdapterFindTableNames(TestCase):
     def test_finding_multiple_tables_with_gcp_project_bad_formatting(self):
         advanced_query_with_gcp_project_poor_formatting = self.sql_query_format_scrambler(self.advanced_query_with_gcp_project)
         table_names = self.sql_adapter.find_table_names(sql=advanced_query_with_gcp_project_poor_formatting)
-        map(str.lower, table_names)
+        table_names = map(str.lower, table_names)
 
         assert(sorted(table_names) == [
             "gcp-project.client_db.customer_product_table",
@@ -122,7 +122,7 @@ class TestAdapterFindTableNames(TestCase):
 
     def test_finding_multiple_tables_with_cte(self):
         table_names = self.sql_adapter.find_table_names(sql=self.advanced_query_with_cte)
-        map(str.lower, table_names)
+        table_names = map(str.lower, table_names)
 
         assert(sorted(table_names) == [
             "client_db.customer_product_table",
@@ -133,7 +133,7 @@ class TestAdapterFindTableNames(TestCase):
     def test_finding_multiple_tables_with_cte_bad_formatting(self):
         advanced_query_with_cte_poor_formatting = self.sql_query_format_scrambler(self.advanced_query_with_cte)
         table_names = self.sql_adapter.find_table_names(sql=advanced_query_with_cte_poor_formatting)
-        map(str.lower, table_names)
+        table_names = map(str.lower, table_names)
 
         assert(sorted(table_names) == [
             "client_db.customer_product_table",
