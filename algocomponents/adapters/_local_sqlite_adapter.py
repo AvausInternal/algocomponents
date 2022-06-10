@@ -39,6 +39,9 @@ class LocalSqliteAdapter(SQLAdapter):
         self.connection.close()
         super().disconnect()
 
+    def _format_table_name(self, table: str):
+        return table.replace(".", "_")
+
     def _run_formatted_sql(self, sql: str):
         self.cursor.execute(sql)
         rows = self.cursor.fetchall()
