@@ -1,15 +1,13 @@
 from configparser import ConfigParser
 
 from algocomponents.adapters import SQLAdapter, LocalSqliteAdapter
-from algocomponents.tasks import Task
+from algocomponents.tasks import AdapterTask
 
 
-class SQLTask(Task):
+class SQLTask(AdapterTask):
     """A task used to run SQL queries with an adapter.
 
-    The sql_file_path is the path to the file from the project root. The SQLTask
-    will use whatever adapter supplied to create the connection and run the sql
-    queries, or default to using the LocalSqliteAdapter.
+    The sql_file_path is the path to the file from the project root.
     """
 
     def __init__(
@@ -20,7 +18,11 @@ class SQLTask(Task):
             config: ConfigParser = None,
             section: str = None,
     ):
-        super().__init__(config=config, section=section)
+        super().__init__(
+            sql_adapter=sql_adapter,
+            config=config,
+            section=section,
+        )
 
         self.sql_adapter = sql_adapter
         self.instantiated_sql_adapter = False
