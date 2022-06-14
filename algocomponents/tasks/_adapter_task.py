@@ -31,3 +31,6 @@ class AdapterTask(Task):
             elif self.sql_adapter != self.parent.sql_adapter:
                 self.sql_adapter.disconnect()
         super().shutdown()
+
+    def set_sql_adapter(self, sql_adapter):
+        self.sql_adapter = sql_adapter

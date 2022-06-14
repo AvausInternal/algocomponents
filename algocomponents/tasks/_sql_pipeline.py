@@ -32,6 +32,8 @@ class SQLPipeline(GroupTask, ABC):
 
         self.task_list = self.get_sql_tasks()
 
+        self.propagate_sql_adapter(self.sql_adapter)
+
     def get_sql_tasks(self):
         if not os.path.exists(self.sql_folder):
             self.logger.warning(f"Folder does not exist: {self.sql_folder}")
