@@ -51,8 +51,6 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
                              f"one class but no start method, cannot start.")
 
     task.start()
-    if sql_adapter is not None:
-        sql_adapter.disconnect()
 
 
 def _find_modules(ignored_files, ignored_dirs):
