@@ -21,12 +21,9 @@ class GroupTask(AdapterTask):
         if not hasattr(self, "task_list"):
             self.task_list = []
 
-        self.instantiated_sql_adapter = False
         if sql_adapter:
             self.sql_adapter = sql_adapter
-        elif hasattr(self, "sql_adapter"):
-            self.instantiated_sql_adapter = True
-        else:
+        if not hasattr(self, "sql_adapter"):
             self.sql_adapter = None
 
         for task in self.task_list:
@@ -35,10 +32,6 @@ class GroupTask(AdapterTask):
     def run(self):
         for task in self.task_list:
             task.start()
-
-    def shutdown(self):
-        if self.instantiated_sql_adapter:
-            self.sql_adapter.disconnect()
 
     def add_to_config(self, key, value):
         self.config[self.section][key] = str(value)
