@@ -29,7 +29,7 @@ class GroupTask(AdapterTask):
         for task in self.task_list:
             task.parent = self
 
-        self.populate_adapter()
+        self.populate_adapter(self.sql_adapter)
 
     def run(self):
         for task in self.task_list:
@@ -41,7 +41,8 @@ class GroupTask(AdapterTask):
         for task in self.task_list:
             task.add_to_config(key, value)
 
-    def populate_adapter(self):
+    def populate_adapter(self, sql_adapter):
+        self.sql_adapter = sql_adapter
         for task in self.task_list:
             if hasattr(task, "populate_adapter"):
                 task.populate_adapter(self.sql_adapter)

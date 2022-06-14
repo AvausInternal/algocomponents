@@ -31,6 +31,6 @@ class AdapterTask(Task):
                     self.sql_adapter.disconnect()
         super().shutdown()
 
-    def propagate_adapter(self, sql_adapter):
+    def populate_adapter(self, sql_adapter):
         if self.sql_adapter is None:
             self.sql_adapter = sql_adapter
