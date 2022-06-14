@@ -55,13 +55,13 @@ class SQLPipeline(GroupTask, ABC):
 
         for sql_file in sql_files:
             full_path = os.path.join(self.sql_folder, sql_file)
-            task_list.append(
-                SQLTask(
-                    sql_file_path=full_path,
-                    sql_adapter=self.sql_adapter,
-                    config=self.config,
-                    section=self.section,
-                )
+            sql_task = SQLTask(
+                sql_file_path=full_path,
+                sql_adapter=self.sql_adapter,
+                config=self.config,
+                section=self.section,
             )
+            sql_task.parent = self
+            task_list.append(sql_task)
 
         return task_list
