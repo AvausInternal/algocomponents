@@ -1,0 +1,32 @@
+from configparser import ConfigParser
+
+from algocomponents.adapters import SQLAdapter
+from algocomponents.tasks import Task
+
+
+class AdapterTask(Task):
+    """A task that has access to an adapter
+
+    An adapter can be used to run queries to whichever source the adapter uses.
+    The adapter task will disconnect it's adapter if it is not inherited from
+    it's parent. This happens either if this is the only task, or if this is
+    called from a GroupTask that has another adapter set.
+    """
+
+    def __init__(
+            self,
+            sql_adapter: SQLAdapter = None,
+            config: ConfigParser = None,
+            section: str = None,
+    ):
+        super().__init__(config=config, section=section)
+        self.sql_adapter = sql_adapter
+
+    def shutdown(self):
+        if self.sql_adapter is not None:
+            if not self.parent:
+                self.sql_adapter.disconnect()
+            elif hasattr(self.parent, "sql_adapter"):
+                if self.sql_adapter != self.parent.sql_adapter:
+                    self.sql_adapter.disconnect()
+        super().shutdown()

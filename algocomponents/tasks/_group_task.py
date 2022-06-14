@@ -2,10 +2,10 @@ from configparser import ConfigParser
 from typing import List
 
 from algocomponents.adapters import SQLAdapter
-from algocomponents.tasks import Task
+from algocomponents.tasks import Task, AdapterTask
 
 
-class GroupTask(Task):
+class GroupTask(AdapterTask):
     """GroupTask iterates over a list of tasks and starts them."""
 
     def __init__(
