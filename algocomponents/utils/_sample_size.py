@@ -17,7 +17,7 @@ class SampleSize(LoggieDoggie):
         tail=default_tail,
     ):
 
-        """Returns the minimum sample size to set up an A/B test.
+        """Returns the minimum sample size to set up an A/B test for a binomial metric.
 
         We assume the same sample size for both test and control group.
 
@@ -48,12 +48,11 @@ class SampleSize(LoggieDoggie):
             tail_prob = 1 - (
                 sig_level / 2
             )  # Convert CI to expected format of stats.t.ppf (Assuming two-sided)
-    
+
         elif tail == "one_sided":
             tail_prob = (
                 1 - sig_level
             )  # Convert CI to expected format of stats.t.ppf (Assuming one-sided)
-
 
         # Standard normal distribution to determine z-values
         standard_norm = stats.norm(0, 1)
@@ -68,8 +67,70 @@ class SampleSize(LoggieDoggie):
         min_n = ((p1 * (1 - p1) + p2 * (1 - p2)) * (Z_beta + Z_alpha) ** 2) / (
             p1 - p2
         ) ** 2
-        print("Minimum sample size of each group is: ", min_n)
-        return min_n
+
+        print("Minimum sample size of each group is: ", round(min_n))
+        return round(min_n)
+    
+    def get_min_sample_size_continuous(
+        u1: float,
+        u2: float,
+        var: float,
+        power=default_power,
+        sig_level=default_significance_level,
+        tail=default_tail,
+    ):
+
+        """Returns the minimum sample size to set up an A/B test for a continuous metric.
+
+        We assume the same sample size for both test and control group.
+
+        Args:
+        -------
+            u1 (float): expected value for target group.
+
+            u2 (float): estimated value for control group.
+
+            var (float): estimated variance for control group.
+
+            power (float): probability of rejecting the null hypothesis when the null hypothesis is false, typically 0.8.
+
+            sig_level (float): significance level often denoted as alpha, typically 0.05.
+
+            tail (string): `one_sided` or `two_sided` test.
+
+        Returns:
+        -------
+            min_N (float): minimum sample size required in each group.
+
+        References:
+        -------
+            Placeholder Link to confluence
+
+        """
+
+        if tail == "two_sided":
+            tail_prob = 1 - (
+                sig_level / 2
+            )  # Convert CI to expected format of stats.t.ppf (Assuming two-sided)
+
+        elif tail == "one_sided":
+            tail_prob = (
+                1 - sig_level
+            )  # Convert CI to expected format of stats.t.ppf (Assuming one-sided)
+
+        # Standard normal distribution to determine z-values
+        standard_norm = stats.norm(0, 1)
+
+        # Find Z_beta from desired power
+        Z_beta = standard_norm.ppf(power)
+
+        # Find Z_alpha
+        Z_alpha = standard_norm.ppf(tail_prob)
+
+        # Find smallest sample size required in each group.
+        min_n = (2 * (var) * (Z_beta + Z_alpha) ** 2) / (u1 - u2) ** 2
+        print("Minimum sample size of each group is: ", round(min_n))
+        return round(min_n)
 
     def get_unequal_sample_size(N: int, N_adj: int):
         """Returns the minimum sample size of the control group
