@@ -29,6 +29,9 @@ class GroupTask(Task):
         else:
             self.sql_adapter = None
 
+        for task in self.task_list:
+            task.parent = self
+
     def run(self):
         for task in self.task_list:
             task.start()

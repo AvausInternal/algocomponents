@@ -60,6 +60,8 @@ class Task(LoggieDoggie):
 
         self.set_log_level(self.log_levels[log_level])
 
+        self.parent = None
+
     def start(self):
         run_start = datetime.now()
 
