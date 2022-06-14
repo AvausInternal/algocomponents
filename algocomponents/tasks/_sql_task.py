@@ -20,12 +20,6 @@ class SQLTask(AdapterTask):
     ):
         super().__init__(sql_adapter=sql_adapter, config=config, section=section)
 
-        self.sql_adapter = sql_adapter
-        self.instantiated_sql_adapter = False
-        if not self.sql_adapter:
-            self.instantiated_sql_adapter = True
-            self.sql_adapter = LocalSqliteAdapter()
-
         self.sql_file_path = sql_file_path
         self.sql_string = sql_string
 
