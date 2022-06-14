@@ -24,12 +24,6 @@ class SQLTask(AdapterTask):
             section=section,
         )
 
-        self.sql_adapter = sql_adapter
-        self.instantiated_sql_adapter = False
-        if not self.sql_adapter:
-            self.instantiated_sql_adapter = True
-            self.sql_adapter = LocalSqliteAdapter()
-
         self.sql_file_path = sql_file_path
         self.sql_string = sql_string
 
@@ -47,7 +41,3 @@ class SQLTask(AdapterTask):
                 path=self.sql_file_path,
                 format_variables=dict(self.config[self.section]),
             )
-
-    def shutdown(self):
-        if self.instantiated_sql_adapter:
-            self.sql_adapter.disconnect()
