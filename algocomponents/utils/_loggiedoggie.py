@@ -21,6 +21,7 @@ class LoggieDoggie:
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
+    default_log_level = "INFO"
 
     def __init__(self, logger_name: str = None):
         self.logger_name = logger_name
