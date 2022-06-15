@@ -51,7 +51,10 @@ class Task(LoggieDoggie):
         # Then append or overwrite from the local config file
         self.config.read(os.path.join(self.classpath, "config", "config.ini"))
 
-        log_level = self.config[self.section]["log_level"]
+        if "log_level" in self.config[self.section]:
+            log_level = self.config[self.section]["log_level"]
+        else:
+            log_level = self.default_log_level
 
         if log_level not in self.log_levels.keys():
             raise AttributeError(
