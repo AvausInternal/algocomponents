@@ -31,6 +31,7 @@ class GroupTask(Task):
 
     def run(self):
         for task in self.task_list:
+            task.parent = self
             task.start()
 
     def shutdown(self):
