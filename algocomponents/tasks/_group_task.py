@@ -2,10 +2,10 @@ from configparser import ConfigParser
 from typing import List
 
 from algocomponents.adapters import SQLAdapter
-from algocomponents.tasks import Task
+from algocomponents.tasks import Task, AdapterTask
 
 
-class GroupTask(Task):
+class GroupTask(AdapterTask):
     """GroupTask iterates over a list of tasks and starts them."""
 
     def __init__(
@@ -15,28 +15,20 @@ class GroupTask(Task):
             config: ConfigParser = None,
             section: str = None,
     ):
-        super().__init__(config=config, section=section)
+        super().__init__(
+            sql_adapter=sql_adapter,
+            config=config,
+            section=section,
+        )
         if task_list:
             self.task_list = task_list
         if not hasattr(self, "task_list"):
             self.task_list = []
 
-        self.instantiated_sql_adapter = False
-        if sql_adapter:
-            self.sql_adapter = sql_adapter
-        elif hasattr(self, "sql_adapter"):
-            self.instantiated_sql_adapter = True
-        else:
-            self.sql_adapter = None
-
     def run(self):
         for task in self.task_list:
             task.parent = self
             task.start()
-
-    def shutdown(self):
-        if self.instantiated_sql_adapter:
-            self.sql_adapter.disconnect()
 
     def add_to_config(self, key, value):
         self.config[self.section][key] = str(value)
