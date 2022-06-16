@@ -31,6 +31,17 @@ class GCPAdapter(SQLAdapter):
         self.client = None
         super().disconnect()
 
+    def _format_table_name(self, table: str):
+        assert "gcp_project" in list(self.adapter_format_variables), \
+               "The GCPAdapter does not have a gcp_project set. It is either " \
+               "missing from the global config file, or it has not been " \
+               "supplied when instantiating the GCPAdapter"
+
+        gcp_project = self.adapter_format_variables["gcp_project"]
+        if table.startswith(gcp_project + "."):
+            table = table[len(gcp_project)+1:]
+        return f"`{gcp_project}.{table}`"
+
     def _run_formatted_sql(self, sql: str):
         query_job = self.client.query(sql)
         rows = query_job.result()  
