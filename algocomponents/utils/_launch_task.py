@@ -120,7 +120,8 @@ def _get_classes_in_module(module):
 
 def _get_adapter(adapter_type: str):
     if adapter_type is None:
-        return None
+        from algocomponents.adapters import LocalSqliteAdapter
+        return LocalSqliteAdapter()
     if adapter_type.lower() in [
         "gcp_adapter",
         "gcpadapter",
