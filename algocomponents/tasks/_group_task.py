@@ -20,10 +20,7 @@ class GroupTask(AdapterTask):
             config=config,
             section=section,
         )
-        if task_list:
-            self.task_list = task_list
-        if not hasattr(self, "task_list"):
-            self.task_list = []
+        self.task_list = self.create_task_list(task_list=task_list or [])
 
         if self.sql_adapter is not None:
             self.propagate_sql_adapter(self.sql_adapter)
@@ -32,6 +29,13 @@ class GroupTask(AdapterTask):
         for task in self.task_list:
             task.parent = self
             task.start()
+
+    def create_task_list(self, task_list):
+        if len(task_list) > 0:
+            return task_list
+        if hasattr(self, "task_list"):
+            return self.task_list
+        return []
 
     def add_to_config(self, key, value):
         self.config[self.section][key] = str(value)

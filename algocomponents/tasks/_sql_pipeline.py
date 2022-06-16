@@ -27,18 +27,16 @@ class SQLPipeline(GroupTask, ABC):
         config: ConfigParser = None,
         section: str = None,
     ):
-        super().__init__(sql_adapter=sql_adapter, config=config, section=section)
-
         if sql_folder_relative_path:
             self.sql_folder = os.path.join(self.classpath, sql_folder)
         else:
             self.sql_folder = sql_folder
+        super().__init__(sql_adapter=sql_adapter, config=config, section=section)
 
-        self.task_list = self.get_sql_tasks()
+    def create_task_list(self, task_list):
+        if self.sql_folder is None:
+            self.sql_folder = os.path.join(self.classpath, "sql")
 
-        self.propagate_sql_adapter(self.sql_adapter)
-
-    def get_sql_tasks(self):
         if not os.path.exists(self.sql_folder):
             self.logger.warning(f"Folder does not exist: {self.sql_folder}")
             return []
@@ -64,7 +62,6 @@ class SQLPipeline(GroupTask, ABC):
             task_list.append(
                 SQLTask(
                     sql_file_path=full_path,
-                    sql_adapter=self.sql_adapter,
                     config=self.config,
                     section=self.section,
                 )
