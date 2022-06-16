@@ -7,7 +7,7 @@ class Significant(LoggieDoggie):
     default_significance_level = 0.05
     default_tail = "two_sided"
 
-    def is_significant(
+    def is_significant_binomial(self,
         n1 : int,
         n2 : int,
         p1 : float,
@@ -15,8 +15,11 @@ class Significant(LoggieDoggie):
         sig_level = default_significance_level,
         tail = default_tail, 
         ):
-        """Test to see if the Null Hypothesis that `d = 0` can be disregarded for `d = d1 - d2`.
-        Using Z-test with the pooled standard error.
+        """We test the null hypothesis against the given alternative:
+
+        H0: p1=p2 vs HA: p1!=2
+        
+        using Z-test with the pooled standard error.
 
         Args:
         ------
@@ -47,7 +50,7 @@ class Significant(LoggieDoggie):
                 1 - sig_level
             )  # Convert CI to expected format of stats.t.ppf (Assuming one-sided)
 
-        z_crit = stats.t.ppf(q=tail_prob, df=1e6)           # "degrees of freedom" (df) is set to be "inf". Assuming inf=1e6.
+        z_crit = stats.t.ppf(q=tail_prob, df=1e6)  # "degrees of freedom" (df) is set to be "inf". Assuming inf=1e6.
         p_hat = ( M1 + M2 ) / ( n1 + n2 )
         z = ( p1 - p2 ) / ( p_hat * ( 1 - p_hat ) * ( 1 / n1 + 1 / n2 ) )**(0.5)
         
@@ -56,15 +59,14 @@ class Significant(LoggieDoggie):
             p_val *= 2 # If two-sided ww simply multiply by two
         
 
-        self.logger.info(f"Specified Significance level: {self.significance_level}.")
+        self.logger.info(f"Specified Significance level: {sig_level}.")
         self.logger.info(f"Critical test statistic (z-score): {z_crit}.")
         self.logger.info(f"Observed test statistic (z-score)= {abs(z)}.")
         self.logger.info(f"Observed p-value: {p_val}.")
 
         if abs(z) > z_crit:
-            print(f"Significant result! Test statistic = {abs(z)} and p-value = {p_val}.")
+            self.logger.info(f"Significant result! Test statistic = {abs(z)} and p-value = {p_val}.")
         else:
-            print(f"NON Significant result! Test statistic = {abs(z)} and p-value = {p_val}.")
+            self.logger.info(f"NON Significant result! Test statistic = {abs(z)} and p-value = {p_val}.")
 
-        self.observed_test_statistic = z
-        self.observed_p_value = p_val
+        return(z,p_val)
