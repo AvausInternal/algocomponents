@@ -25,11 +25,6 @@ class GroupTask(AdapterTask):
         if not hasattr(self, "task_list"):
             self.task_list = []
 
-        if sql_adapter:
-            self.sql_adapter = sql_adapter
-        if not hasattr(self, "sql_adapter"):
-            self.sql_adapter = None
-
     def run(self):
         for task in self.task_list:
             task.parent = self
