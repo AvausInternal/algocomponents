@@ -10,6 +10,7 @@ class SampleSize(LoggieDoggie):
     default_tail = "two_sided"
 
     def get_min_sample_size_binomial(
+        self,
         p1: float,
         p2: float,
         power=default_power,
@@ -68,10 +69,11 @@ class SampleSize(LoggieDoggie):
             p1 - p2
         ) ** 2
 
-        print("Minimum sample size of each group is: ", round(min_n))
+        self.logger.info("Minimum sample size of each group is: ", round(min_n))
         return round(min_n)
     
     def get_min_sample_size_continuous(
+        self,
         u1: float,
         u2: float,
         var: float,
@@ -129,10 +131,10 @@ class SampleSize(LoggieDoggie):
 
         # Find smallest sample size required in each group.
         min_n = (2 * (var) * (Z_beta + Z_alpha) ** 2) / (u1 - u2) ** 2
-        print("Minimum sample size of each group is: ", round(min_n))
+        self.logger.info("Minimum sample size of each group is: ", round(min_n))
         return round(min_n)
 
-    def get_unequal_sample_size(N: int, N_adj: int):
+    def get_unequal_sample_size(self, N: int, N_adj: int):
         """Returns the minimum sample size of the control group
         when the samples have unequal size.
 
@@ -160,9 +162,9 @@ class SampleSize(LoggieDoggie):
         control_sample_size = round(prop_control * N_adj)
         test_sample_size = round(N_adj - N_adj * prop_control)
 
-        print("Control group proportion: ", prop_control)
-        print("Control group size: ", control_sample_size)
-        print("Test group size: ", test_sample_size)
+        self.logger.info("Control group proportion: ", prop_control)
+        self.logger.info("Control group size: ", control_sample_size)
+        self.logger.info("Test group size: ", test_sample_size)
 
         return (control_sample_size, test_sample_size)
 
