@@ -23,7 +23,7 @@ class AdapterTask(Task):
         self.sql_adapter = sql_adapter
 
     def shutdown(self):
-        if self.sql_adapter is not None:
+        if self.sql_adapter is not None and self.sql_adapter.is_connected():
             if not self.parent:
                 self.sql_adapter.disconnect()
             elif not hasattr(self.parent, "sql_adapter"):
