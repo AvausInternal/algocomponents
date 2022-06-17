@@ -23,7 +23,7 @@ class LoggieDoggie:
     }
     default_log_level = "INFO"
 
-    def __init__(self, logger_name: str = None):
+    def __init__(self, logger_name):
         self.logger_name = logger_name
         self.logger = logging.getLogger(self.logger_name)
         if not self.logger.hasHandlers():
