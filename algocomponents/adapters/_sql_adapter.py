@@ -22,7 +22,9 @@ class SQLAdapter(LoggieDoggie, ABC):
             self,
             overriding_config: ConfigParser = None
     ):
-        super().__init__()
+        self.class_name = type(self).__name__
+        super().__init__(logger_name=self.class_name)
+
         self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
         self.config.read(os.path.join("config", "config.ini"))
@@ -35,7 +37,6 @@ class SQLAdapter(LoggieDoggie, ABC):
                 for key, value in overriding_config[section].items():
                     self.config[section][key] = value
 
-        self.class_name = type(self).__name__
         if self.class_name in self.config:
             self.adapter_format_variables = self.config[self.class_name]
         else:
