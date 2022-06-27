@@ -1,7 +1,8 @@
 import os
+import re
 from abc import ABC, abstractmethod
 from configparser import ConfigParser
-from typing import Dict
+from typing import Dict, List
 
 from algocomponents.utils import LoggieDoggie
 
@@ -21,7 +22,9 @@ class SQLAdapter(LoggieDoggie, ABC):
             self,
             overriding_config: ConfigParser = None
     ):
-        super().__init__()
+        self.class_name = type(self).__name__
+        super().__init__(logger_name=self.class_name)
+
         self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
         self.config.read(os.path.join("config", "config.ini"))
@@ -34,7 +37,6 @@ class SQLAdapter(LoggieDoggie, ABC):
                 for key, value in overriding_config[section].items():
                     self.config[section][key] = value
 
-        self.class_name = type(self).__name__
         if self.class_name in self.config:
             self.adapter_format_variables = self.config[self.class_name]
         else:
@@ -67,6 +69,7 @@ class SQLAdapter(LoggieDoggie, ABC):
             if query:
                 format_variables.update(self.adapter_format_variables)
                 query = query.format(**format_variables)
+                query = self.format_table_names(query=query)
                 self.run_sql(query)
 
     def run_sql(self, sql: str):
@@ -81,3 +84,86 @@ class SQLAdapter(LoggieDoggie, ABC):
     @abstractmethod
     def _run_formatted_sql(self, sql: str):
         pass
+
+    def format_table_names(self, query: str, ignore_ctes: bool = True):
+        query = query.replace("`", "")
+        tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
+        for table in tables:
+            reformatted_table = self._format_table_name(table=table)
+            query = query.replace(table, reformatted_table)
+        return query
+
+    @abstractmethod
+    def _format_table_name(self, table: str):
+        pass
+
+    def find_cte_names(self, sql: str) -> List[str]:
+        # Remove newlines from sql
+        sql = sql.replace("\n", " ")
+        # Transform multi-whitespaces into single whitespace
+        sql = ' '.join(sql.split())
+
+        # regex explanation
+        match = re.findall(
+            # First, at least 1 newline or whitespace
+            r"\s+"
+
+            # with, followed by 1 or more newline or whitespace
+            # ?: is used to make it a non-capturing group. preventing re.findall
+            # from only returning the match for the paranthesis
+            r"(?:with)\s+"
+
+            # The actual cte, which can consist of words, .'s and -'s
+            r"[\w.-]+",
+
+            # Search in the sql string
+            sql,
+            # Ignore case
+            re.IGNORECASE
+        )
+        if not match:
+            return []
+
+        # Split every element in the list by space and take the last element,
+        # which will be the table name. set() is used to make list unique
+        return list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
+
+    def find_table_names(self, sql: str, ignore_ctes: bool = True):
+        # Remove newlines from sql
+        sql = sql.replace("\n", " ")
+        # Transform multi-whitespaces into single whitespace
+        sql = ' '.join(sql.split())
+
+        # regex explanation
+        match = re.findall(
+            # First, at least 1 newline or whitespace
+            r"\s+"
+
+            # from, join or table, followed by 1 or more newline or whitespace
+            # ?: is used to make it a non-capturing group. preventing re.findall
+            # from only returning the match for the paranthesis
+            r"(?:from|join|table)\s+"
+
+            # Maybe if exists / if not exists, then maybe newline / whitespace
+            r"(?:if exists|if not exists)*\s*"
+
+            # The actual table, which can consist of words, .'s and -'s
+            r"[\w.-]+",
+
+            # Search in the sql string
+            sql,
+            # Ignore case
+            re.IGNORECASE
+        )
+        if not match:
+            return []
+
+        # Split every element in the list by space and take the last element,
+        # which will be the table name. set() is used to make list unique
+        tables = list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
+
+        if ignore_ctes:
+            ctes = self.find_cte_names(sql)
+            tables = [t for t in tables if t not in ctes]
+
+        return tables

@@ -51,8 +51,6 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
                              f"one class but no start method, cannot start.")
 
     task.start()
-    if sql_adapter is not None:
-        sql_adapter.disconnect()
 
 
 def _find_modules(ignored_files, ignored_dirs):
@@ -145,3 +143,19 @@ def _get_adapter(adapter_type: str):
     ]:
         from algocomponents.adapters import LocalSqliteAdapter
         return LocalSqliteAdapter()
+    if adapter_type.lower() in [
+        "spark_adapter",
+        "sparkadapter",
+        "spark",
+        "s",
+    ]:
+        from algocomponents.adapters import SparkAdapter
+        return SparkAdapter()
+    if adapter_type.lower() in [
+        "databricks_adapter",
+        "databricksadapter",
+        "databricks",
+        "db",
+    ]:
+        from algocomponents.adapters import DatabricksAdapter
+        return DatabricksAdapter()

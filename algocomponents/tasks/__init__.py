@@ -1,7 +1,9 @@
 from algocomponents.tasks._task import Task
+from algocomponents.tasks._adapter_task import AdapterTask
 from algocomponents.tasks._sql_task import SQLTask
 from algocomponents.tasks._group_task import GroupTask
 from algocomponents.tasks._sql_pipeline import SQLPipeline
+from algocomponents.tasks.model_evaluator._model_evaluator import ModelEvaluator
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -13,7 +15,9 @@ order of dependency: As GroupTask inherits from Task, Task must precede it.
 
 __all__ = [
     "Task",
+    "AdapterTask",
     "SQLTask",
     "GroupTask",
     "SQLPipeline",
+    "ModelEvaluator",
 ]

@@ -1,6 +1,8 @@
 from algocomponents.adapters._sql_adapter import SQLAdapter
 from algocomponents.adapters._local_sqlite_adapter import LocalSqliteAdapter
 from algocomponents.adapters._gcp_adapter import GCPAdapter
+from algocomponents.adapters._spark_adapter import SparkAdapter
+from algocomponents.adapters._databricks_adapter import DatabricksAdapter
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -15,4 +17,6 @@ __all__ = [
     "SQLAdapter",
     "LocalSqliteAdapter",
     "GCPAdapter",
+    "SparkAdapter",
+    "DatabricksAdapter",
 ]
