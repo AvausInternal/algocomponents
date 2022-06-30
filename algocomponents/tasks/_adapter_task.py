@@ -20,7 +20,11 @@ class AdapterTask(Task):
             section: str = None,
     ):
         super().__init__(config=config, section=section)
-        self.sql_adapter = sql_adapter
+
+        if sql_adapter:
+            self.sql_adapter = sql_adapter
+        if not hasattr(self, "sql_adapter"):
+            self.sql_adapter = None
 
     def shutdown(self):
         if self.sql_adapter is not None and self.sql_adapter.is_connected():
