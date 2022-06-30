@@ -31,15 +31,13 @@ class GCPAdapter(SQLAdapter):
         self.client = None
         super().disconnect()
 
-    def format_table_names(self, query: str, ignore_ctes: bool = True):
-        query = query.replace("`", "")
-        return super().format_table_names(query=query, ignore_ctes=ignore_ctes)
-
     def _format_table_name(self, table: str):
         assert "gcp_project" in list(self.adapter_format_variables), \
                "The GCPAdapter does not have a gcp_project set. It is either " \
                "missing from the global config file, or it has not been " \
                "supplied when instantiating the GCPAdapter"
+
+        table = table.replace("`", "")
 
         gcp_project = self.adapter_format_variables["gcp_project"]
         if table.startswith(gcp_project + "."):
