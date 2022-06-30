@@ -3,7 +3,14 @@ from setuptools import setup
 setup(
     name='algocomponents',
     version='0.6.0',
-    packages=['algocomponents', 'algocomponents.tasks', 'algocomponents.utils', 'algocomponents.adapters'],
+    packages=[
+        'algocomponents',
+        'algocomponents.tasks',
+        'algocomponents.tasks.model_evaluator',
+        'algocomponents.tasks.model_evaluator.sql',
+        'algocomponents.utils',
+        'algocomponents.adapters',
+    ],
     url='',
     license='',
     author='erichorberg',
