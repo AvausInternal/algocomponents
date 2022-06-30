@@ -112,8 +112,8 @@ class SQLAdapter(LoggieDoggie, ABC):
             # from only returning the match for the paranthesis
             r"(?:with)\s+"
 
-            # The actual cte, which can consist of words, .'s and -'s
-            r"[\w.-]+",
+            # The actual cte, which can consist of words, .'s, `'s and -'s
+            r"[\w.`-]+",
 
             # Search in the sql string
             sql,
@@ -146,8 +146,8 @@ class SQLAdapter(LoggieDoggie, ABC):
             # Maybe if exists / if not exists, then maybe newline / whitespace
             r"(?:if exists|if not exists)*\s*"
 
-            # The actual table, which can consist of words, .'s and -'s
-            r"[\w.-]+",
+            # The actual table, which can consist of words, .'s, `'s and -'s
+            r"[\w.`-]+",
 
             # Search in the sql string
             sql,
