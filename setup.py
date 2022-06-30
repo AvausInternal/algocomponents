@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='algocomponents',
-    version='0.6.0',
+    version='0.6.1',
     packages=[
         'algocomponents',
         'algocomponents.tasks',
