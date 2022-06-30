@@ -86,7 +86,6 @@ class SQLAdapter(LoggieDoggie, ABC):
         pass
 
     def format_table_names(self, query: str, ignore_ctes: bool = True):
-        query = query.replace("`", "")
         tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
         for table in tables:
             reformatted_table = self._format_table_name(table=table)
