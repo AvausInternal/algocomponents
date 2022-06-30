@@ -39,6 +39,10 @@ class LocalSqliteAdapter(SQLAdapter):
         self.connection.close()
         super().disconnect()
 
+    def format_table_names(self, query: str, ignore_ctes: bool = True):
+        query = query.replace("`", "")
+        return super().format_table_names(query=query, ignore_ctes=ignore_ctes)
+
     def _format_table_name(self, table: str):
         return table.replace(".", "_")
 
