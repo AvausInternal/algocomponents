@@ -48,7 +48,9 @@ class GCPAdapter(SQLAdapter):
 
     def _run_formatted_sql(self, sql: str):
         query_job = self.client.query(sql)
-        self.logger.info("This query will process {} bytes.".format(query_job.total_bytes_processed))
+        self.logger.info(
+            "This query will process {} bytes.".format(query_job.total_bytes_processed)
+        )
         rows = query_job.result()
 
         if rows.total_rows != 0:

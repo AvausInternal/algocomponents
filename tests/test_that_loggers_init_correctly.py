@@ -1,7 +1,13 @@
 import logging
 from unittest import TestCase
 
-from algocomponents.adapters import SQLAdapter, LocalSqliteAdapter, GCPAdapter, SparkAdapter, DatabricksAdapter
+from algocomponents.adapters import (
+    SQLAdapter,
+    LocalSqliteAdapter,
+    GCPAdapter,
+    SparkAdapter,
+    DatabricksAdapter,
+)
 from algocomponents.tasks import Task, GroupTask, SQLTask, SQLPipeline, AdapterTask
 
 
@@ -48,6 +54,6 @@ class ThatThatLoggersInitCorrectly(TestCase):
         self.verify_logger(adapter.logger)
 
     def verify_logger(self, logger):
-        assert (logger is not None)
-        assert (logger is not self.root_logger)
-        assert (logger.hasHandlers())
+        assert logger is not None
+        assert logger is not self.root_logger
+        assert logger.hasHandlers()
