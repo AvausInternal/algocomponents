@@ -20,11 +20,11 @@ class SQLPipeline(GroupTask, ABC):
     sql_file_pattern = "[0-9]+_"  # Numeric followed by underscore
 
     def __init__(
-            self,
-            sql_folder: str = None,
-            sql_adapter: SQLAdapter = None,
-            config: ConfigParser = None,
-            section: str = None,
+        self,
+        sql_folder: str = None,
+        sql_adapter: SQLAdapter = None,
+        config: ConfigParser = None,
+        section: str = None,
     ):
         super().__init__(sql_adapter=sql_adapter, config=config, section=section)
 
@@ -46,7 +46,7 @@ class SQLPipeline(GroupTask, ABC):
             if not regex_pattern.match(sql_file):
                 raise NameError(
                     "SQL files are not numbered, cannot determine order of "
-                    f"operations. Expected \"1_example.sql\", found: {sql_file}"
+                    f'operations. Expected "1_example.sql", found: {sql_file}'
                 )
 
         # Split filename on _, take the first instance, and then sort as if that
