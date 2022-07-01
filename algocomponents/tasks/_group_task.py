@@ -9,11 +9,11 @@ class GroupTask(AdapterTask):
     """GroupTask iterates over a list of tasks and starts them."""
 
     def __init__(
-            self,
-            task_list: List[Task] = None,
-            sql_adapter: SQLAdapter = None,
-            config: ConfigParser = None,
-            section: str = None,
+        self,
+        task_list: List[Task] = None,
+        sql_adapter: SQLAdapter = None,
+        config: ConfigParser = None,
+        section: str = None,
     ):
         super().__init__(
             sql_adapter=sql_adapter,

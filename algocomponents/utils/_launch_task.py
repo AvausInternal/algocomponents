@@ -18,37 +18,47 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
         for module_name, module_path in all_modules.items():
             module_list += f"{module_name}: {module_path}\n"
 
-        raise AttributeError(f"Did not find file \"{task_file_name}\"\n"
-                             f"Ignored these files: {ignored_files}\n"
-                             f"Ignored these dirs: {ignored_dirs}\n"
-                             f"The following files available:\n"
-                             f"{module_list}")
+        raise AttributeError(
+            f'Did not find file "{task_file_name}"\n'
+            f"Ignored these files: {ignored_files}\n"
+            f"Ignored these dirs: {ignored_dirs}\n"
+            f"The following files available:\n"
+            f"{module_list}"
+        )
 
     module_path = all_modules[task_file_name]
-    module_name = module_path.replace(os.sep, '.')
+    module_name = module_path.replace(os.sep, ".")
     module = importlib.import_module(module_name)
-    
+
     classes_in_module = _get_classes_in_module(module)
 
     if len(classes_in_module) == 0:
-        raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
-                             f"but has no classes, cannot start.")
+        raise AttributeError(
+            f'"{task_file_name}" found at {module_path} '
+            f"but has no classes, cannot start."
+        )
 
     if len(classes_in_module) > 1:
-        raise AttributeError(f"\"{task_file_name}\" found at {module_path} "
-                             f"but has more than one class, cannot start.")
+        raise AttributeError(
+            f'"{task_file_name}" found at {module_path} '
+            f"but has more than one class, cannot start."
+        )
 
     sql_adapter = _get_adapter(adapter_type)
     if sql_adapter is not None:
         sql_adapter.connect()
-        task = classes_in_module[0](section=section, sql_adapter=sql_adapter, **task_kwargs)
+        task = classes_in_module[0](
+            section=section, sql_adapter=sql_adapter, **task_kwargs
+        )
     else:
         task = classes_in_module[0](section=section, **task_kwargs)
 
     start_method = getattr(task, "start", None)
     if not callable(start_method):
-        raise AttributeError(f"\"{task_file_name}\" found at {module_path} has "
-                             f"one class but no start method, cannot start.")
+        raise AttributeError(
+            f'"{task_file_name}" found at {module_path} has '
+            f"one class but no start method, cannot start."
+        )
 
     task.start()
 
@@ -61,7 +71,7 @@ def _find_modules(ignored_files, ignored_dirs):
     for root, _, files in os.walk(current_dir):
 
         # root/path/project/path
-        relative_path = root[len(current_dir)+1:]
+        relative_path = root[len(current_dir) + 1 :]
         # project/path
         if any(ignored_dir in relative_path for ignored_dir in ignored_dirs):
             continue
@@ -112,7 +122,7 @@ def _get_classes_in_module(module):
         # Any remaining objects are classes declared in the module we are
         # inspecting, and shall be returned.
         classes.append(obj)
-        
+
     return classes
 
 
@@ -130,6 +140,7 @@ def _get_adapter(adapter_type: str):
         "bq",
     ]:
         from algocomponents.adapters import GCPAdapter
+
         return GCPAdapter()
     if adapter_type.lower() in [
         "local_sqlite_adapter",
@@ -142,6 +153,7 @@ def _get_adapter(adapter_type: str):
         "l",
     ]:
         from algocomponents.adapters import LocalSqliteAdapter
+
         return LocalSqliteAdapter()
     if adapter_type.lower() in [
         "spark_adapter",
@@ -150,6 +162,7 @@ def _get_adapter(adapter_type: str):
         "s",
     ]:
         from algocomponents.adapters import SparkAdapter
+
         return SparkAdapter()
     if adapter_type.lower() in [
         "databricks_adapter",
@@ -158,4 +171,5 @@ def _get_adapter(adapter_type: str):
         "db",
     ]:
         from algocomponents.adapters import DatabricksAdapter
+
         return DatabricksAdapter()

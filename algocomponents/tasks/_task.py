@@ -19,9 +19,9 @@ class Task(LoggieDoggie):
     _default_section = "DEFAULT"
 
     def __init__(
-            self,
-            config: ConfigParser = None,
-            section: str = None,
+        self,
+        config: ConfigParser = None,
+        section: str = None,
     ):
         self.task_name = type(self).__name__
         super().__init__(logger_name=self.task_name)
@@ -68,8 +68,9 @@ class Task(LoggieDoggie):
     def start(self):
         run_start = datetime.now()
 
-        self.logger.info(f"Starting task {self.task_name} "
-                         f"with section {self.section}")
+        self.logger.info(
+            f"Starting task {self.task_name} " f"with section {self.section}"
+        )
         self.logger.debug(config_to_str(self.config))
 
         self.startup()

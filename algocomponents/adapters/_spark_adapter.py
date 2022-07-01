@@ -16,6 +16,7 @@ class SparkAdapter(SQLAdapter):
     def connect(self):
         super().connect()
         from pyspark.sql import SparkSession
+
         self.spark = SparkSession.builder.getOrCreate()
 
     def is_connected(self):
