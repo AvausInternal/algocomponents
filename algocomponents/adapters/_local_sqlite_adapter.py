@@ -14,7 +14,9 @@ class LocalSqliteAdapter(SQLAdapter):
 
     db_file = "local_sqlite.db"
 
-    def __init__(self, config: ConfigParser = None):
+    def __init__(
+            self, config: ConfigParser = None
+    ):
         super().__init__(overriding_config=config)
         self.db_path = self.db_file
         self.connection = None
