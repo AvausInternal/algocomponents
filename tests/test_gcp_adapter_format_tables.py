@@ -135,44 +135,56 @@ class TestAdapterFindTableNames(TestCase):
 
     def test_formatting_simple_query(self):
         query = self.gcp_adapter.format_table_names(query=self.simple_query)
-        assert(query == self.simple_query_formatted)
+        assert query == self.simple_query_formatted
 
     def test_formatting_simple_query_with_backticks(self):
-        query = self.gcp_adapter.format_table_names(query=self.simple_query_with_backticks)
-        assert(query == self.simple_query_formatted)
+        query = self.gcp_adapter.format_table_names(
+            query=self.simple_query_with_backticks
+        )
+        assert query == self.simple_query_formatted
 
     def test_re_formatting_simple_query(self):
         query = self.gcp_adapter.format_table_names(query=self.simple_query_formatted)
-        assert(query == self.simple_query_formatted)
+        assert query == self.simple_query_formatted
 
     def test_formatting_advanced_query(self):
         query = self.gcp_adapter.format_table_names(query=self.advanced_query)
-        assert (query == self.advanced_query_formatted)
+        assert query == self.advanced_query_formatted
 
     def test_formatting_advanced_query_with_backticks(self):
-        query = self.gcp_adapter.format_table_names(query=self.advanced_query_with_backticks)
-        assert (query == self.advanced_query_formatted)
+        query = self.gcp_adapter.format_table_names(
+            query=self.advanced_query_with_backticks
+        )
+        assert query == self.advanced_query_formatted
 
     def test_formatting_advanced_query_with_project(self):
-        query = self.gcp_adapter.format_table_names(query=self.advanced_query_with_project)
-        assert (query == self.advanced_query_formatted)
+        query = self.gcp_adapter.format_table_names(
+            query=self.advanced_query_with_project
+        )
+        assert query == self.advanced_query_formatted
 
     def test_re_formatting_advanced_query(self):
         query = self.gcp_adapter.format_table_names(query=self.advanced_query_formatted)
-        assert (query == self.advanced_query_formatted)
+        assert query == self.advanced_query_formatted
 
     def test_formatting_advanced_query_with_cte(self):
         query = self.gcp_adapter.format_table_names(query=self.advanced_query_with_cte)
-        assert (query == self.advanced_query_with_cte_formatted)
+        assert query == self.advanced_query_with_cte_formatted
 
     def test_formatting_advanced_query_with_cte_and_backticks(self):
-        query = self.gcp_adapter.format_table_names(query=self.advanced_query_with_cte_and_backticks)
-        assert (query == self.advanced_query_with_cte_formatted)
+        query = self.gcp_adapter.format_table_names(
+            query=self.advanced_query_with_cte_and_backticks
+        )
+        assert query == self.advanced_query_with_cte_formatted
 
     def test_formatting_advanced_query_with_cte_and_project(self):
-        query = self.gcp_adapter.format_table_names(query=self.advanced_query_with_cte_and_project)
-        assert (query == self.advanced_query_with_cte_formatted)
+        query = self.gcp_adapter.format_table_names(
+            query=self.advanced_query_with_cte_and_project
+        )
+        assert query == self.advanced_query_with_cte_formatted
 
     def test_re_formatting_advanced_query_with_cte(self):
-        query = self.gcp_adapter.format_table_names(query=self.advanced_query_with_cte_formatted)
-        assert (query == self.advanced_query_with_cte_formatted)
+        query = self.gcp_adapter.format_table_names(
+            query=self.advanced_query_with_cte_formatted
+        )
+        assert query == self.advanced_query_with_cte_formatted

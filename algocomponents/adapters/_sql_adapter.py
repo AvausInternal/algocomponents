@@ -18,10 +18,7 @@ class SQLAdapter(LoggieDoggie, ABC):
     different services. There will be one adapter per service.
     """
 
-    def __init__(
-            self,
-            overriding_config: ConfigParser = None
-    ):
+    def __init__(self, overriding_config: ConfigParser = None):
         self.class_name = type(self).__name__
         super().__init__(logger_name=self.class_name)
 
@@ -58,8 +55,7 @@ class SQLAdapter(LoggieDoggie, ABC):
         with open(path) as f:
             sql_string = f.read()
             self.run_sql_string(
-                sql_string=sql_string,
-                format_variables=format_variables
+                sql_string=sql_string, format_variables=format_variables
             )
 
     def run_sql_string(self, sql_string: str, format_variables: Dict[str, str]):
@@ -100,25 +96,22 @@ class SQLAdapter(LoggieDoggie, ABC):
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
         # Transform multi-whitespaces into single whitespace
-        sql = ' '.join(sql.split())
+        sql = " ".join(sql.split())
 
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
             r"\s+"
-
             # with, followed by 1 or more newline or whitespace
             # ?: is used to make it a non-capturing group. preventing re.findall
             # from only returning the match for the paranthesis
             r"(?:with)\s+"
-
             # The actual cte, which can consist of words, .'s, `'s and -'s
             r"[\w.`-]+",
-
             # Search in the sql string
             sql,
             # Ignore case
-            re.IGNORECASE
+            re.IGNORECASE,
         )
         if not match:
             return []
@@ -131,28 +124,24 @@ class SQLAdapter(LoggieDoggie, ABC):
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
         # Transform multi-whitespaces into single whitespace
-        sql = ' '.join(sql.split())
+        sql = " ".join(sql.split())
 
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
             r"\s+"
-
             # from, join or table, followed by 1 or more newline or whitespace
             # ?: is used to make it a non-capturing group. preventing re.findall
             # from only returning the match for the paranthesis
             r"(?:from|join|table)\s+"
-
             # Maybe if exists / if not exists, then maybe newline / whitespace
             r"(?:if exists|if not exists)*\s*"
-
             # The actual table, which can consist of words, .'s, `'s and -'s
             r"[\w.`-]+",
-
             # Search in the sql string
             sql,
             # Ignore case
-            re.IGNORECASE
+            re.IGNORECASE,
         )
         if not match:
             return []

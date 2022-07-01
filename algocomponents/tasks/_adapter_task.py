@@ -14,10 +14,10 @@ class AdapterTask(Task):
     """
 
     def __init__(
-            self,
-            sql_adapter: SQLAdapter = None,
-            config: ConfigParser = None,
-            section: str = None,
+        self,
+        sql_adapter: SQLAdapter = None,
+        config: ConfigParser = None,
+        section: str = None,
     ):
         super().__init__(config=config, section=section)
 

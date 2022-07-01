@@ -11,12 +11,12 @@ class SQLTask(AdapterTask):
     """
 
     def __init__(
-            self,
-            sql_file_path: str = None,
-            sql_string: str = None,
-            sql_adapter: SQLAdapter = None,
-            config: ConfigParser = None,
-            section: str = None,
+        self,
+        sql_file_path: str = None,
+        sql_string: str = None,
+        sql_adapter: SQLAdapter = None,
+        config: ConfigParser = None,
+        section: str = None,
     ):
         super().__init__(
             sql_adapter=sql_adapter,
@@ -27,8 +27,9 @@ class SQLTask(AdapterTask):
         self.sql_file_path = sql_file_path
         self.sql_string = sql_string
 
-        assert self.sql_file_path or self.sql_string,\
-            "SQLTask Must get either sql_file_path or sql_string, got neither."
+        assert (
+            self.sql_file_path or self.sql_string
+        ), "SQLTask Must get either sql_file_path or sql_string, got neither."
 
     def run(self):
         if self.sql_string:
