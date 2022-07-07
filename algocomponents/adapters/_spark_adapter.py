@@ -1,6 +1,6 @@
 from configparser import ConfigParser
-
 from algocomponents.adapters import SQLAdapter
+from typing import List
 
 
 class SparkAdapter(SQLAdapter):
@@ -38,7 +38,7 @@ class SparkAdapter(SQLAdapter):
         )
         return sql_tables.count() > 0
 
-    def get_table_columns(self, database: str, table: str) -> bool:
+    def get_table_columns(self, database: str, table: str) -> List[str]:
         """Tnis is divergent from all the other get_table_columns methods, in that it requires 2 inputs"""
 
         col_names = self.spark.sql(f"SHOW COLUMNS IN `{table}` IN `{database}`")
