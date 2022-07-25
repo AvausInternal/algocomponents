@@ -48,14 +48,16 @@ class GCPAdapter(SQLAdapter):
         return f"`{gcp_project}.{table}`"
 
     def table_exists(self, table: str) -> bool:
+        formatted_table = self._format_table_name(table).replace("`", "")
         try:
-            self.client.get_table(table)
+            self.client.get_table(formatted_table)
             return True
         except:
             return False
 
     def get_table_columns(self, table: str) -> List[str]:
-        schema = self.client.get_table(table).schema
+        formatted_table = self._format_table_name(table).replace("`", "")
+        schema = self.client.get_table(formatted_table).schema
         return [column.name for column in schema]
 
     def _run_formatted_sql(self, sql: str):
