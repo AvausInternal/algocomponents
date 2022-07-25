@@ -30,19 +30,18 @@ class SparkAdapter(SQLAdapter):
     def _format_table_name(self, table: str):
         return table
 
-    def table_exists(self, database: str, table: str) -> bool:
-        """Tnis is divergent from all the other table_exists methods, in that it requires 2 inputs"""
-
+    def table_exists(self, table: str) -> bool:
+        database, table = table.split(".")
         sql_tables = self.spark.sql(f"SHOW TABLES in `{database}`").filter(
             f"tableName = '{table}'"
         )
         return sql_tables.count() > 0
 
-    def get_table_columns(self, database: str, table: str) -> List[str]:
-        """Tnis is divergent from all the other get_table_columns methods, in that it requires 2 inputs"""
-
-        col_names = self.spark.sql(f"SHOW COLUMNS IN `{table}` IN `{database}`")
-        return col_names.rdd.map(lambda x: x[0]).collect()
+    def get_table_columns(self, table: str) -> List[str]:
+        database, table = table.split(".")
+        columns = self.spark.catalog.listColumns(tableName=table, dbName=database)
+        columns_names = [col[0] for col in columns]
+        return columns_names
 
     def _run_formatted_sql(self, sql: str):
         sdf = self.spark.sql(sql)
