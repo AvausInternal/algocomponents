@@ -22,7 +22,12 @@ class LoggieDoggie:
         "CRITICAL": logging.CRITICAL,
     }
 
-    def fetch_logger(self, logger_name, log_level="INFO"):
+    def fetch_logger(
+        self,
+        logger_name: str,
+        log_level: str = "INFO",
+        log_to_file: bool = True
+    ):
         logger = logging.getLogger(logger_name)
         if logger.hasHandlers():
             return logger
@@ -32,12 +37,12 @@ class LoggieDoggie:
         logger.setLevel(level=logging.INFO)
         formatter = logging.Formatter(self.logger_format, self.date_format)
 
-        # Create handler for file output
-        file_handler = logging.FileHandler(filename=self.log_file_name)
-        file_handler.setLevel(logging.NOTSET)
-        file_handler.setFormatter(formatter)
-
-        logger.addHandler(file_handler)
+        if log_to_file:
+            # Create handler for file output
+            file_handler = logging.FileHandler(filename=self.log_file_name)
+            file_handler.setLevel(logging.NOTSET)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
 
         # Create handler for terminal output
         terminal_handler = logging.StreamHandler(sys.stdout)

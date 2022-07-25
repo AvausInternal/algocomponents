@@ -52,11 +52,27 @@ class Task:
         # Then append or overwrite from the local config file
         self.config.read(os.path.join(self.classpath, local_config_dir, "config.ini"))
 
+        # read log level from config
         self.loggie_doggie = LoggieDoggie()
         if "log_level" in self.config[self.section].keys():
             log_level = self.config[self.section]["log_level"]
         else:
             log_level = None
+
+        # read log to file from config
+        if "log_to_file" in self.config[self.section]:
+
+            log_to_file = self.config[self.section]["log_to_file"]
+            if log_to_file == "True":
+                log_to_file = True
+            elif log_to_file == "False":
+                log_to_file = False
+            else:
+                raise AttributeError(
+                    f"log_to_file variable must be True or False, not {log_to_file}"
+                )
+        else:
+            log_to_file = True
 
         self.logger = self.loggie_doggie.fetch_logger(
             logger_name=self.task_name,
