@@ -61,7 +61,8 @@ class LocalSqliteAdapter(SQLAdapter):
     def _run_formatted_sql(self, sql: str):
         query_job = self.cursor.execute(sql)
         self.rows = self.cursor.fetchall()
-        self.columns = [column[0] for column in query_job.description]
+        if query_job.description:
+            self.columns = [column[0] for column in query_job.description]
 
         if self.rows:
             self.logger.info("Result")
