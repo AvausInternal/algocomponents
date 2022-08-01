@@ -1,5 +1,10 @@
 from configparser import ConfigParser
 from unittest import TestCase
+import os
+import sys
+
+# This is required for github actions to find the algocomponents imports
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from algocomponents.utils import config_to_str
 
