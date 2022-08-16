@@ -1,11 +1,6 @@
 import logging
 from unittest import TestCase
-import os
-import sys
 
-# This is required for github actions to find the algocomponents imports
-
-# sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from algocomponents.adapters import (
     SQLAdapter,
     LocalSqliteAdapter,

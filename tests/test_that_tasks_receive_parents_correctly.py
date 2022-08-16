@@ -1,9 +1,4 @@
 from unittest import TestCase
-import os
-import sys
-
-# This is required for github actions to find the algocomponents imports
-# sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from algocomponents.tasks import Task, GroupTask
 
@@ -20,7 +15,7 @@ class TestThatTasksReceiveParentsCorrectly(TestCase):
     def test_that_tasks_do_not_have_parents_before_started(self):
         task = Task()
         group_task = GroupTask(task_list=[task])
-        assert task.parent is None
+        assert 0
 
     def test_that_tasks_receive_a_parent_once_started(self):
         task = Task()
