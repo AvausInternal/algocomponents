@@ -4,7 +4,7 @@ import os
 import sys
 
 # This is required for github actions to find the algocomponents imports
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+# sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from algocomponents.adapters import LocalSqliteAdapter, SQLAdapter
 from algocomponents.tasks import GroupTask, SQLPipeline
