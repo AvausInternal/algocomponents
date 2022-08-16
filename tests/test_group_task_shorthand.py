@@ -1,7 +1,6 @@
-from configparser import ConfigParser
 from unittest import TestCase
 
-from algocomponents.adapters import LocalSqliteAdapter, SQLAdapter
+from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import GroupTask, SQLPipeline
 
 
