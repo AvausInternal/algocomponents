@@ -55,7 +55,8 @@ class LocalSqliteAdapter(SQLAdapter):
         description = self.cursor.execute(
             f"SELECT * FROM {formatted_table}"
         ).description
-        return [column[0] for column in description]
+        columns_names = [column[0] for column in description]
+        return columns_names
 
     def _run_formatted_sql(self, sql: str):
         self.cursor.execute(sql)

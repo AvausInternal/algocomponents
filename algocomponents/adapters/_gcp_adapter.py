@@ -58,7 +58,8 @@ class GCPAdapter(SQLAdapter):
     def get_table_columns(self, table: str) -> List[str]:
         formatted_table = self._format_table_name(table).replace("`", "")
         schema = self.client.get_table(formatted_table).schema
-        return [column.name for column in schema]
+        columns_names = [column.name for column in schema]
+        return columns_names
 
     def _run_formatted_sql(self, sql: str):
         query_job = self.client.query(sql)
