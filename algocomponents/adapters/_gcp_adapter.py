@@ -76,9 +76,9 @@ class GCPAdapter(SQLAdapter):
             for row in rows:
                 self.logger.info(list(row.items()))
 
-    def query_job_as_pandas(self):
+    def latest_query_as_pandas(self):
         return self.query_job.to_dataframe()
 
-    def query_job_as_csv(self, path: str):
-        dataframe = self.query_job_as_pandas()
+    def latest_query_as_csv(self, path: str):
+        dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)

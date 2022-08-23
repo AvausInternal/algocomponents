@@ -44,7 +44,7 @@ class SQLTask(AdapterTask):
             )
 
     def as_pandas(self):
-        return self.sql_adapter.query_job_as_pandas()
+        return self.sql_adapter.latest_query_as_pandas()
 
     def to_csv(self, path: str):
-        self.sql_adapter.query_job_as_csv(path=path)
+        self.sql_adapter.latest_query_as_csv(path=path)

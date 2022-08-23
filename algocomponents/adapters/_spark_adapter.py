@@ -48,8 +48,8 @@ class SparkAdapter(SQLAdapter):
         self.sdf = self.spark.sql(sql)
         self.sdf.show()
 
-    def query_job_as_pandas(self):
+    def latest_query_as_pandas(self):
         raise NotImplementedError()
 
-    def query_job_as_csv(self, path: str):
+    def latest_query_as_csv(self, path: str):
         raise NotImplementedError()

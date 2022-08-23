@@ -165,9 +165,9 @@ class SQLAdapter(LoggieDoggie, ABC):
         return tables
 
     @abstractmethod
-    def query_job_as_pandas(self):
+    def latest_query_as_pandas(self):
         pass
 
     @abstractmethod
-    def query_job_as_csv(self, path: str):
+    def latest_query_as_csv(self, path: str):
         pass
