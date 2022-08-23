@@ -73,7 +73,12 @@ class SQLAdapter(LoggieDoggie, ABC):
             query = query.strip()
             if query:
                 format_variables.update(self.adapter_format_variables)
-                query = query.format(**format_variables)
+                # Allow nested templating, for example:
+                # {OUTPUT_TABLE} -> {TMP_DB}.output_table -> tmp.output_table
+                previous_query = ""
+                while query != previous_query:
+                    previous_query = query
+                    query = query.format(**format_variables)
                 query = self.format_table_names(query=query)
                 self.run_sql(query)
 
