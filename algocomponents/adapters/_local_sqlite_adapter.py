@@ -1,5 +1,6 @@
 import sqlite3
 from configparser import ConfigParser
+from typing import List
 
 from algocomponents.adapters import SQLAdapter
 
@@ -41,6 +42,21 @@ class LocalSqliteAdapter(SQLAdapter):
 
     def _format_table_name(self, table: str):
         return table.replace("`", "").replace(".", "_")
+
+    def table_exists(self, table: str) -> bool:
+        formatted_table = self._format_table_name(table)
+        tables = self.cursor.execute(
+            f"SELECT name FROM sqlite_master WHERE type='table' AND name='{formatted_table}'"
+        ).fetchall()
+        return len(tables) > 0
+
+    def get_table_columns(self, table: str) -> List[str]:
+        formatted_table = self._format_table_name(table)
+        description = self.cursor.execute(
+            f"SELECT * FROM {formatted_table}"
+        ).description
+        columns_names = [column[0] for column in description]
+        return columns_names
 
     def _run_formatted_sql(self, sql: str):
         self.cursor.execute(sql)
