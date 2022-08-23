@@ -73,13 +73,10 @@ class SQLAdapter(LoggieDoggie, ABC):
             query = query.strip()
             if query:
                 format_variables.update(self.adapter_format_variables)
-                # Allow nested templating, for example:
-                # {OUTPUT_TABLE} -> {TMP_DB}.output_table -> tmp.output_table
-                previous_query = ""
-                while query != previous_query:
-                    previous_query = query
-                    query = query.format(**format_variables)
-                query = self.format_table_names(query=query)
+                formatted_query = self._format_query(
+                    query=query, format_variables=format_variables
+                )
+                query = self.format_table_names(query=formatted_query)
                 self.run_sql(query)
 
     def run_sql(self, sql: str):
@@ -89,6 +86,16 @@ class SQLAdapter(LoggieDoggie, ABC):
         sql = sql.strip()
         self.logger.info(f"Executing the following query: \n{sql}")
         self._run_formatted_sql(sql=sql)
+
+    def _format_query(self, query: str, format_variables: Dict[str, str]):
+        # Allow nested templating, for example:
+        # {OUTPUT_TABLE} -> {TMP_DB}.output_table -> tmp.output_table
+        previous_query = ""
+        while query != previous_query:
+            previous_query = query
+            query = query.format(**format_variables)
+        query = self.format_table_names(query=query)
+        return query
 
     @abstractmethod
     def _run_formatted_sql(self, sql: str):
