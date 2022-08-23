@@ -24,7 +24,7 @@ class TestThatSQLAdaptersConnectAndDisconnectCorrectly(TestCase):
 
     def test_that_an_adapter_connects_after_running_sql(self):
         task = AdapterTask(sql_adapter=self.sql_adapter)
-        task.sql_adapter.run_sql("SELECT 1")
+        task.sql_adapter.run_sql_string("SELECT 1")
         assert task.sql_adapter.is_connected()
 
     def test_that_an_adapter_task_disconnects_its_adapter(self):
