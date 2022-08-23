@@ -12,6 +12,7 @@ class SparkAdapter(SQLAdapter):
     def __init__(self, config: ConfigParser = None):
         super().__init__(overriding_config=config)
         self.spark = None
+        self.sdf = None
 
     def connect(self):
         super().connect()
@@ -44,5 +45,11 @@ class SparkAdapter(SQLAdapter):
         return columns_names
 
     def _run_formatted_sql(self, sql: str):
-        sdf = self.spark.sql(sql)
-        sdf.show()
+        self.sdf = self.spark.sql(sql)
+        self.sdf.show()
+
+    def latest_query_as_pandas(self):
+        raise NotImplementedError()
+
+    def latest_query_as_csv(self, path: str):
+        raise NotImplementedError()

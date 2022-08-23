@@ -42,3 +42,9 @@ class SQLTask(AdapterTask):
                 path=self.sql_file_path,
                 format_variables=dict(self.config[self.section]),
             )
+
+    def as_pandas(self):
+        return self.sql_adapter.latest_query_as_pandas()
+
+    def to_csv(self, path: str):
+        self.sql_adapter.latest_query_as_csv(path=path)

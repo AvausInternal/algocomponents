@@ -80,6 +80,8 @@ class Task(LoggieDoggie):
         now = datetime.now()
         self.logger.info(f"Task {self.task_name} finished after {now - run_start}")
 
+        return self
+
     def startup(self):
         pass
 
