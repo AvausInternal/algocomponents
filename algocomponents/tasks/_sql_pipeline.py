@@ -21,14 +21,18 @@ class SQLPipeline(GroupTask, ABC):
 
     def __init__(
         self,
-        sql_folder: str = None,
+        sql_folder: str = "sql",
+        sql_folder_relative_path: bool = True,
         sql_adapter: SQLAdapter = None,
         config: ConfigParser = None,
         section: str = None,
     ):
         super().__init__(sql_adapter=sql_adapter, config=config, section=section)
 
-        self.sql_folder = sql_folder or os.path.join(self.classpath, "sql")
+        if sql_folder_relative_path:
+            self.sql_folder = os.path.join(self.classpath, sql_folder)
+        else:
+            self.sql_folder = sql_folder
 
         self.task_list = self.get_sql_tasks()
 
