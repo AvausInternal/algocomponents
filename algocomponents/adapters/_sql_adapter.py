@@ -92,10 +92,10 @@ class SQLAdapter(LoggieDoggie, ABC):
             query = self._format_query(query=query, format_variables=format_variables)
             query = self._format_table_names(query=query)
             self.logger.info(f"Executing the following query: \n{query}")
-            self._run_formatted_sql(sql=query)
+            self._run_formatted_query(query=query)
 
     @abstractmethod
-    def _run_formatted_sql(self, sql: str):
+    def _run_formatted_query(self, query: str):
         pass
 
     def _format_query(

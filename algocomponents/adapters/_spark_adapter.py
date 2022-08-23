@@ -48,8 +48,8 @@ class SparkAdapter(SQLAdapter):
         columns_names = [col[0] for col in columns]
         return columns_names
 
-    def _run_formatted_sql(self, sql: str):
-        self.sdf = self.spark.sql(sql)
+    def _run_formatted_query(self, query: str):
+        self.sdf = self.spark.sql(query)
         self.sdf.show()
 
     def latest_query_as_pandas(self):
