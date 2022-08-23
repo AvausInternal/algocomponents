@@ -87,14 +87,23 @@ class SQLAdapter(LoggieDoggie, ABC):
         self.logger.info(f"Executing the following query: \n{sql}")
         self._run_formatted_sql(sql=sql)
 
-    def _format_query(self, query: str, format_variables: Dict[str, str]):
-        # Allow nested templating, for example:
+    def _format_query(
+        self, query: str, format_variables: Dict[str, str], max_depth: int = 5
+    ):
+        # Format until no change is detected to allow nested templating:
         # {OUTPUT_TABLE} -> {TMP_DB}.output_table -> tmp.output_table
         previous_query = ""
+        depth = 0
         while query != previous_query:
             previous_query = query
             query = query.format(**format_variables)
-        query = self.format_table_names(query=query)
+            depth += 1
+            if depth > max_depth:
+                raise RecursionError(
+                    f"Reached max reformatting depth of {max_depth} with:\n"
+                    f"query:\n{query}\n"
+                    f"previous_query:\n{previous_query}"
+                )
         return query
 
     @abstractmethod
