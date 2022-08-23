@@ -1,6 +1,7 @@
 import sqlite3
 from configparser import ConfigParser
 from typing import List
+import pandas
 
 from algocomponents.adapters import SQLAdapter
 
@@ -69,14 +70,12 @@ class LocalSqliteAdapter(SQLAdapter):
             for row in self.rows:
                 self.logger.info(row)
 
-    def query_job_as_pandas(self):
-        import pandas
-
+    def latest_query_as_pandas(self):
         return pandas.DataFrame.from_records(
             data=self.rows,
             columns=self.columns,
         )
 
-    def query_job_as_csv(self, path: str):
-        dataframe = self.query_job_as_pandas()
+    def latest_query_as_csv(self, path: str):
+        dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)
