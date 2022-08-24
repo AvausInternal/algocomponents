@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import Dict
 
 
 class LoggieDoggie:
@@ -22,19 +23,50 @@ class LoggieDoggie:
         "CRITICAL": logging.CRITICAL,
     }
 
+    _default_log_level = "INFO"
+    _default_log_to_file = True
+
     def fetch_logger(
         self,
         logger_name: str,
-        log_level: str = "INFO",
-        log_to_file: bool = True
+        config: Dict = None,
     ):
-        logger = logging.getLogger(logger_name)
+        if not config:
+            config = {}
+
+        # Read log_level from config
+        if "log_level" in config.keys():
+            log_level = config["log_level"]
+        else:
+            log_level = self._default_log_level
+
+        if log_level not in self.log_levels.keys():
+            raise AttributeError(
+                f"Tried to set log level to {log_level} which is not in {list(self.log_levels.keys())}"
+            )
+
+        # Read log_to_file from config
+        if "log_to_file" in config.keys():
+            if config["log_to_file"].lower() in ["true", "t", "1", "y"]:
+                log_to_file = True
+            elif config["log_to_file"].lower() in ["false", "f", "0", "n"]:
+                log_to_file = False
+            else:
+                raise AttributeError(
+                    f"log_to_file cannot be parsed to bool value: {config['log_to_file']}"
+                )
+        else:
+            log_to_file = self._default_log_to_file
+
+        # Construct a unique log name based on logger name and config
+        unique_logger_name = f"{logger_name}_{log_level}_{log_to_file}"
+
+        logger = logging.getLogger(unique_logger_name)
         if logger.hasHandlers():
             return logger
 
         # Get the logger, set up the formatter
-        logger = logging.getLogger(logger_name)
-        logger.setLevel(level=logging.INFO)
+        logger.setLevel(level=log_level)
         formatter = logging.Formatter(self.logger_format, self.date_format)
 
         if log_to_file:
@@ -50,11 +82,5 @@ class LoggieDoggie:
         terminal_handler.setFormatter(formatter)
 
         logger.addHandler(terminal_handler)
-
-        if log_level not in self.log_levels.keys():
-            raise AttributeError(
-                f"Tried to set log level to {log_level} which is not in {list(self.log_levels.keys())}"
-            )
-        logger.setLevel(level=log_level)
 
         return logger
