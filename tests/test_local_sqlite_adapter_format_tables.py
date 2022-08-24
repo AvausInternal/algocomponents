@@ -3,7 +3,7 @@ from unittest import TestCase
 from algocomponents.adapters import LocalSqliteAdapter
 
 
-class TestAdapterFindTableNames(TestCase):
+class TestLocalSqliteAdapterFormatTables(TestCase):
 
     local_sqlite_adapter = LocalSqliteAdapter()
 

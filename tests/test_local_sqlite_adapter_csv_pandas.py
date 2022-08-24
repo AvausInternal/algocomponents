@@ -1,8 +1,8 @@
-from configparser import ConfigParser
-from unittest import TestCase
-import pandas as pd
-import os
 import csv
+import os
+from unittest import TestCase
+
+import pandas as pd
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import SQLTask
