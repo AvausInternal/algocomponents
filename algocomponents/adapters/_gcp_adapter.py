@@ -12,8 +12,12 @@ class GCPAdapter(SQLAdapter):
     gcp project using googles python client libraries and setup instructions.
     """
 
-    def __init__(self, config: ConfigParser = None):
-        super().__init__(overriding_config=config)
+    def __init__(
+        self,
+        config: ConfigParser = None,
+        section: str = "DEFAULT",
+    ):
+        super().__init__(config=config, section=section)
         self.client = None
         self.connected = False
         self.query_job = None

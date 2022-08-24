@@ -18,26 +18,34 @@ class SQLAdapter(LoggieDoggie, ABC):
     different services. There will be one adapter per service.
     """
 
-    def __init__(self, overriding_config: ConfigParser = None):
+    def __init__(
+        self,
+        config: ConfigParser = None,
+        section: str = "DEFAULT",
+    ):
         self.class_name = type(self).__name__
         super().__init__(logger_name=self.class_name)
 
+        self.section = section
+
         self.config = ConfigParser()
         self.config.optionxform = str  # Preserve casing in config file
+
+        # First read global config
         self.config.read(os.path.join("config", "config.ini"))
 
-        # Append or overwrite values from overriding_config to config
-        if overriding_config:
-            for section in overriding_config:
+        # Then append or overwrite from config inheritance
+        if config:
+            for section in config:
                 if section not in self.config.keys():
                     self.config.add_section(section)
-                for key, value in overriding_config[section].items():
+                for key, value in config[section].items():
                     self.config[section][key] = value
 
         if self.class_name in self.config:
             self.adapter_format_variables = self.config[self.class_name]
         else:
-            self.adapter_format_variables = self.config["DEFAULT"]
+            self.adapter_format_variables = self.config[self.section]
 
     @abstractmethod
     def connect(self):
