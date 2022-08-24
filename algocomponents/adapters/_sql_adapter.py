@@ -7,7 +7,7 @@ from typing import Dict, List
 from algocomponents.utils import LoggieDoggie
 
 
-class SQLAdapter(LoggieDoggie, ABC):
+class SQLAdapter(ABC):
     """An abstract adapter used for connecting to a service and running queries.
 
     SQLAdapter will by default read the global config file. If a config is
@@ -24,7 +24,6 @@ class SQLAdapter(LoggieDoggie, ABC):
         section: str = "DEFAULT",
     ):
         self.class_name = type(self).__name__
-        super().__init__(logger_name=self.class_name)
 
         self.section = section
 
@@ -46,6 +45,12 @@ class SQLAdapter(LoggieDoggie, ABC):
             self.adapter_format_variables = self.config[self.class_name]
         else:
             self.adapter_format_variables = self.config[self.section]
+
+        # Set a logger for the task
+        self.logger = LoggieDoggie().fetch_logger(
+            logger_name=self.class_name,
+            config=dict(self.config[self.section]),
+        )
 
     @abstractmethod
     def connect(self):
