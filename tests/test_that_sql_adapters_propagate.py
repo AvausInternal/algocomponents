@@ -4,7 +4,7 @@ from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import AdapterTask, GroupTask, Task
 
 
-class TestThatSQLAdaptersConnectAndDisconnectCorrectly(TestCase):
+class TestThatSQLAdaptersPropagate(TestCase):
 
     sql_adapter = LocalSqliteAdapter()
 

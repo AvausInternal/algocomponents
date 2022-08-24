@@ -4,7 +4,7 @@ from unittest import TestCase
 from algocomponents.adapters import GCPAdapter
 
 
-class TestAdapterFindTableNames(TestCase):
+class TestGCPAdapterFormatTables(TestCase):
 
     gcp_project = "avaus-academy"
     config = ConfigParser()
