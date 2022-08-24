@@ -20,11 +20,9 @@ class ModelEvaluator(SQLPipeline):
         output_table: str,
         prediction_column: str,
         target_label_column: str,
-        sql_adapter: SQLAdapter = None,
-        config: ConfigParser = None,
-        section: str = None,
+        **kwargs,
     ):
-        super().__init__(sql_adapter=sql_adapter, config=config, section=section)
+        super().__init__(**kwargs)
 
         self.add_to_config("INPUT_TABLE", input_table)
         self.add_to_config("OUTPUT_TABLE", output_table)
