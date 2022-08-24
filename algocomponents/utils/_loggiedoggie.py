@@ -1,13 +1,13 @@
 import logging
-import os
 import sys
 
 
 class LoggieDoggie:
-    """Instantiates and distributes a logger, available in self.logger
+    """Your loyal LoggieDoggie that fetches loggers
 
-    All classes inheriting this will share a common logger with the same config.
-    The logger logs to the file log.log and to the terminal.
+    LoggieDoggie will fetch a logger given a name. If that logger is fetched for
+    the first time, the logger will be set up with handlers. If the logger has
+    handlers, it will be evaluated as "having already been set up" and returned.
     """
 
     log_file_name = "log.log"
@@ -21,17 +21,14 @@ class LoggieDoggie:
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
-    default_log_level = "INFO"
 
-    def __init__(self, logger_name):
-        self.logger_name = logger_name
-        self.logger = logging.getLogger(self.logger_name)
-        if not self.logger.hasHandlers():
-            self.logger = self.__init_logger()
+    def fetch_logger(self, logger_name, log_level="INFO"):
+        logger = logging.getLogger(logger_name)
+        if logger.hasHandlers():
+            return logger
 
-    def __init_logger(self):
         # Get the logger, set up the formatter
-        logger = logging.getLogger(self.logger_name)
+        logger = logging.getLogger(logger_name)
         logger.setLevel(level=logging.INFO)
         formatter = logging.Formatter(self.logger_format, self.date_format)
 
@@ -49,8 +46,10 @@ class LoggieDoggie:
 
         logger.addHandler(terminal_handler)
 
-        return logger
-
-    def set_log_level(self, log_level: int):
-        logger = logging.getLogger(self.logger_name)
+        if log_level not in self.log_levels.keys():
+            raise AttributeError(
+                f"Tried to set log level to {log_level} which is not in {list(self.log_levels.keys())}"
+            )
         logger.setLevel(level=log_level)
+
+        return logger
