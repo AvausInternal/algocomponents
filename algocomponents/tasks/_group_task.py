@@ -11,15 +11,9 @@ class GroupTask(AdapterTask):
     def __init__(
         self,
         task_list: List[Task] = None,
-        sql_adapter: SQLAdapter = None,
-        config: ConfigParser = None,
-        section: str = None,
+        **kwargs,
     ):
-        super().__init__(
-            sql_adapter=sql_adapter,
-            config=config,
-            section=section,
-        )
+        super().__init__(**kwargs)
         if task_list:
             self.task_list = task_list
         if not hasattr(self, "task_list"):
