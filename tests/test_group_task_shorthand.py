@@ -16,7 +16,7 @@ class ShorthandGroupTask(GroupTask):
     sql_adapter = LocalSqliteAdapter()
 
 
-class TestThatSQLAdaptersConnectAndDisconnectCorrectly(TestCase):
+class TestGroupTaskShorthand(TestCase):
     def test_that_short_hand_group_task_works(self):
         group_task = ShorthandGroupTask()
         assert group_task.sql_adapter is not None

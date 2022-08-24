@@ -5,7 +5,7 @@ import pytest
 from algocomponents.adapters import LocalSqliteAdapter
 
 
-class TestThatSQLAdaptersConnectAndDisconnectCorrectly(TestCase):
+class TestSQLAdapterFormattedVariables(TestCase):
 
     sql_adapter = LocalSqliteAdapter()
     format_variables = {

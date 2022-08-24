@@ -2,7 +2,6 @@ import logging
 from unittest import TestCase
 
 from algocomponents.adapters import (
-    SQLAdapter,
     LocalSqliteAdapter,
     GCPAdapter,
     SparkAdapter,

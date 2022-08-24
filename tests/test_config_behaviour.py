@@ -1,9 +1,8 @@
 import os
-
+from configparser import ConfigParser
 from unittest import TestCase
 
 from algocomponents.tasks import Task
-from configparser import ConfigParser
 
 
 # Need to define class here so that it reads the config/config.ini-file
