@@ -9,8 +9,12 @@ class SparkAdapter(SQLAdapter):
     This adapter functions when running queries in Databricks as well.
     """
 
-    def __init__(self, config: ConfigParser = None):
-        super().__init__(overriding_config=config)
+    def __init__(
+        self,
+        config: ConfigParser = None,
+        section: str = "DEFAULT",
+    ):
+        super().__init__(config=config, section=section)
         self.spark = None
         self.sdf = None
 
