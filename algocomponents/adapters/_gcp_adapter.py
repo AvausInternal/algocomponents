@@ -1,3 +1,4 @@
+import re
 from configparser import ConfigParser
 from typing import List
 
@@ -83,6 +84,32 @@ class GCPAdapter(SQLAdapter):
             self.logger.info("Result")
             for row in rows:
                 self.logger.info(list(row.items()))
+
+    def adapter_specific_filters(self, sql: str):
+        sql = self.remove_gcp_method_calls_from_sql(sql=sql)
+        return sql
+
+    def remove_gcp_method_calls_from_sql(self, sql: str):
+        # regex explanation
+        match = re.findall(
+            # First, at least 1 newline or whitespace
+            r"\s+"
+            # Method called extract or unnest, which use the from keyword,
+            # followed by none, one or some whitespace characters
+            r"(?:extract|unnest)\s*"
+            # Everything from open paranthesis to close paranthesis
+            r"\([^)]*\)",
+            # Search in the sql string
+            sql,
+            # Ignore case
+            re.IGNORECASE,
+        )
+
+        # replace every match with an empty string
+        for x in match:
+            sql = sql.replace(x, "")
+
+        return sql
 
     def latest_query_as_pandas(self):
         return self.query_job.to_dataframe()
