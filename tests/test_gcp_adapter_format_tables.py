@@ -10,10 +10,12 @@ class TestGCPAdapterFormatTables(TestCase):
     config = ConfigParser()
     config.set(section="DEFAULT", option="gcp_project", value=gcp_project)
     gcp_adapter = GCPAdapter(config=config)
+    gcp_adapter_without_config = GCPAdapter()
 
     simple_query = """CREATE TABLE tmp"""
     simple_query_with_backticks = """CREATE TABLE `tmp`"""
     simple_query_formatted = """CREATE TABLE `avaus-academy.tmp`"""
+    simple_query_with_gcp_project = """CREATE TABLE `another_gcp_project.db.tmp`"""
 
     advanced_query = """
         CREATE TABLE other_client_db.customer_product_sales_table AS
@@ -146,6 +148,18 @@ class TestGCPAdapterFormatTables(TestCase):
     def test_re_formatting_simple_query(self):
         query = self.gcp_adapter.format_table_names(query=self.simple_query_formatted)
         assert query == self.simple_query_formatted
+
+    def test_formatting_simple_query_with_gcp_project(self):
+        query = self.gcp_adapter.format_table_names(
+            query=self.simple_query_with_gcp_project
+        )
+        assert query == self.simple_query_with_gcp_project
+
+    def test_formatting_simple_query_with_missing_config(self):
+        query = self.gcp_adapter_without_config.format_table_names(
+            query=self.simple_query
+        )
+        assert query == self.simple_query_with_backticks
 
     def test_formatting_advanced_query(self):
         query = self.gcp_adapter.format_table_names(query=self.advanced_query)
