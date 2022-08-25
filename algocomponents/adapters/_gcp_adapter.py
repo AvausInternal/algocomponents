@@ -39,13 +39,17 @@ class GCPAdapter(SQLAdapter):
         super().disconnect()
 
     def _format_table_name(self, table: str):
-        assert "gcp_project" in list(self.adapter_format_variables), (
-            "The GCPAdapter does not have a gcp_project set. It is either "
-            "missing from the global config file, or it has not been "
-            "supplied when instantiating the GCPAdapter"
-        )
-
         table = table.replace("`", "")
+
+        if "gcp_project" not in list(self.adapter_format_variables):
+            self.logger.info(
+                "The GCPAdapter does not have a gcp_project, tables are not formatted"
+            )
+            return f"`{table}`"
+
+        if len(table.split(".")) > 2:
+            self.logger.info("Using the gcp project already present in the table name")
+            return f"`{table}`"
 
         gcp_project = self.adapter_format_variables["gcp_project"]
         if table.startswith(gcp_project + "."):
