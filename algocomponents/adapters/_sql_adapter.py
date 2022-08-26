@@ -140,6 +140,9 @@ class SQLAdapter(ABC):
         # Transform multi-whitespaces into single whitespace
         sql = " ".join(sql.split())
 
+        # Allow adapter specific filtering of query
+        sql = self.adapter_specific_filters(sql=sql)
+
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
@@ -167,6 +170,8 @@ class SQLAdapter(ABC):
         sql = sql.replace("\n", " ")
         # Transform multi-whitespaces into single whitespace
         sql = " ".join(sql.split())
+
+        sql = self.adapter_specific_filters(sql=sql)
 
         # regex explanation
         match = re.findall(
@@ -197,6 +202,9 @@ class SQLAdapter(ABC):
             tables = [t for t in tables if t not in ctes]
 
         return tables
+
+    def adapter_specific_filters(self, sql: str):
+        return sql
 
     @abstractmethod
     def latest_query_as_pandas(self):

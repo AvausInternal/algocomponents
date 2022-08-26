@@ -39,6 +39,12 @@ class TestGCPAdapterFormatTables(TestCase):
             ON a.customer_id = b.customer_id
             AND a.product_id = b.product_id
     """
+    query_with_ml_methods = """
+        SELECT
+            *
+        FROM
+            ML.FEATURE_IMPORTANCE(MODEL `mydataset.mymodel`)
+    """
     advanced_query_with_project = f"""
         CREATE TABLE {gcp_project}.other_client_db.customer_product_sales_table AS
         SELECT
@@ -148,6 +154,10 @@ class TestGCPAdapterFormatTables(TestCase):
     def test_re_formatting_simple_query(self):
         query = self.gcp_adapter._format_table_names(query=self.simple_query_formatted)
         assert query == self.simple_query_formatted
+
+    def test_formatting_query_with_ml_methods(self):
+        query = self.gcp_adapter._format_table_names(query=self.query_with_ml_methods)
+        assert query == self.query_with_ml_methods
 
     def test_formatting_simple_query_with_gcp_project(self):
         query = self.gcp_adapter._format_table_names(
