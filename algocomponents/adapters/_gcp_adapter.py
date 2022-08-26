@@ -70,8 +70,8 @@ class GCPAdapter(SQLAdapter):
         columns_names = [column.name for column in schema]
         return columns_names
 
-    def _run_formatted_sql(self, sql: str):
-        self.query_job = self.client.query(sql)
+    def _run_formatted_query(self, query: str):
+        self.query_job = self.client.query(query)
         self.logger.info(
             "This query will process {} bytes.".format(
                 self.query_job.total_bytes_processed

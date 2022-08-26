@@ -63,8 +63,8 @@ class LocalSqliteAdapter(SQLAdapter):
         columns_names = [column[0] for column in description]
         return columns_names
 
-    def _run_formatted_sql(self, sql: str):
-        query_job = self.cursor.execute(sql)
+    def _run_formatted_query(self, query: str):
+        query_job = self.cursor.execute(query)
         self.rows = self.cursor.fetchall()
         if query_job.description:
             self.columns = [column[0] for column in query_job.description]

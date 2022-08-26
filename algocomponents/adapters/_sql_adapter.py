@@ -75,31 +75,35 @@ class SQLAdapter(LoggieDoggie, ABC):
                 format_variables=format_variables,
             )
 
-    def run_sql_string(self, sql_string: str, format_variables: Dict[str, str]):
+    def run_sql_string(self, sql_string: str, format_variables: Dict[str, str] = None):
+        if not format_variables:
+            format_variables = {}
+
         queries = sql_string.split(";")
         for query in queries:
             query = query.strip()
-            if query:
-                format_variables.update(self.adapter_format_variables)
-                formatted_query = self._format_query(
-                    query=query, format_variables=format_variables
-                )
-                query = self.format_table_names(query=formatted_query)
-                self.run_sql(query)
 
-    def run_sql(self, sql: str):
-        if not self.is_connected():
-            self.connect()
+            if not query:
+                continue
 
-        sql = sql.strip()
-        self.logger.info(f"Executing the following query: \n{sql}")
-        self._run_formatted_sql(sql=sql)
+            if not self.is_connected():
+                self.connect()
+
+            query = self._format_query(query=query, format_variables=format_variables)
+            query = self._format_table_names(query=query)
+            self.logger.info(f"Executing the following query: \n{query}")
+            self._run_formatted_query(query=query)
+
+    @abstractmethod
+    def _run_formatted_query(self, query: str):
+        pass
 
     def _format_query(
         self, query: str, format_variables: Dict[str, str], max_depth: int = 5
     ):
         # Format until no change is detected to allow nested templating:
         # {OUTPUT_TABLE} -> {TMP_DB}.output_table -> tmp.output_table
+        format_variables.update(self.adapter_format_variables)
         previous_query = ""
         depth = 0
         while query != previous_query:
@@ -114,11 +118,7 @@ class SQLAdapter(LoggieDoggie, ABC):
                 )
         return query
 
-    @abstractmethod
-    def _run_formatted_sql(self, sql: str):
-        pass
-
-    def format_table_names(self, query: str, ignore_ctes: bool = True):
+    def _format_table_names(self, query: str, ignore_ctes: bool = True):
         tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
         for table in tables:
             reformatted_table = self._format_table_name(table=table)
