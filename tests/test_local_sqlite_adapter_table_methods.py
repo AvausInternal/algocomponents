@@ -22,17 +22,18 @@ class TestLocalSqliteAdapterTableMethods(TestCase):
     )
 
     def test_table_exists(self):
-        self.create_table_task.run()
-        assert (
-            self.create_table_task.sql_adapter.table_exists("tmp_dream_table") == True
-        )
-        assert (
-            self.create_table_task.sql_adapter.table_exists("tmp_reality_table")
-            == False
-        )
+        self.create_table_task.start()
 
-    def test_table_comlumns(self):
-        self.create_table_task.run()
+        self.create_table_task.sql_adapter.connect()
+        assert self.create_table_task.sql_adapter.table_exists("tmp_dream_table")
+        assert not self.create_table_task.sql_adapter.table_exists("tmp_reality_table")
+        self.create_table_task.sql_adapter.disconnect()
+
+    def test_table_columns(self):
+        self.create_table_task.start()
+
+        self.create_table_task.sql_adapter.connect()
         assert self.create_table_task.sql_adapter.get_table_columns(
             "tmp_dream_table"
         ) == ["a_dream", "within_a_dream"]
+        self.create_table_task.sql_adapter.disconnect()
