@@ -1,9 +1,7 @@
 import os
 import re
 from abc import ABC
-from configparser import ConfigParser
 
-from algocomponents.adapters import SQLAdapter
 from algocomponents.tasks import GroupTask, SQLTask
 
 
@@ -23,11 +21,9 @@ class SQLPipeline(GroupTask, ABC):
         self,
         sql_folder: str = "sql",
         sql_folder_relative_path: bool = True,
-        sql_adapter: SQLAdapter = None,
-        config: ConfigParser = None,
-        section: str = None,
+        **kwargs,
     ):
-        super().__init__(sql_adapter=sql_adapter, config=config, section=section)
+        super().__init__(**kwargs)
 
         if sql_folder_relative_path:
             self.sql_folder = os.path.join(self.classpath, sql_folder)

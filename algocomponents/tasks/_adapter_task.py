@@ -1,5 +1,3 @@
-from configparser import ConfigParser
-
 from algocomponents.adapters import SQLAdapter
 from algocomponents.tasks import Task
 
@@ -16,10 +14,9 @@ class AdapterTask(Task):
     def __init__(
         self,
         sql_adapter: SQLAdapter = None,
-        config: ConfigParser = None,
-        section: str = None,
+        **kwargs,
     ):
-        super().__init__(config=config, section=section)
+        super().__init__(**kwargs)
 
         if sql_adapter:
             self.sql_adapter = sql_adapter
