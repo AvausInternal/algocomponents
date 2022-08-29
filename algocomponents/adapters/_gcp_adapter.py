@@ -57,7 +57,7 @@ class GCPAdapter(SQLAdapter):
             table = table[len(gcp_project) + 1 :]
         return f"`{gcp_project}.{table}`"
 
-    def table_exists(self, table: str) -> bool:
+    def _table_exists_implementation(self, table: str) -> bool:
         formatted_table = self._format_table_name(table).replace("`", "")
         try:
             self.client.get_table(formatted_table)
@@ -65,7 +65,7 @@ class GCPAdapter(SQLAdapter):
         except:
             return False
 
-    def get_table_columns(self, table: str) -> List[str]:
+    def _get_table_columns_implementation(self, table: str) -> List[str]:
         formatted_table = self._format_table_name(table).replace("`", "")
         schema = self.client.get_table(formatted_table).schema
         columns_names = [column.name for column in schema]

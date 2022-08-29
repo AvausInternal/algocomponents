@@ -64,12 +64,38 @@ class SQLAdapter(ABC):
     def disconnect(self):
         self.logger.info(f"{self.class_name} disconnected.")
 
-    @abstractmethod
     def table_exists(self, table: str) -> bool:
-        pass
+        one_off = False
+        if not self.is_connected():
+            self.connect()
+            one_off = True
+
+        table_exists = self._table_exists_implementation(table)
+
+        if one_off:
+            self.disconnect()
+
+        return table_exists
 
     @abstractmethod
+    def _table_exists_implementation(self, table: str) -> bool:
+        pass
+
     def get_table_columns(self, table: str) -> List[str]:
+        one_off = False
+        if not self.is_connected():
+            self.connect()
+            one_off = True
+
+        columns = self._get_table_columns_implementation(table)
+
+        if one_off:
+            self.disconnect()
+
+        return columns
+
+    @abstractmethod
+    def _get_table_columns_implementation(self, table: str) -> List[str]:
         pass
 
     def run_sql_file(self, path: str, format_variables: Dict[str, str]):

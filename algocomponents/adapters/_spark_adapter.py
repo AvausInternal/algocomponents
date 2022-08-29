@@ -36,14 +36,14 @@ class SparkAdapter(SQLAdapter):
     def _format_table_name(self, table: str):
         return table
 
-    def table_exists(self, table: str) -> bool:
+    def _table_exists_implementation(self, table: str) -> bool:
         database, table = table.split(".")
         sql_tables = self.spark.sql(f"SHOW TABLES in `{database}`").filter(
             f"tableName = '{table}'"
         )
         return sql_tables.count() > 0
 
-    def get_table_columns(self, table: str) -> List[str]:
+    def _get_table_columns_implementation(self, table: str) -> List[str]:
         database, table = table.split(".")
         columns = self.spark.catalog.listColumns(tableName=table, dbName=database)
         columns_names = [col[0] for col in columns]

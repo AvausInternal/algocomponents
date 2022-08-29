@@ -49,14 +49,14 @@ class LocalSqliteAdapter(SQLAdapter):
     def _format_table_name(self, table: str):
         return table.replace("`", "").replace(".", "_")
 
-    def table_exists(self, table: str) -> bool:
+    def _table_exists_implementation(self, table: str) -> bool:
         formatted_table = self._format_table_name(table)
         tables = self.cursor.execute(
             f"SELECT name FROM sqlite_master WHERE type='table' AND name='{formatted_table}'"
         ).fetchall()
         return len(tables) > 0
 
-    def get_table_columns(self, table: str) -> List[str]:
+    def _get_table_columns_implementation(self, table: str) -> List[str]:
         formatted_table = self._format_table_name(table)
         description = self.cursor.execute(
             f"SELECT * FROM {formatted_table}"
