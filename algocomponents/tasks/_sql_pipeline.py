@@ -1,9 +1,7 @@
 import os
 import re
 from abc import ABC
-from configparser import ConfigParser
 
-from algocomponents.adapters import SQLAdapter
 from algocomponents.tasks import GroupTask, SQLTask
 
 
