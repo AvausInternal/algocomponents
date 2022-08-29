@@ -1,6 +1,7 @@
 import sqlite3
 from configparser import ConfigParser
 from typing import List
+
 import pandas
 
 from algocomponents.adapters import SQLAdapter

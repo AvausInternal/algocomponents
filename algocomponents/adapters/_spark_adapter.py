@@ -1,6 +1,7 @@
 from configparser import ConfigParser
-from algocomponents.adapters import SQLAdapter
 from typing import List
+
+from algocomponents.adapters import SQLAdapter
 
 
 class SparkAdapter(SQLAdapter):

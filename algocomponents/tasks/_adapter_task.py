@@ -1,5 +1,3 @@
-from configparser import ConfigParser
-
 from algocomponents.adapters import SQLAdapter
 from algocomponents.tasks import Task
 

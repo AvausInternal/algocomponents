@@ -1,6 +1,3 @@
-from configparser import ConfigParser
-
-from algocomponents.adapters import SQLAdapter, LocalSqliteAdapter
 from algocomponents.tasks import AdapterTask
 
 
