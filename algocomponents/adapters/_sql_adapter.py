@@ -145,13 +145,13 @@ class SQLAdapter(ABC):
 
         # regex explanation
         match = re.findall(
-            # First, at least 1 newline or whitespace
-            r"\s+"
+            # First, any amount of newline or whitespace, including 0
+            r"\s*"
             # with, followed by 1 or more newline or whitespace
             # ?: is used to make it a non-capturing group. preventing re.findall
             # from only returning the match for the paranthesis
             r"(?:with)\s+"
-            # The actual cte, which can consist of words, .'s, `'s and -'s
+            # The cte, which can consist of words, .'s, `'s and -'s
             r"[\w.`-]+",
             # Search in the sql string
             sql,
@@ -183,8 +183,8 @@ class SQLAdapter(ABC):
             r"(?:from|join|table)\s+"
             # Maybe if exists / if not exists, then maybe newline / whitespace
             r"(?:if exists|if not exists)*\s*"
-            # The actual table, which can consist of words, .'s, `'s and -'s
-            r"[\w.`-]+",
+            # The actual table, which can consist of words, .'s, `'s -'s and *'s
+            r"[\w.`\-\*]+",
             # Search in the sql string
             sql,
             # Ignore case
