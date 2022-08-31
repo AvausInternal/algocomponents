@@ -86,18 +86,43 @@ class GCPAdapter(SQLAdapter):
                 self.logger.info(list(row.items()))
 
     def adapter_specific_filters(self, sql: str):
-        sql = self.remove_gcp_method_calls_from_sql(sql=sql)
+        sql = self.remove_extract_method_calls_from_sql(sql=sql)
+        sql = self.remove_unnest_method_calls_from_sql(sql=sql)
         sql = self.remove_ml_methods_from_sql(sql=sql)
         return sql
 
-    def remove_gcp_method_calls_from_sql(self, sql: str):
+    def remove_extract_method_calls_from_sql(self, sql: str):
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
             r"\s+"
-            # Method called extract or unnest, which use the from keyword,
-            # followed by none, one or some whitespace characters
-            r"(?:extract|unnest)\s*"
+            # The extract keyword, followed by some or no whitespace characters
+            r"(?:extract)\s*"
+            # Everything from open paranthesis to close paranthesis
+            r"\([^)]*\)",
+            # Search in the sql string
+            sql,
+            # Ignore case
+            re.IGNORECASE,
+        )
+
+        # replace every match with an empty string
+        for x in match:
+            sql = sql.replace(x, "")
+
+        return sql
+
+    def remove_unnest_method_calls_from_sql(self, sql: str):
+        # regex explanation
+        match = re.findall(
+            # First, at least 1 newline or whitespace
+            r"\s+"
+            # from or join, followed by 1 or more newline or whitespace
+            # ?: is used to make it a non-capturing group. preventing re.findall
+            # from only returning the match for the paranthesis
+            r"(?:from|join)\s+"
+            # The unnest keyword, followed by some or no whitespace characters
+            r"(?:unnest)"
             # Everything from open paranthesis to close paranthesis
             r"\([^)]*\)",
             # Search in the sql string
