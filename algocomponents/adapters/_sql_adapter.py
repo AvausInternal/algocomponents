@@ -134,7 +134,7 @@ class SQLAdapter(ABC):
     def _format_table_name(self, table: str):
         pass
 
-    def find_cte_names(self, sql: str) -> List[str]:
+    def find_possible_cte_names(self, sql: str) -> List[str]:
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
         # Transform multi-whitespaces into single whitespace
@@ -163,7 +163,30 @@ class SQLAdapter(ABC):
 
         # Split every element in the list by space and take the last element,
         # which will be the table name. set() is used to make list unique
-        return list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
+        first_withs = list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
+
+        # regex explanation
+        # It is worth noting that this regex CAN pick up things that are not
+        # ctes, but will never miss any ctes. This is the important part, as
+        # no cte should be formatted as a table.
+        match = re.findall(
+            # First, any amount of newline or whitespace, including 0
+            r"\s*"
+            # End paranthesis, some or none whitespace, comma and then some or none whitespace
+            r"\)\s*,\s*"
+            # If the comma matches, the next word is the next CTE
+            # This is the step where other things can technically
+            # match, but no cte can be missed
+            r"\w+",
+            # Search in the sql string
+            sql,
+            # Ignore case
+            re.IGNORECASE,
+        )
+
+        trailing_withs = list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
+
+        return first_withs + trailing_withs
 
     def find_table_names(self, sql: str, ignore_ctes: bool = True):
         # Remove newlines from sql
@@ -198,7 +221,7 @@ class SQLAdapter(ABC):
         tables = list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
 
         if ignore_ctes:
-            ctes = self.find_cte_names(sql)
+            ctes = self.find_possible_cte_names(sql)
             tables = [t for t in tables if t not in ctes]
 
         return tables
