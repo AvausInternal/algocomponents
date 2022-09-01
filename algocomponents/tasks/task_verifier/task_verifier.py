@@ -1,7 +1,7 @@
-from algocomponents.tasks import Task
+from algocomponents.tasks import Task, SQLPipeline
 import google
 
-class VerifyTask:
+class VerifyTask(SQLPipeline):
     """
     Task that can either store or verify the output of another task
     """
@@ -12,7 +12,10 @@ class VerifyTask:
         tasks_output_table: str,
         output_table: str,
         setup: bool,
+        **kwargs,
     ):
+        super().__init__(**kwargs)
+
         self.task = task
         self.tasks_output_table = tasks_output_table # where the task's output table is
         self.output_table = output_table # where should the output be saved
