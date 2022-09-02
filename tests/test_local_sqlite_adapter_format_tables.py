@@ -3,7 +3,7 @@ from unittest import TestCase
 from algocomponents.adapters import LocalSqliteAdapter
 
 
-class TestAdapterFindTableNames(TestCase):
+class TestLocalSqliteAdapterFormatTables(TestCase):
 
     local_sqlite_adapter = LocalSqliteAdapter()
 
@@ -101,25 +101,33 @@ class TestAdapterFindTableNames(TestCase):
     """
 
     def test_formatting_simple_query(self):
-        query = self.local_sqlite_adapter.format_table_names(query=self.simple_query)
-        assert(query == self.simple_query_formatted)
+        query = self.local_sqlite_adapter._format_table_names(query=self.simple_query)
+        assert query == self.simple_query_formatted
 
     def test_formatting_simple_query_with_backticks(self):
-        query = self.local_sqlite_adapter.format_table_names(query=self.simple_query_with_backticks)
-        assert (query == self.simple_query_formatted)
+        query = self.local_sqlite_adapter._format_table_names(
+            query=self.simple_query_with_backticks
+        )
+        assert query == self.simple_query_formatted
 
     def test_formatting_advanced_query(self):
-        query = self.local_sqlite_adapter.format_table_names(query=self.advanced_query)
-        assert (query == self.advanced_query_formatted)
+        query = self.local_sqlite_adapter._format_table_names(query=self.advanced_query)
+        assert query == self.advanced_query_formatted
 
     def test_formatting_advanced_query_with_backticks(self):
-        query = self.local_sqlite_adapter.format_table_names(query=self.advanced_query_with_backticks)
-        assert (query == self.advanced_query_formatted)
+        query = self.local_sqlite_adapter._format_table_names(
+            query=self.advanced_query_with_backticks
+        )
+        assert query == self.advanced_query_formatted
 
     def test_formatting_advanced_query_with_cte(self):
-        query = self.local_sqlite_adapter.format_table_names(query=self.advanced_query_with_cte)
-        assert (query == self.advanced_query_with_cte_formatted)
+        query = self.local_sqlite_adapter._format_table_names(
+            query=self.advanced_query_with_cte
+        )
+        assert query == self.advanced_query_with_cte_formatted
 
     def test_formatting_advanced_query_with_cte_and_backticks(self):
-        query = self.local_sqlite_adapter.format_table_names(query=self.advanced_query_with_cte_and_backticks)
-        assert (query == self.advanced_query_with_cte_formatted)
+        query = self.local_sqlite_adapter._format_table_names(
+            query=self.advanced_query_with_cte_and_backticks
+        )
+        assert query == self.advanced_query_with_cte_formatted

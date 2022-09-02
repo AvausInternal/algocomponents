@@ -1,5 +1,8 @@
 import sqlite3
 from configparser import ConfigParser
+from typing import List
+
+import pandas
 
 from algocomponents.adapters import SQLAdapter
 
@@ -14,8 +17,12 @@ class LocalSqliteAdapter(SQLAdapter):
 
     db_file = "local_sqlite.db"
 
-    def __init__(self, config: ConfigParser = None):
-        super().__init__(overriding_config=config)
+    def __init__(
+        self,
+        config: ConfigParser = None,
+        section: str = "DEFAULT",
+    ):
+        super().__init__(config=config, section=section)
         self.db_path = self.db_file
         self.connection = None
         self.cursor = None
@@ -39,18 +46,41 @@ class LocalSqliteAdapter(SQLAdapter):
         self.connection.close()
         super().disconnect()
 
-    def format_table_names(self, query: str, ignore_ctes: bool = True):
-        query = query.replace("`", "")
-        return super().format_table_names(query=query, ignore_ctes=ignore_ctes)
-
     def _format_table_name(self, table: str):
-        return table.replace(".", "_")
+        return table.replace("`", "").replace(".", "_")
 
-    def _run_formatted_sql(self, sql: str):
-        self.cursor.execute(sql)
-        rows = self.cursor.fetchall()
+    def table_exists(self, table: str) -> bool:
+        formatted_table = self._format_table_name(table)
+        tables = self.cursor.execute(
+            f"SELECT name FROM sqlite_master WHERE type='table' AND name='{formatted_table}'"
+        ).fetchall()
+        return len(tables) > 0
 
-        if rows:
+    def get_table_columns(self, table: str) -> List[str]:
+        formatted_table = self._format_table_name(table)
+        description = self.cursor.execute(
+            f"SELECT * FROM {formatted_table}"
+        ).description
+        columns_names = [column[0] for column in description]
+        return columns_names
+
+    def _run_formatted_query(self, query: str):
+        query_job = self.cursor.execute(query)
+        self.rows = self.cursor.fetchall()
+        if query_job.description:
+            self.columns = [column[0] for column in query_job.description]
+
+        if self.rows:
             self.logger.info("Result")
-            for row in rows:
+            for row in self.rows:
                 self.logger.info(row)
+
+    def latest_query_as_pandas(self):
+        return pandas.DataFrame.from_records(
+            data=self.rows,
+            columns=self.columns,
+        )
+
+    def latest_query_as_csv(self, path: str):
+        dataframe = self.latest_query_as_pandas()
+        dataframe.to_csv(path)

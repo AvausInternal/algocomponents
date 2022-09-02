@@ -1,12 +1,13 @@
 import random
 from unittest import TestCase
 
-from algocomponents.adapters import LocalSqliteAdapter
+from algocomponents.adapters import LocalSqliteAdapter, GCPAdapter
 
 
 class TestAdapterFindTableNames(TestCase):
 
     sql_adapter = LocalSqliteAdapter()
+    gcp_adapter = GCPAdapter()
 
     simple_query = """CREATE TABLE tmp"""
 
@@ -53,6 +54,14 @@ class TestAdapterFindTableNames(TestCase):
         CROSS JOIN avg
     """
 
+    query_with_gcp_extract_method = """
+        CREATE TABLE other_client_db.customer_product_sales_table AS
+        SELECT
+            a.customer_id,
+            EXTRACT(ISOWEEK FROM start_at) as iso_week
+        FROM client_db.sales_table a
+    """
+
     drop_table_statement = """
         DROP TABLE client_db.customer_product_table
     """
@@ -77,13 +86,20 @@ class TestAdapterFindTableNames(TestCase):
         "gcp-project.client_db.sales_table",
         "gcp-project.other_client_db.customer_product_sales_table",
     ]
+    query_with_gcp_extract_tables = [
+        "client_db.sales_table",
+        "other_client_db.customer_product_sales_table",
+        # Notably, "start_at" should not be a table even though it trails FROM
+    ]
 
     def test_finding_single_table(self):
         table_names = self.sql_adapter.find_table_names(sql=self.simple_query)
-        assert(table_names == self.simple_tables)
+        assert table_names == self.simple_tables
 
     def test_finding_single_table_bad_formatting(self):
-        simple_query_poor_formatting = self.sql_query_format_scrambler(self.simple_query)
+        simple_query_poor_formatting = self.sql_query_format_scrambler(
+            self.simple_query
+        )
         table_names = self.sql_adapter.find_table_names(
             sql=simple_query_poor_formatting
         )
@@ -91,16 +107,46 @@ class TestAdapterFindTableNames(TestCase):
         # Lowercase necessary as query formatting is scrambled
         table_names = [t.lower() for t in table_names]
 
-        assert(table_names == self.simple_tables)
+        assert table_names == self.simple_tables
+
+    def test_finding_tables_without_finding_parameters_in_gcp_method(self):
+        table_names = self.gcp_adapter.find_table_names(
+            sql=self.query_with_gcp_extract_method
+        )
+
+        assert sorted(table_names) == self.query_with_gcp_extract_tables
+
+    def test_finding_tables_without_finding_parameters_in_gcp_method_bad_formatting(
+        self,
+    ):
+        query_with_gcp_extract_method_bad_formatting = self.sql_query_format_scrambler(
+            self.query_with_gcp_extract_method
+        )
+
+        table_names = self.gcp_adapter.find_table_names(
+            sql=query_with_gcp_extract_method_bad_formatting
+        )
+
+        # Lowercase necessary as query formatting is scrambled
+        table_names = [t.lower() for t in table_names]
+
+        # Check that every table is found
+        assert all([t in table_names for t in self.query_with_gcp_extract_tables])
+        # Check that only expected tables are found
+        assert all([t in self.query_with_gcp_extract_tables for t in table_names])
 
     def test_finding_multiple_tables(self):
         table_names = self.sql_adapter.find_table_names(sql=self.advanced_query)
 
-        assert(sorted(table_names) == self.advanced_tables)
+        assert sorted(table_names) == self.advanced_tables
 
     def test_finding_multiple_tables_bad_formatting(self):
-        advanced_query_poor_formatting = self.sql_query_format_scrambler(self.advanced_query)
-        table_names = self.sql_adapter.find_table_names(sql=advanced_query_poor_formatting)
+        advanced_query_poor_formatting = self.sql_query_format_scrambler(
+            self.advanced_query
+        )
+        table_names = self.sql_adapter.find_table_names(
+            sql=advanced_query_poor_formatting
+        )
 
         # Lowercase necessary as query formatting is scrambled
         table_names = [t.lower() for t in table_names]
@@ -110,16 +156,22 @@ class TestAdapterFindTableNames(TestCase):
         # casing need to be found. However, this means the lists may not be
         # identical, so instead it is verified that every table that should be
         # found exists at least once in the returned table names.
-        assert([t in table_names for t in self.advanced_tables])
+        assert [t in table_names for t in self.advanced_tables]
 
     def test_finding_multiple_tables_with_gcp_project(self):
-        table_names = self.sql_adapter.find_table_names(sql=self.advanced_query_with_gcp_project)
+        table_names = self.sql_adapter.find_table_names(
+            sql=self.advanced_query_with_gcp_project
+        )
 
-        assert(sorted(table_names) == self.advanced_tables_with_gcp_project)
+        assert sorted(table_names) == self.advanced_tables_with_gcp_project
 
     def test_finding_multiple_tables_with_gcp_project_bad_formatting(self):
-        advanced_query_with_gcp_project_poor_formatting = self.sql_query_format_scrambler(self.advanced_query_with_gcp_project)
-        table_names = self.sql_adapter.find_table_names(sql=advanced_query_with_gcp_project_poor_formatting)
+        advanced_query_with_gcp_project_poor_formatting = (
+            self.sql_query_format_scrambler(self.advanced_query_with_gcp_project)
+        )
+        table_names = self.sql_adapter.find_table_names(
+            sql=advanced_query_with_gcp_project_poor_formatting
+        )
 
         # Lowercase necessary as query formatting is scrambled
         table_names = [t.lower() for t in table_names]
@@ -129,16 +181,22 @@ class TestAdapterFindTableNames(TestCase):
         # casing need to be found. However, this means the lists may not be
         # identical, so instead it is verified that every table that should be
         # found exists at least once in the returned table names.
-        assert([t.lower() in table_names for t in self.advanced_tables])
+        assert [t.lower() in table_names for t in self.advanced_tables]
 
     def test_finding_multiple_tables_with_cte(self):
-        table_names = self.sql_adapter.find_table_names(sql=self.advanced_query_with_cte)
+        table_names = self.sql_adapter.find_table_names(
+            sql=self.advanced_query_with_cte
+        )
 
-        assert(sorted(table_names) == self.advanced_tables)
+        assert sorted(table_names) == self.advanced_tables
 
     def test_finding_multiple_tables_with_cte_bad_formatting(self):
-        advanced_query_with_cte_poor_formatting = self.sql_query_format_scrambler(self.advanced_query_with_cte)
-        table_names = self.sql_adapter.find_table_names(sql=advanced_query_with_cte_poor_formatting)
+        advanced_query_with_cte_poor_formatting = self.sql_query_format_scrambler(
+            self.advanced_query_with_cte
+        )
+        table_names = self.sql_adapter.find_table_names(
+            sql=advanced_query_with_cte_poor_formatting
+        )
 
         # Lowercase necessary as query formatting is scrambled
         table_names = [t.lower() for t in table_names]
@@ -148,19 +206,23 @@ class TestAdapterFindTableNames(TestCase):
         # casing need to be found. However, this means the lists may not be
         # identical, so instead it is verified that every table that should be
         # found exists at least once in the returned table names.
-        assert([t.lower() in table_names for t in self.advanced_tables])
+        assert [t.lower() in table_names for t in self.advanced_tables]
 
     def test_finding_tables_in_drop_statement(self):
         table_names = self.sql_adapter.find_table_names(sql=self.drop_table_statement)
-        assert(table_names == ["client_db.customer_product_table"])
+        assert table_names == ["client_db.customer_product_table"]
 
     def test_finding_tables_in_drop_statement_with_if(self):
-        table_names = self.sql_adapter.find_table_names(sql=self.drop_table_statement_with_if)
-        assert(table_names == ["client_db.customer_product_table"])
+        table_names = self.sql_adapter.find_table_names(
+            sql=self.drop_table_statement_with_if
+        )
+        assert table_names == ["client_db.customer_product_table"]
 
     def test_finding_tables_in_create_statement_with_if(self):
-        table_names = self.sql_adapter.find_table_names(sql=self.create_table_statement_with_if)
-        assert(table_names == ["client_db.customer_product_table"])
+        table_names = self.sql_adapter.find_table_names(
+            sql=self.create_table_statement_with_if
+        )
+        assert table_names == ["client_db.customer_product_table"]
 
     @staticmethod
     def sql_query_format_scrambler(string):

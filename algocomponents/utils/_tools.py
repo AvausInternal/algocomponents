@@ -1,10 +1,6 @@
 def config_to_str(config):
-    s = "{"
+    config_dict = dict(config)
     for section in config:
-        s += f"{section}: {{"
-        for key in config[section]:
-            s += f"{key}: {config[section][key]}, "
-        s = s[:-2]
-        s += "}, "
+        config_dict[section] = dict(config[section])
 
-    return s[:-2]
+    return str(config_dict)

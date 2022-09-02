@@ -7,7 +7,7 @@ from types import ModuleType
 from algocomponents.utils import LoggieDoggie, config_to_str
 
 
-class Task(LoggieDoggie):
+class Task:
     """A generic task which starts using its start()-method
 
     The task initiates a logger, finds its classpath (where it is located), and
@@ -19,12 +19,13 @@ class Task(LoggieDoggie):
     _default_section = "DEFAULT"
 
     def __init__(
-            self,
-            config: ConfigParser = None,
-            section: str = None,
+        self,
+        global_config_dir: str = "config",
+        local_config_dir: str = "config",
+        config: ConfigParser = None,
+        section: str = None,
     ):
         self.task_name = type(self).__name__
-        super().__init__(logger_name=self.task_name)
 
         self.section = section or self._default_section
 
@@ -38,7 +39,7 @@ class Task(LoggieDoggie):
         self.config.optionxform = str  # Preserve casing in config file
 
         # First read global config
-        self.config.read(os.path.join("config", "config.ini"))
+        self.config.read(os.path.join(global_config_dir, "config.ini"))
 
         # Then append or overwrite from config inheritance
         if config:
@@ -49,27 +50,22 @@ class Task(LoggieDoggie):
                     self.config[section][key] = value
 
         # Then append or overwrite from the local config file
-        self.config.read(os.path.join(self.classpath, "config", "config.ini"))
+        self.config.read(os.path.join(self.classpath, local_config_dir, "config.ini"))
 
-        if "log_level" in self.config[self.section]:
-            log_level = self.config[self.section]["log_level"]
-        else:
-            log_level = self.default_log_level
-
-        if log_level not in self.log_levels.keys():
-            raise AttributeError(
-                f"Tried to set log level to {log_level} which is not in {list(self.log_levels.keys())}"
-            )
-
-        self.set_log_level(self.log_levels[log_level])
+        # Set a logger for the task
+        self.logger = LoggieDoggie().fetch_logger(
+            logger_name=self.task_name,
+            config=dict(self.config[self.section]),
+        )
 
         self.parent = None
 
     def start(self):
         run_start = datetime.now()
 
-        self.logger.info(f"Starting task {self.task_name} "
-                         f"with section {self.section}")
+        self.logger.info(
+            f"Starting task {self.task_name} " f"with section {self.section}"
+        )
         self.logger.debug(config_to_str(self.config))
 
         self.startup()
@@ -78,6 +74,8 @@ class Task(LoggieDoggie):
 
         now = datetime.now()
         self.logger.info(f"Task {self.task_name} finished after {now - run_start}")
+
+        return self
 
     def startup(self):
         pass
