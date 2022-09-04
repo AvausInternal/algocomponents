@@ -1,5 +1,8 @@
 from algocomponents.tasks import Task, SQLPipeline
-import google
+from algocomponents.adapters import GCPAdapter, LocalSqliteAdapter
+
+from google.api_core.exceptions import BadRequest
+from sqlite3 import OperationalError
 
 class VerifyTask(SQLPipeline):
     """
@@ -29,36 +32,66 @@ class VerifyTask(SQLPipeline):
         assert adapter.table_exists(self.tasks_output_table), "Output table doesn't exists"
 
         if self.setup:
+            # TODO: chech that this table already
+
             # copy the table
-            adapter.run_sql_string(f"""
-                CREATE TABLE `{self.output_table}`
-                CLONE `{self.tasks_output_table}`;
-            """)
-            print(f"Succesfully ran the setup to the output table: {self.output_table}")
+            if type(adapter) == GCPAdapter:
+                adapter.run_sql_string(f"""
+                    CREATE TABLE `{self.output_table}`
+                    CLONE `{self.tasks_output_table}`;
+                """)
+            elif type(adapter) == LocalSqliteAdapter:
+                adapter.run_sql_string(f"""
+                    CREATE TABLE `{self.output_table}` AS SELECT * FROM `{self.tasks_output_table}`
+                """)
+
+            self.logger.info(f"Succesfully ran the setup to the output table: {self.output_table}")
         else:
             # check if table with the expected output exists
             if adapter.table_exists(self.output_table):
                 # compare the tables, if the query returns no rows then the data is exactly the same.
                 # if tables contain different amount of columns it will throw on error, if they contain different amount of rows, the differences are printed
                 try:
-                    adapter.run_sql_string(f"""
-                        (
-                        SELECT * FROM  `{self.output_table}`
-                        EXCEPT DISTINCT
-                        SELECT * from `{self.tasks_output_table}`
-                        )
-                        UNION ALL
-                        (
-                        SELECT * FROM `{self.tasks_output_table}`
-                        EXCEPT DISTINCT
-                        SELECT * from  `{self.output_table}`
-                        )
-                    """)
-                except google.api_core.exceptions.BadRequest:
-                    print("Tables doesn't match")
-                    
+                    if type(adapter) == GCPAdapter:
+                        adapter.run_sql_string(f"""
+                            (
+                            SELECT * FROM  `{self.output_table}`
+                            EXCEPT DISTINCT
+                            SELECT * from `{self.tasks_output_table}`
+                            )
+                            UNION ALL
+                            (
+                            SELECT * FROM `{self.tasks_output_table}`
+                            EXCEPT DISTINCT
+                            SELECT * from  `{self.output_table}`
+                            )
+                        """)
+                        if adapter.query_job.result().total_rows != 0:
+                            self.logger.info("Tables doesn't match")
+                        else:
+                            self.logger.info("Tables match")
+                    elif type(adapter) == LocalSqliteAdapter:
+                        adapter.run_sql_string(f"""
+                            SELECT * FROM (SELECT * FROM `{self.output_table}`
+                                        EXCEPT
+                                        SELECT * FROM `{self.tasks_output_table}`)
+                            UNION ALL
+                            SELECT * FROM (SELECT * FROM `{self.tasks_output_table}`
+                                        EXCEPT
+                                        SELECT * FROM `{self.output_table}`)
+                        """)
+                        if adapter.rows:
+                            self.logger.info("Tables doesn't match")
+                        else:
+                            self.logger.info("Tables match")
+                # Different number of columns in gcp
+                except BadRequest:
+                    self.logger.info("Tables doesn't match")
+                # Different number of columns in SQLite
+                except OperationalError:
+                    self.logger.info("Tables doesn't match")
             else:
-                print("You must run setup first")
+                self.logger.info("You must run setup first")
         
         adapter.disconnect()
 
