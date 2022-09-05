@@ -28,12 +28,13 @@ class VerifyTask(SQLPipeline):
         self.task.start()
         adapter = self.task.sql_adapter
         adapter.connect()
-        # check that the the output table exists
+        # check that the output table exists
         assert adapter.table_exists(self.tasks_output_table), "Output table doesn't exists"
 
         if self.setup:
-            # TODO: chech that this table already
-
+            # if setup is ran again we delete the old table first
+            if adapter.table_exists(self.output_table):
+                pass
             # copy the table
             if type(adapter) == GCPAdapter:
                 adapter.run_sql_string(f"""
@@ -44,13 +45,15 @@ class VerifyTask(SQLPipeline):
                 adapter.run_sql_string(f"""
                     CREATE TABLE `{self.output_table}` AS SELECT * FROM `{self.tasks_output_table}`
                 """)
+            else:
+                raise NotImplementedError("This adapter is not yet supported")
 
             self.logger.info(f"Succesfully ran the setup to the output table: {self.output_table}")
         else:
             # check if table with the expected output exists
             if adapter.table_exists(self.output_table):
                 # compare the tables, if the query returns no rows then the data is exactly the same.
-                # if tables contain different amount of columns it will throw on error, if they contain different amount of rows, the differences are printed
+                # if tables contain different amount of columns it will throw on error
                 try:
                     if type(adapter) == GCPAdapter:
                         adapter.run_sql_string(f"""
@@ -66,10 +69,8 @@ class VerifyTask(SQLPipeline):
                             SELECT * from  `{self.output_table}`
                             )
                         """)
-                        if adapter.query_job.result().total_rows != 0:
-                            self.logger.info("Tables doesn't match")
-                        else:
-                            self.logger.info("Tables match")
+                        result = adapter.query_job.result().total_rows != 0
+
                     elif type(adapter) == LocalSqliteAdapter:
                         adapter.run_sql_string(f"""
                             SELECT * FROM (SELECT * FROM `{self.output_table}`
@@ -80,16 +81,19 @@ class VerifyTask(SQLPipeline):
                                         EXCEPT
                                         SELECT * FROM `{self.output_table}`)
                         """)
-                        if adapter.rows:
-                            self.logger.info("Tables doesn't match")
-                        else:
-                            self.logger.info("Tables match")
-                # Different number of columns in gcp
-                except BadRequest:
-                    self.logger.info("Tables doesn't match")
-                # Different number of columns in SQLite
-                except OperationalError:
-                    self.logger.info("Tables doesn't match")
+                        result = adapter.rows
+                    else:
+                        raise NotImplementedError("This adapter is not yet supported")
+
+                    if result:
+                        self.logger.info("Tables doesn't match")
+                    else:
+                        self.logger.info("Tables match")
+
+                # Different number of columns or array columns
+                except (BadRequest, OperationalError) as e:
+                    print(e)
+                    self.logger.info("Tables doesn't match or tables contain arrays")
             else:
                 self.logger.info("You must run setup first")
         
