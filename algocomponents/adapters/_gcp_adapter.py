@@ -78,10 +78,10 @@ class GCPAdapter(SQLAdapter):
                 self.query_job.total_bytes_processed
             )
         )
-        df = self.query_job.to_dataframe().head(self.max_rows_returned)
+        df = self.query_job.to_dataframe()
 
         self.logger.info("Result")
-        self.logger.info(f"\n{df}")
+        self.logger.info(f"\n{df.head(self.max_rows_logged)}")
 
         return df
 
