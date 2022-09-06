@@ -51,7 +51,9 @@ class SQLAdapter(ABC):
             self.adapter_format_variables = self.config[self.section]
 
         if "max_rows_displayed" in self.config[self.section]:
-            self.max_rows_displayed = int(self.config[self.section]["max_rows_displayed"])
+            self.max_rows_displayed = int(
+                self.config[self.section]["max_rows_displayed"]
+            )
         else:
             self.max_rows_displayed = self.default_max_rows_displayed
 
