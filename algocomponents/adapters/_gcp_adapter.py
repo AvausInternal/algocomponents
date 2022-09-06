@@ -78,12 +78,12 @@ class GCPAdapter(SQLAdapter):
                 self.query_job.total_bytes_processed
             )
         )
-        rows = self.query_job.result()
+        df = self.query_job.to_dataframe().head(self.max_rows_returned)
 
-        if rows.total_rows != 0:
-            self.logger.info("Result")
-            for row in rows:
-                self.logger.info(list(row.items()))
+        self.logger.info("Result")
+        self.logger.info(f"\n{df}")
+
+        return df
 
     def adapter_specific_filters(self, sql: str):
         sql = self.remove_extract_method_calls_from_sql(sql=sql)
