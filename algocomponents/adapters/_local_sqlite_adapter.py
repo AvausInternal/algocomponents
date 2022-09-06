@@ -74,12 +74,12 @@ class LocalSqliteAdapter(SQLAdapter):
             df = pd.DataFrame.from_records(
                 data=self.rows,
                 columns=self.columns,
-            ).head(self.max_rows_returned)
+            )
         else:
             df = pd.DataFrame()
 
         self.logger.info("Result")
-        self.logger.info(f"\n{df}")
+        self.logger.info(f"\n{df.head(self.max_rows_displayed)}")
 
         return df
 

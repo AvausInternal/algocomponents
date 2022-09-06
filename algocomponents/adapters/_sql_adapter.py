@@ -20,7 +20,7 @@ class SQLAdapter(ABC):
     different services. There will be one adapter per service.
     """
 
-    default_max_rows_returned = 20
+    default_max_rows_displayed = 20
 
     def __init__(
         self,
@@ -50,10 +50,10 @@ class SQLAdapter(ABC):
         else:
             self.adapter_format_variables = self.config[self.section]
 
-        if "max_rows_returned" in self.config[self.section]:
-            self.max_rows_returned = int(self.config[self.section]["max_rows_returned"])
+        if "max_rows_displayed" in self.config[self.section]:
+            self.max_rows_displayed = int(self.config[self.section]["max_rows_displayed"])
         else:
-            self.max_rows_returned = self.default_max_rows_returned
+            self.max_rows_displayed = self.default_max_rows_displayed
 
         # Set a logger for the task
         self.logger = LoggieDoggie().fetch_logger(
