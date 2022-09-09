@@ -41,6 +41,7 @@ class VerifyTask(Task):
 
         # check that the task's output table exists
         if not adapter.table_exists(self.tasks_output_table):
+            adapter.disconnect()
             raise Exception("Output table doesn't exists")
 
         if self.setup:
@@ -53,13 +54,16 @@ class VerifyTask(Task):
                     # make sql query that compares tables and returns mismatching rows
                     result = adapter.run_sql_file(os.path.join(self.sql_folder, "compare_two_tables.sql"), self.format_variables)
                     if len(result[0]) != 0:
-                        raise Exception("Tables Doesn't match")
+                        adapter.disconnect()
+                        raise Exception("Tables doesn't match")
                     else:
                         self.logger.info("Tables match")
                 # throws an error since table comparison doesn't support array cols
                 except (BadRequest, OperationalError) as e:
+                    adapter.disconnect()
                     raise Exception("Tables doesn't match or tables contain array columns which are not supported", e) from None
             else:
+                adapter.disconnect()
                 raise Exception("You must run the setup first")
         
         adapter.disconnect()
