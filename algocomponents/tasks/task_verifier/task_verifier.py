@@ -1,10 +1,11 @@
-from algocomponents.tasks import Task, SQLPipeline
-from algocomponents.adapters import GCPAdapter, LocalSqliteAdapter
-
-from google.api_core.exceptions import BadRequest
+import os
 from sqlite3 import OperationalError
+from google.api_core.exceptions import BadRequest
 
-class VerifyTask(SQLPipeline):
+from algocomponents.adapters import GCPAdapter, SparkAdapter
+from algocomponents.tasks import Task
+
+class VerifyTask(Task):
     """
     Task that can either store or verify the output of another task
     """
@@ -20,82 +21,46 @@ class VerifyTask(SQLPipeline):
         super().__init__(**kwargs)
 
         self.task = task
-        self.tasks_output_table = tasks_output_table # where the task's output table is
-        self.output_table = output_table # where should the output be saved
         self.setup = setup
+        self.output_table = output_table
+        self.tasks_output_table = tasks_output_table
+        self.sql_folder = os.path.join(self.classpath, "sql")
+
+        # GCP and Spark supports only "EXCEPT DISTINCT" and sqlite support only "EXCEPT"
+        if type(self.task.sql_adapter) == GCPAdapter or type(self.task.sql_adapter) == SparkAdapter :
+            distinct = "DISTINCT"
+        else:
+            distinct = ""
+        self.format_variables = {"DISTINCT_" : distinct, "EXPECTED_OUTPUT_TABLE" : output_table, "TASK_OUTPUT_TABLE" : tasks_output_table}
+
 
     def start(self):
         self.task.start()
         adapter = self.task.sql_adapter
         adapter.connect()
-        # check that the output table exists
-        assert adapter.table_exists(self.tasks_output_table), "Output table doesn't exists"
+
+        # check that the task's output table exists
+        if not adapter.table_exists(self.tasks_output_table):
+            raise Exception("Output table doesn't exists")
 
         if self.setup:
-            # if setup is ran again we delete the old table first
-            if adapter.table_exists(self.output_table):
-                pass
-            # copy the table
-            if type(adapter) == GCPAdapter:
-                adapter.run_sql_string(f"""
-                    CREATE TABLE `{self.output_table}`
-                    CLONE `{self.tasks_output_table}`;
-                """)
-            elif type(adapter) == LocalSqliteAdapter:
-                adapter.run_sql_string(f"""
-                    CREATE TABLE `{self.output_table}` AS SELECT * FROM `{self.tasks_output_table}`
-                """)
-            else:
-                raise NotImplementedError("This adapter is not yet supported")
-
+            adapter.run_sql_file(os.path.join(self.sql_folder, "save_expected_table.sql"), self.format_variables)
             self.logger.info(f"Succesfully ran the setup to the output table: {self.output_table}")
         else:
             # check if table with the expected output exists
             if adapter.table_exists(self.output_table):
-                # compare the tables, if the query returns no rows then the data is exactly the same.
-                # if tables contain different amount of columns it will throw on error
                 try:
-                    if type(adapter) == GCPAdapter:
-                        adapter.run_sql_string(f"""
-                            (
-                            SELECT * FROM  `{self.output_table}`
-                            EXCEPT DISTINCT
-                            SELECT * from `{self.tasks_output_table}`
-                            )
-                            UNION ALL
-                            (
-                            SELECT * FROM `{self.tasks_output_table}`
-                            EXCEPT DISTINCT
-                            SELECT * from  `{self.output_table}`
-                            )
-                        """)
-                        result = adapter.query_job.result().total_rows != 0
-
-                    elif type(adapter) == LocalSqliteAdapter:
-                        adapter.run_sql_string(f"""
-                            SELECT * FROM (SELECT * FROM `{self.output_table}`
-                                        EXCEPT
-                                        SELECT * FROM `{self.tasks_output_table}`)
-                            UNION ALL
-                            SELECT * FROM (SELECT * FROM `{self.tasks_output_table}`
-                                        EXCEPT
-                                        SELECT * FROM `{self.output_table}`)
-                        """)
-                        result = adapter.rows
-                    else:
-                        raise NotImplementedError("This adapter is not yet supported")
-
-                    if result:
-                        self.logger.info("Tables doesn't match")
+                    # make sql query that compares tables and returns mismatching rows
+                    result = adapter.run_sql_file(os.path.join(self.sql_folder, "compare_two_tables.sql"), self.format_variables)
+                    if len(result[0]) != 0:
+                        raise Exception("Tables Doesn't match")
                     else:
                         self.logger.info("Tables match")
-
-                # Different number of columns or array columns
+                # throws an error since table comparison doesn't support array cols
                 except (BadRequest, OperationalError) as e:
-                    print(e)
-                    self.logger.info("Tables doesn't match or tables contain arrays")
+                    raise Exception("Tables doesn't match or tables contain array columns which are not supported", e) from None
             else:
-                self.logger.info("You must run setup first")
+                raise Exception("You must run the setup first")
         
         adapter.disconnect()
-
+        
