@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from configparser import ConfigParser
 from typing import Dict, List
 
+import pandas as pd
+
 from algocomponents.utils import LoggieDoggie
 
 
@@ -17,6 +19,8 @@ class SQLAdapter(ABC):
     The purpose of the sql adapter is to generalize how we set up connections to
     different services. There will be one adapter per service.
     """
+
+    default_max_rows_displayed = 20
 
     def __init__(
         self,
@@ -46,6 +50,13 @@ class SQLAdapter(ABC):
         else:
             self.adapter_format_variables = self.config[self.section]
 
+        if "max_rows_displayed" in self.config[self.section]:
+            self.max_rows_displayed = int(
+                self.config[self.section]["max_rows_displayed"]
+            )
+        else:
+            self.max_rows_displayed = self.default_max_rows_displayed
+
         # Set a logger for the task
         self.logger = LoggieDoggie().fetch_logger(
             logger_name=self.class_name,
@@ -72,19 +83,24 @@ class SQLAdapter(ABC):
     def get_table_columns(self, table: str) -> List[str]:
         pass
 
-    def run_sql_file(self, path: str, format_variables: Dict[str, str]):
+    def run_sql_file(
+        self, path: str, format_variables: Dict[str, str] = None
+    ) -> List[pd.DataFrame]:
         with open(path) as f:
             sql_string = f.read()
-            self.run_sql_string(
+            return self.run_sql_string(
                 sql_string=sql_string,
                 format_variables=format_variables,
             )
 
-    def run_sql_string(self, sql_string: str, format_variables: Dict[str, str] = None):
+    def run_sql_string(
+        self, sql_string: str, format_variables: Dict[str, str] = None
+    ) -> List[pd.DataFrame]:
         if not format_variables:
             format_variables = {}
 
         queries = sql_string.split(";")
+        dataframes = []
         for query in queries:
             query = query.strip()
 
@@ -97,10 +113,15 @@ class SQLAdapter(ABC):
             query = self._format_query(query=query, format_variables=format_variables)
             query = self._format_table_names(query=query)
             self.logger.info(f"Executing the following query: \n{query}")
-            self._run_formatted_query(query=query)
+
+            df = self._run_formatted_query(query=query)
+
+            dataframes.append(df)
+
+        return dataframes
 
     @abstractmethod
-    def _run_formatted_query(self, query: str):
+    def _run_formatted_query(self, query: str) -> pd.DataFrame:
         pass
 
     def _format_query(

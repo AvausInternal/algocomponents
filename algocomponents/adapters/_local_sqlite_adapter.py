@@ -2,7 +2,7 @@ import sqlite3
 from configparser import ConfigParser
 from typing import List
 
-import pandas
+import pandas as pd
 
 from algocomponents.adapters import SQLAdapter
 
@@ -71,12 +71,20 @@ class LocalSqliteAdapter(SQLAdapter):
             self.columns = [column[0] for column in query_job.description]
 
         if self.rows:
-            self.logger.info("Result")
-            for row in self.rows:
-                self.logger.info(row)
+            df = pd.DataFrame.from_records(
+                data=self.rows,
+                columns=self.columns,
+            )
+        else:
+            df = pd.DataFrame()
+
+        self.logger.info("Result")
+        self.logger.info(f"\n{df.head(self.max_rows_displayed)}")
+
+        return df
 
     def latest_query_as_pandas(self):
-        return pandas.DataFrame.from_records(
+        return pd.DataFrame.from_records(
             data=self.rows,
             columns=self.columns,
         )

@@ -51,7 +51,10 @@ class SparkAdapter(SQLAdapter):
 
     def _run_formatted_query(self, query: str):
         self.sdf = self.spark.sql(query)
-        self.sdf.show()
+        self.logger.info("Result: ")
+        self.logger.info(self.sdf.show(self.max_rows_displayed))
+
+        return self.sdf
 
     def latest_query_as_pandas(self):
         raise NotImplementedError()
