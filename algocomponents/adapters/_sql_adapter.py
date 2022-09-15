@@ -24,6 +24,7 @@ class SQLAdapter(ABC):
 
     def __init__(
         self,
+        global_config_dir: str = "config",
         config: ConfigParser = None,
         section: str = "DEFAULT",
     ):
@@ -35,7 +36,7 @@ class SQLAdapter(ABC):
         self.config.optionxform = str  # Preserve casing in config file
 
         # First read global config
-        self.config.read(os.path.join("config", "config.ini"))
+        self.config.read(os.path.join(global_config_dir, "config.ini"))
 
         # Then append or overwrite from config inheritance
         if config:
