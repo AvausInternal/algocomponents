@@ -14,8 +14,8 @@ class EmptySQLPipeline(SQLPipeline):
 
 
 class TestTaskVerifier(TestCase):
-    def setUp(self):
-        self.sql_pipeline = EmptySQLPipeline(sql_adapter=LocalSqliteAdapter())
+    @classmethod
+    def setUpClass(cls):
         connection_obj = sqlite3.connect("local_sqlite.db")
         cursor_obj = connection_obj.cursor()
         tables = [
@@ -72,8 +72,10 @@ class TestTaskVerifier(TestCase):
                 ); """
         cursor_obj.execute(table_with_diff_cols)
         connection_obj.commit()
-
         connection_obj.close()
+
+    def setUp(self):
+        self.sql_pipeline = EmptySQLPipeline(sql_adapter=LocalSqliteAdapter())
 
     # Tests for Setupping the TaskVerifier
     def test_successful_setup(self):
