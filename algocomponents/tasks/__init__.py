@@ -6,6 +6,7 @@ from algocomponents.tasks._sql_pipeline import SQLPipeline
 from algocomponents.tasks._feature_base import FeatureBase
 from algocomponents.tasks._feature import Feature
 from algocomponents.tasks.model_evaluator._model_evaluator import ModelEvaluator
+from algocomponents.tasks._visualize_dataset import VisualizeDataset
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -24,4 +25,5 @@ __all__ = [
     "FeatureBase",
     "Feature",
     "ModelEvaluator",
+    "VisualizeDataset"
 ]
