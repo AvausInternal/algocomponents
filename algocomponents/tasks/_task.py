@@ -1,5 +1,6 @@
 import os
 import sys
+import uuid
 from configparser import ConfigParser
 from datetime import datetime
 from types import ModuleType
@@ -58,10 +59,17 @@ class Task:
             config=dict(self.config[self.section]),
         )
 
+        self.run_id = None
+
         self.parent = None
 
     def start(self):
         run_start = datetime.now()
+
+        if self.parent:
+            self.run_id = self.parent.run_id
+        else:
+            self.run_id = str(uuid.uuid1())
 
         self.logger.info(
             f"Starting task {self.task_name} " f"with section {self.section}"
