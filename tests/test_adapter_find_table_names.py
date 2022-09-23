@@ -74,6 +74,11 @@ class TestAdapterFindTableNames(TestCase):
         CREATE TABLE IF NOT EXISTS client_db.customer_product_table
     """
 
+    query_with_table_in_comments = """
+        -- DROP TABLE IF EXISTS client_db.customer_table
+        DROP TABLE IF EXISTS client_db.customer_product_table
+    """
+
     simple_tables = ["tmp"]
     drop_tables = ["client_db.customer_product_table"]
     advanced_tables = [
@@ -221,6 +226,12 @@ class TestAdapterFindTableNames(TestCase):
     def test_finding_tables_in_create_statement_with_if(self):
         table_names = self.sql_adapter.find_table_names(
             sql=self.create_table_statement_with_if
+        )
+        assert table_names == ["client_db.customer_product_table"]
+
+    def test_finding_tables_in_commented_query(self):
+        table_names = self.sql_adapter.find_table_names(
+            sql=self.query_with_table_in_comments
         )
         assert table_names == ["client_db.customer_product_table"]
 

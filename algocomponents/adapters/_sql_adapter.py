@@ -157,6 +157,7 @@ class SQLAdapter(ABC):
         pass
 
     def find_possible_cte_names(self, sql: str) -> List[str]:
+        sql = self.remove_comments_from_sql(sql)
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
         # Transform multi-whitespaces into single whitespace
@@ -211,6 +212,7 @@ class SQLAdapter(ABC):
         return first_withs + trailing_withs
 
     def find_table_names(self, sql: str, ignore_ctes: bool = True):
+        sql = self.remove_comments_from_sql(sql)
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
         # Transform multi-whitespaces into single whitespace
@@ -249,6 +251,15 @@ class SQLAdapter(ABC):
         return tables
 
     def adapter_specific_filters(self, sql: str):
+        return sql
+
+    def remove_comments_from_sql(self, sql: str):
+        lines = sql.split("\n")
+        lines_without_comments = []
+        for line in lines:
+            line_before_comment = line.split("--")[0]
+            lines_without_comments.append(line_before_comment)
+        sql = "\n".join(lines_without_comments)
         return sql
 
     @abstractmethod
