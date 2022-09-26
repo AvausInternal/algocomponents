@@ -1,49 +1,56 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import imageio as iio
 import numpy as np
-import seaborn as sns
 
-from algocomponents.tasks import Task
+from algocomponents.tasks import AdapterTask, SQLTask
+from algocomponents.utils import save_boxplot, save_histogram
 
 
-class VisualizeDataset(Task):
+class VisualizeDataset(AdapterTask):
     """A task that visualizes features
     given a dataset table"""
 
     def __init__(
-            self,
-            input_df: pd.DataFrame,
-            output_folder: str,
-            **kwargs,
+        self,
+        input_df: pd.DataFrame = None,
+        input_csv_file: str = None,
+        input_table_name: str = None,
+        output_folder: str = "",
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.input_df = input_df
-        self.output_folder = output_folder
+        self.input_csv_file = input_csv_file
+        self.input_table_name = input_table_name
+        if output_folder == "":
+            self.output_folder = output_folder
+        else:
+            self.output_folder = output_folder + "/"
+
+        assert (
+            self.input_csv_file or self.input_table_name or (self.input_df is not None)
+        ), "VisualizeDatasetTaskOld Must get either input_csv_file or input_table_name or input_df, got neither."
+
+    def run(self):
+        if self.input_csv_file:
+            self.input_df = pd.read_csv(f"{self.input_csv_file}", sep=";")
+        elif self.input_table_name:
+            sql_string = f"SELECT * FROM `{self.input_table_name}`"
+
+            sql_task_df = SQLTask(sql_string=sql_string, sql_adapter=self.sql_adapter)
+            self.input_df = sql_task_df.start().as_pandas()
+
         # dataframe with only numerical features
         self.df_numeric = self.input_df.select_dtypes(include=np.number)
         # dataframe with only numerical features and normalized values
-        self.df_normalized = (self.df_numeric - self.df_numeric.min()) / (self.df_numeric.max() - self.df_numeric.min())
+        self.df_normalized = (self.df_numeric - self.df_numeric.min()) / (
+            self.df_numeric.max() - self.df_numeric.min()
+        )
 
-    def run(self):
-        self.save_boxplot(self.input_df, "boxplot")
-        self.save_boxplot(self.df_normalized, "boxplot_normalized")
-        # self.save_histogram(self.input_df, "histogram")
-        self.save_histogram(self.df_numeric, "histogram")
-
-    def save_boxplot(self, data_frame, file_name):
-        fig = plt.figure(figsize=(10, 7))
-        sns.boxplot(data=data_frame)
-
-        plt.savefig(f"{self.output_folder}/{file_name}.png")
-        print(f"Boxplot saved under \'{file_name}.png\' file")
-
-    def save_histogram(self, data_frame, file_name):
-        cols = data_frame.columns
-        fig = plt.figure(figsize=(10, 7))
-        for col in cols:
-            sns.histplot(data=data_frame, x=col)
-            col_name = col.replace(" ", "_")
-            plt.savefig(f"{self.output_folder}/{file_name}-{col_name}.png")
-            plt.clf()
-            print(f"Histogram of a feature: \'{col}\' saved under \'{file_name}-{col_name}.png\' file")
+        # self.save_boxplot()
+        save_boxplot(df=self.input_df, output_folder=self.output_folder)
+        save_boxplot(
+            df=self.df_normalized,
+            output_folder=self.output_folder,
+            file_name="normalized_boxplot",
+        )
+        save_histogram(df=self.df_numeric, output_folder=self.output_folder)

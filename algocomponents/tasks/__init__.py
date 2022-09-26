@@ -7,7 +7,6 @@ from algocomponents.tasks._feature_base import FeatureBase
 from algocomponents.tasks._feature import Feature
 from algocomponents.tasks.model_evaluator._model_evaluator import ModelEvaluator
 from algocomponents.tasks._visualize_dataset import VisualizeDataset
-from algocomponents.tasks._visualize_dataset_task import VisualizeDatasetTask
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -26,6 +25,5 @@ __all__ = [
     "FeatureBase",
     "Feature",
     "ModelEvaluator",
-    "VisualizeDataset",
-    "VisualizeDatasetTask"
+    "VisualizeDataset"
 ]
