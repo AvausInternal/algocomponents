@@ -19,10 +19,12 @@ class LocalSqliteAdapter(SQLAdapter):
 
     def __init__(
         self,
+        commit_queries: bool = True,
         config: ConfigParser = None,
         section: str = "DEFAULT",
     ):
         super().__init__(config=config, section=section)
+        self.commit_queries = commit_queries
         self.db_path = self.db_file
         self.connection = None
         self.cursor = None
@@ -80,6 +82,9 @@ class LocalSqliteAdapter(SQLAdapter):
 
         self.logger.info("Result")
         self.logger.info(f"\n{df.head(self.max_rows_displayed)}")
+
+        if self.commit_queries:
+            self.connection.commit()
 
         return df
 
