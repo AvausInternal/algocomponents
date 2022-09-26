@@ -7,13 +7,20 @@ from algocomponents.tasks import AdapterTask, Task
 
 
 class VerifyOutput(Task):
-    """Task that can verify the output of another task"""
+    """A task to verify the output of another task
+
+    Task that takes another task and compares that task's output
+    table to an another table specified by user. Can be used
+    to verify that task's output stays constant over time.
+    Before using this task, you can save the task's output
+    with SaveExpectedOutput task.
+    """
 
     def __init__(
         self,
-        for_task: AdapterTask,
-        task_output_table: str,
-        expected_output_table: str,
+        for_task: AdapterTask,  # task which output will be saved
+        task_output_table: str,  # table where the task normally saves it's output
+        expected_output_table: str,  # table where the output will be saved with this task
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -35,7 +42,7 @@ class VerifyOutput(Task):
             "TASK_OUTPUT_TABLE": task_output_table,
         }
 
-    def start(self):
+    def run(self):
         self.task.start()
         sql_adapter = self.task.sql_adapter
         sql_adapter.connect()
@@ -86,55 +93,5 @@ class VerifyOutput(Task):
             raise Exception("Tables doesn't match")
         else:
             self.logger.info("Tables match")
-
-        sql_adapter.disconnect()
-
-
-class SaveExpectedOutput(Task):
-    """Task that can store the output of another task"""
-
-    def __init__(
-        self,
-        for_task: AdapterTask,
-        task_output_table: str,
-        expected_output_table: str,
-        **kwargs,
-    ):
-        super().__init__(**kwargs)
-
-        self.task = for_task
-        self.expected_output_table = expected_output_table
-        self.task_output_table = task_output_table
-        self.sql_folder = os.path.join(self.classpath, "sql")
-
-        # GCP and Spark supports only "EXCEPT DISTINCT" and sqlite support only "EXCEPT"
-        if isinstance(self.task.sql_adapter, (GCPAdapter, SparkAdapter)):
-            distinct_statement = "EXCEPT DISTINCT"
-        else:
-            distinct_statement = "EXCEPT"
-        self.format_variables = {
-            "DISTINCT_STATEMENT": distinct_statement,
-            "EXPECTED_OUTPUT_TABLE": expected_output_table,
-            "TASK_OUTPUT_TABLE": task_output_table,
-        }
-
-    def start(self):
-        self.task.start()
-        sql_adapter = self.task.sql_adapter
-        sql_adapter.connect()
-
-        # check that the task's output table exists
-        if not sql_adapter.table_exists(self.task_output_table):
-            sql_adapter.disconnect()
-            raise Exception(f"Output table: {self.task_output_table} doesn't exists")
-
-        # save the task's output to the location specified in the "expected_output_table"
-        sql_adapter.run_sql_file(
-            os.path.join(self.sql_folder, "save_expected_table.sql"),
-            self.format_variables,
-        )
-        self.logger.info(
-            f"Succesfully ran the setup to the output table from {self.task_output_table} to {self.expected_output_table}"
-        )
 
         sql_adapter.disconnect()
