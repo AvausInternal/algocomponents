@@ -1,10 +1,9 @@
 from unittest import TestCase
 import sqlite3
+import os
 
-from algocomponents.tasks.task_verifier.task_verifier import (
-    VerifyOutput,
-    SaveExpectedOutput,
-)
+from algocomponents.tasks.task_verifier.save_expected_output import SaveExpectedOutput
+from algocomponents.tasks.task_verifier.verify_output import VerifyOutput
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import SQLPipeline
 
@@ -16,68 +15,17 @@ class EmptySQLPipeline(SQLPipeline):
 class TestTaskVerifier(TestCase):
     @classmethod
     def setUpClass(cls):
-        connection_obj = sqlite3.connect("local_sqlite.db")
-        cursor_obj = connection_obj.cursor()
-        tables = [
-            "table_with_data",
-            "table_without_data",
-            "exp_out_table",
-            "table_with_diff_cols",
-        ]
-        for table in tables:
-            delete = f"""DROP TABLE IF EXISTS {table};"""
-            cursor_obj.execute(delete)
-            connection_obj.commit()
-
-        table_without_data = """ CREATE TABLE table_without_data (
-                    Email VARCHAR(255) NOT NULL,
-                    First_Name CHAR(25) NOT NULL,
-                    Last_Name CHAR(25),
-                    Score INT
-                ); """
-        cursor_obj.execute(table_without_data)
-        connection_obj.commit()
-        table_with_data = """ CREATE TABLE table_with_data (
-                    Email VARCHAR(255) NOT NULL,
-                    First_Name CHAR(25) NOT NULL,
-                    Last_Name CHAR(25),
-                    Score INT
-                ); """
-        cursor_obj.execute(table_with_data)
-        connection_obj.commit()
-
-        data = (
-            """ INSERT INTO table_with_data VALUES("joni", "joni", "rajala", "12"); """
-        )
-        cursor_obj.execute(data)
-        connection_obj.commit()
-
-        exp_out_table = """ CREATE TABLE exp_out_table (
-                    Email VARCHAR(255) NOT NULL,
-                    First_Name CHAR(25) NOT NULL,
-                    Last_Name CHAR(25),
-                    Score INT
-                ); """
-        cursor_obj.execute(exp_out_table)
-        connection_obj.commit()
-
-        data = """ INSERT INTO exp_out_table VALUES("joni", "joni", "rajala", "12"); """
-        cursor_obj.execute(data)
-        connection_obj.commit()
-
-        table_with_diff_cols = """ CREATE TABLE table_with_diff_cols (
-                    Email VARCHAR(255) NOT NULL,
-                    First_Name CHAR(25) NOT NULL,
-                    Score INT
-                ); """
-        cursor_obj.execute(table_with_diff_cols)
-        connection_obj.commit()
-        connection_obj.close()
+        # create the testing database
+        SQLPipeline(
+            sql_folder=os.path.join("tests", "task_verifier_queries"),
+            sql_adapter=LocalSqliteAdapter(),
+            sql_folder_relative_path=False,
+        ).start()
 
     def setUp(self):
         self.sql_pipeline = EmptySQLPipeline(sql_adapter=LocalSqliteAdapter())
 
-    # Tests for Setupping the TaskVerifier
+    # Tests for setupping the TaskVerifier
     def test_successful_setup(self):
         verifier = SaveExpectedOutput(
             for_task=self.sql_pipeline,
@@ -128,20 +76,59 @@ class TestTaskVerifier(TestCase):
         except:
             self.fail(f"Throws exception even though data matches")
 
-    def test_missing_data(self):
+    # same columns but missing one row
+    def test_missing_row(self):
         verifier = VerifyOutput(
             for_task=self.sql_pipeline,
-            task_output_table="table_without_data",
+            task_output_table="table_with_missing_row",
             expected_output_table="exp_out_table",
         )
         with self.assertRaises(Exception):
             verifier.start()
 
+    def test_missing_row_reversed(self):
+        verifier = VerifyOutput(
+            for_task=self.sql_pipeline,
+            task_output_table="exp_out_table",
+            expected_output_table="table_with_missing_row",
+        )
+        with self.assertRaises(Exception):
+            verifier.start()
+
+    # same columns and same number of rows but single value is different
+    def test_single_value_difference(self):
+        verifier = VerifyOutput(
+            for_task=self.sql_pipeline,
+            task_output_table="table_with_diff_value",
+            expected_output_table="exp_out_table",
+        )
+        with self.assertRaises(Exception):
+            verifier.start()
+
+    def test_single_value_difference_reversed(self):
+        verifier = VerifyOutput(
+            for_task=self.sql_pipeline,
+            task_output_table="exp_out_table",
+            expected_output_table="table_with_diff_value",
+        )
+        with self.assertRaises(Exception):
+            verifier.start()
+
+    # another table is missing one colunns
     def test_different_columns(self):
         verifier = VerifyOutput(
             for_task=self.sql_pipeline,
             task_output_table="table_with_diff_cols",
             expected_output_table="exp_out_table",
+        )
+        with self.assertRaises(Exception):
+            verifier.start()
+
+    def test_different_columns_reversed(self):
+        verifier = VerifyOutput(
+            for_task=self.sql_pipeline,
+            task_output_table="exp_out_table",
+            expected_output_table="table_with_diff_cols",
         )
         with self.assertRaises(Exception):
             verifier.start()
