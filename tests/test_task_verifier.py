@@ -1,11 +1,14 @@
-from unittest import TestCase
-import sqlite3
 import os
+from unittest import TestCase
 
+from algocomponents.adapters import LocalSqliteAdapter
+from algocomponents.adapters.custom_exceptions import (
+    DataMismatchException,
+    TableMissingException,
+)
+from algocomponents.tasks import SQLPipeline
 from algocomponents.tasks.task_verifier.save_expected_output import SaveExpectedOutput
 from algocomponents.tasks.task_verifier.verify_output import VerifyOutput
-from algocomponents.adapters import LocalSqliteAdapter
-from algocomponents.tasks import SQLPipeline
 
 
 class EmptySQLPipeline(SQLPipeline):
@@ -35,7 +38,7 @@ class TestTaskVerifier(TestCase):
         try:
             verifier.start()
         except Exception as e:
-            self.fail("Throws exception on setup")
+            self.fail("Throws exception on setup", e)
 
     def test_setup_missing_output_table(self):
         verifier = SaveExpectedOutput(
@@ -43,7 +46,7 @@ class TestTaskVerifier(TestCase):
             task_output_table="table_which_doesnt_exist",
             expected_output_table="exp_out_table",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(TableMissingException):
             verifier.start()
 
     # Tests for verifying task
@@ -53,7 +56,7 @@ class TestTaskVerifier(TestCase):
             task_output_table="table_with_data",
             expected_output_table="table_which_doesnt_exist",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(TableMissingException):
             verifier.start()
 
     def test_missing_task_output_table(self):
@@ -62,7 +65,7 @@ class TestTaskVerifier(TestCase):
             task_output_table="table_which_doesnt_exist",
             expected_output_table="table_with_data",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(TableMissingException):
             verifier.start()
 
     def test_matching_data(self):
@@ -83,7 +86,7 @@ class TestTaskVerifier(TestCase):
             task_output_table="table_with_missing_row",
             expected_output_table="exp_out_table",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(DataMismatchException):
             verifier.start()
 
     def test_missing_row_reversed(self):
@@ -92,7 +95,7 @@ class TestTaskVerifier(TestCase):
             task_output_table="exp_out_table",
             expected_output_table="table_with_missing_row",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(DataMismatchException):
             verifier.start()
 
     # same columns and same number of rows but single value is different
@@ -102,7 +105,7 @@ class TestTaskVerifier(TestCase):
             task_output_table="table_with_diff_value",
             expected_output_table="exp_out_table",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(DataMismatchException):
             verifier.start()
 
     def test_single_value_difference_reversed(self):
@@ -111,17 +114,17 @@ class TestTaskVerifier(TestCase):
             task_output_table="exp_out_table",
             expected_output_table="table_with_diff_value",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(DataMismatchException):
             verifier.start()
 
-    # another table is missing one colunns
+    # one of the tables is missing one colunns
     def test_different_columns(self):
         verifier = VerifyOutput(
             for_task=self.sql_pipeline,
             task_output_table="table_with_diff_cols",
             expected_output_table="exp_out_table",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(DataMismatchException):
             verifier.start()
 
     def test_different_columns_reversed(self):
@@ -130,5 +133,5 @@ class TestTaskVerifier(TestCase):
             task_output_table="exp_out_table",
             expected_output_table="table_with_diff_cols",
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(DataMismatchException):
             verifier.start()

@@ -1,7 +1,6 @@
 import os
-from sqlite3 import OperationalError
-from google.api_core.exceptions import BadRequest
 
+from algocomponents.adapters.custom_exceptions import TableMissingException
 from algocomponents.adapters import GCPAdapter, SparkAdapter
 from algocomponents.tasks import AdapterTask, Task
 
@@ -48,7 +47,9 @@ class SaveExpectedOutput(Task):
         # check that the task's output table exists
         if not sql_adapter.table_exists(self.task_output_table):
             sql_adapter.disconnect()
-            raise Exception(f"Output table: {self.task_output_table} doesn't exists")
+            raise TableMissingException(
+                f"Output table: {self.task_output_table} doesn't exists"
+            )
 
         # save the task's output to the location specified in the "expected_output_table"
         sql_adapter.run_sql_file(
