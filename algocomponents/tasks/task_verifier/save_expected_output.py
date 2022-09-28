@@ -1,7 +1,6 @@
 import os
 
 from algocomponents.adapters.custom_exceptions import TableMissingException
-from algocomponents.adapters import GCPAdapter, SparkAdapter
 from algocomponents.tasks import AdapterTask, Task
 
 
@@ -28,19 +27,12 @@ class SaveExpectedOutput(Task):
         self.task_output_table = task_output_table
         self.sql_folder = os.path.join(self.classpath, "sql")
 
-        # GCP and Spark supports only "EXCEPT DISTINCT" and sqlite support only "EXCEPT"
-        if isinstance(self.task.sql_adapter, (GCPAdapter, SparkAdapter)):
-            distinct_statement = "EXCEPT DISTINCT"
-        else:
-            distinct_statement = "EXCEPT"
         self.format_variables = {
-            "DISTINCT_STATEMENT": distinct_statement,
             "EXPECTED_OUTPUT_TABLE": expected_output_table,
             "TASK_OUTPUT_TABLE": task_output_table,
         }
 
     def run(self):
-        self.task.start()
         sql_adapter = self.task.sql_adapter
         sql_adapter.connect()
 
@@ -57,7 +49,7 @@ class SaveExpectedOutput(Task):
             self.format_variables,
         )
         self.logger.info(
-            f"Succesfully ran the setup to the output table from {self.task_output_table} to {self.expected_output_table}"
+            f"Succesfully saved the output table from {self.task_output_table} to {self.expected_output_table}"
         )
 
         sql_adapter.disconnect()
