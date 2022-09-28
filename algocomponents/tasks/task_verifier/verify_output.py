@@ -1,6 +1,4 @@
 import os
-from sqlite3 import OperationalError
-from google.api_core.exceptions import BadRequest
 
 from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
@@ -47,7 +45,6 @@ class VerifyOutput(Task):
         }
 
     def run(self):
-        self.task.start()
         sql_adapter = self.task.sql_adapter
         sql_adapter.connect()
 
@@ -62,7 +59,7 @@ class VerifyOutput(Task):
         if not sql_adapter.table_exists(self.expected_output_table):
             sql_adapter.disconnect()
             raise TableMissingException(
-                f"You must run the setup first, table {self.expected_output_table} doesn't exists"
+                f"Table {self.expected_output_table} doesn't exists. Save it first with SaveExpectedOutput class"
             )
 
         # check if the two tables have matching columns
@@ -75,7 +72,7 @@ class VerifyOutput(Task):
         if columns_expected_output_table != columns_task_output_table:
             sql_adapter.disconnect()
             raise DataMismatchException(
-                f"Tables doesn't match.\nColumns in expected output table: {columns_expected_output_table}\nColumns in task's output table: {columns_task_output_table}"
+                f"Tables don't match.\nColumns in expected output table: {columns_expected_output_table}\nColumns in task's output table: {columns_task_output_table}"
             )
 
         try:
@@ -85,16 +82,16 @@ class VerifyOutput(Task):
                 self.format_variables,
             )
         # throws an error if tables had array columns
-        except (BadRequest, OperationalError) as e:
+        except Exception as e:
             sql_adapter.disconnect()
             raise DataMismatchException(
-                "Tables contain array columns which are not supported",
+                "Something went wrong. Possibly a table contains array columns, which is not supported",
                 e,
             ) from None
 
         if len(result[0]) != 0:
             sql_adapter.disconnect()
-            raise DataMismatchException("Tables doesn't match")
+            raise DataMismatchException("Tables don't match")
         else:
             self.logger.info("Tables match")
 
