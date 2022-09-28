@@ -28,11 +28,20 @@ class VisualizeDataset(AdapterTask):
 
         assert (
             self.input_csv_file or self.input_table_name or (self.input_df is not None)
-        ), "VisualizeDatasetTaskOld Must get either input_csv_file or input_table_name or input_df, got neither."
+        ), "VisualizeDataset Must get either input_csv_file or input_table_name or input_df, got neither."
+
+        if self.input_table_name:
+            assert (
+                self.sql_adapter
+            ), "You must provide sql_adapter with input_table_name."
+
+        assert (
+            len([1 for val in [self.input_csv_file, self.input_table_name, self.input_df] if val is not None]) == 1
+        ), "VisualizeDataset Must get only one dataset source (input_csv_file/input_table_name/input_df), got more."
 
     def run(self):
         if self.input_csv_file:
-            self.input_df = pd.read_csv(f"{self.input_csv_file}", sep=";")
+            self.input_df = pd.read_csv(f"{self.input_csv_file}")
         elif self.input_table_name:
             sql_string = f"SELECT * FROM `{self.input_table_name}`"
 
@@ -46,7 +55,6 @@ class VisualizeDataset(AdapterTask):
             self.df_numeric.max() - self.df_numeric.min()
         )
 
-        # self.save_boxplot()
         save_boxplot(df=self.input_df, output_folder=self.output_folder)
         save_boxplot(
             df=self.df_normalized,
