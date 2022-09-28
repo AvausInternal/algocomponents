@@ -2,6 +2,10 @@ import os
 from sqlite3 import OperationalError
 from google.api_core.exceptions import BadRequest
 
+from algocomponents.adapters.custom_exceptions import (
+    TableMissingException,
+    DataMismatchException,
+)
 from algocomponents.adapters import GCPAdapter, SparkAdapter
 from algocomponents.tasks import AdapterTask, Task
 
@@ -50,14 +54,14 @@ class VerifyOutput(Task):
         # check that the task's output table exists
         if not sql_adapter.table_exists(self.task_output_table):
             sql_adapter.disconnect()
-            raise Exception(
+            raise TableMissingException(
                 f"Task's Output table: {self.task_output_table} doesn't exists"
             )
 
         # check if table with the expected output exists
         if not sql_adapter.table_exists(self.expected_output_table):
             sql_adapter.disconnect()
-            raise Exception(
+            raise TableMissingException(
                 f"You must run the setup first, table {self.expected_output_table} doesn't exists"
             )
 
@@ -70,7 +74,7 @@ class VerifyOutput(Task):
         )
         if columns_expected_output_table != columns_task_output_table:
             sql_adapter.disconnect()
-            raise Exception(
+            raise DataMismatchException(
                 f"Tables doesn't match.\nColumns in expected output table: {columns_expected_output_table}\nColumns in task's output table: {columns_task_output_table}"
             )
 
@@ -83,14 +87,14 @@ class VerifyOutput(Task):
         # throws an error if tables had array columns
         except (BadRequest, OperationalError) as e:
             sql_adapter.disconnect()
-            raise Exception(
+            raise DataMismatchException(
                 "Tables contain array columns which are not supported",
                 e,
             ) from None
 
         if len(result[0]) != 0:
             sql_adapter.disconnect()
-            raise Exception("Tables doesn't match")
+            raise DataMismatchException("Tables doesn't match")
         else:
             self.logger.info("Tables match")
 
