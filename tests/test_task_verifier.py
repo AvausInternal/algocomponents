@@ -16,17 +16,16 @@ class EmptySQLPipeline(SQLPipeline):
 
 
 class TestTaskVerifier(TestCase):
+    sql_pipeline = EmptySQLPipeline(sql_adapter=LocalSqliteAdapter())
+
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         # create the testing database
         SQLPipeline(
             sql_folder=os.path.join("tests", "task_verifier_queries"),
             sql_adapter=LocalSqliteAdapter(),
             sql_folder_relative_path=False,
         ).start()
-
-    def setUp(self):
-        self.sql_pipeline = EmptySQLPipeline(sql_adapter=LocalSqliteAdapter())
 
     # Tests for setupping the TaskVerifier
     def test_successful_setup(self):
