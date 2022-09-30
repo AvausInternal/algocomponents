@@ -22,7 +22,9 @@ class TestTaskVerifier(TestCase):
     def setup_class(cls):
         # create the testing database
         SQLPipeline(
-            sql_folder=os.path.join("tests", "task_verifier_queries"),
+            sql_folder=os.path.join(
+                "tests", "tasks", "task_verifier", "task_verifier_queries"
+            ),
             sql_adapter=LocalSqliteAdapter(),
             sql_folder_relative_path=False,
         ).start()

@@ -44,7 +44,7 @@ class CustomAdapter(SQLAdapter):
 
 class TestThatLoggersReactToConfigCorrectly(TestCase):
 
-    global_config_dir = os.path.join("tests", "logging_test_config")
+    global_config_dir = os.path.join("tests", "adapters", "logging_test_config")
 
     def test_that_task_gets_correct_logger(self):
         # Remove handlers from root logger set by pytest
