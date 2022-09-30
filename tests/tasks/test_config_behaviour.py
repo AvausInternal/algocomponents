@@ -12,7 +12,7 @@ class EmptyTask(Task):
 
 class TestConfigBehaviour(TestCase):
 
-    test_config_dir = os.path.join("tests", "dummy_global_config")
+    test_config_dir = os.path.join("tests", "tasks", "dummy_global_config")
 
     def test_that_config_files_are_parsed(self):
         task = EmptyTask(

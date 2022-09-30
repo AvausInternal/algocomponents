@@ -36,7 +36,7 @@ class TestFeatureBase(TestCase):
     sql_adapter = LocalSqliteAdapter()
 
     def test_base_case(self):
-        global_config_path = os.path.join("tests", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
         connecting_table = "{TMP_DB}.feature_base_test"
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
@@ -72,7 +72,7 @@ class TestFeatureBase(TestCase):
         feature.sql_adapter.disconnect()
 
     def test_output_column_missing(self):
-        global_config_path = os.path.join("tests", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
         connecting_table = "{TMP_DB}.feature_base_test"
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
@@ -94,7 +94,7 @@ class TestFeatureBase(TestCase):
             feature.start()
 
     def test_output_table_missing(self):
-        global_config_path = os.path.join("tests", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
         connecting_table = "{TMP_DB}.feature_base_test"
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
@@ -116,7 +116,7 @@ class TestFeatureBase(TestCase):
             feature.start()
 
     def test_input_column_missing(self):
-        global_config_path = os.path.join("tests", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
         connecting_table = "{TMP_DB}.feature_base_test"
 
         feature_base = SimpleFeatureBase(
@@ -143,7 +143,7 @@ class TestFeatureBase(TestCase):
             feature.start()
 
     def test_input_table_missing(self):
-        global_config_path = os.path.join("tests", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
         connecting_table = "{TMP_DB}.feature_base_test"
 
         feature_base = SimpleFeatureBase(
