@@ -21,32 +21,43 @@ class VisualizeDataset(AdapterTask):
         self.input_df = input_df
         self.input_csv_file = input_csv_file
         self.input_table_name = input_table_name
-        if output_folder == "":
+        if output_folder == "" or output_folder[-1] == "/":
             self.output_folder = output_folder
         else:
             self.output_folder = output_folder + "/"
 
-        assert (
-            self.input_csv_file or self.input_table_name or (self.input_df is not None)
-        ), "VisualizeDataset Must get either input_csv_file or input_table_name or input_df, got neither."
+        if (
+            self.input_csv_file is None
+            and self.input_table_name is None
+            and self.input_df is None
+        ):
+            raise ValueError(
+                "VisualizeDataset Must get either input_csv_file or input_table_name or input_df,"
+                " got neither."
+            )
 
-        if self.input_table_name:
-            assert (
-                self.sql_adapter
-            ), "You must provide sql_adapter with input_table_name."
+        only_one_true_list = [
+            self.input_csv_file is not None,
+            self.input_table_name is not None,
+            self.input_df is not None,
+        ]
+        if only_one_true_list.count(True) != 1:
+            raise ValueError(
+                "VisualizeDataset Must get only one dataset source: input_csv_file or input_table_name or input_df, "
+                "got more. "
+            )
 
-        assert (
-            len([1 for val in [self.input_csv_file, self.input_table_name, self.input_df] if val is not None]) == 1
-        ), "VisualizeDataset Must get only one dataset source (input_csv_file/input_table_name/input_df), got more."
+        if self.input_table_name and self.sql_adapter is None:
+            raise ValueError("You must provide sql_adapter with input_table_name.")
+
+        if self.input_df is not None and self.input_df.empty:
+            raise ValueError("Input_df is empty.")
 
     def run(self):
         if self.input_csv_file:
             self.input_df = pd.read_csv(f"{self.input_csv_file}")
         elif self.input_table_name:
-            sql_string = f"SELECT * FROM `{self.input_table_name}`"
-
-            sql_task_df = SQLTask(sql_string=sql_string, sql_adapter=self.sql_adapter)
-            self.input_df = sql_task_df.start().as_pandas()
+            self.input_df = self.sql_adapter.table_as_pandas_df(self.input_table_name)
 
         # dataframe with only numerical features
         self.df_numeric = self.input_df.select_dtypes(include=np.number)
