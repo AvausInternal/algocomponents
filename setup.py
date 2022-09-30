@@ -7,7 +7,6 @@ setup(
         "algocomponents",
         "algocomponents.tasks",
         "algocomponents.tasks.model_evaluator",
-        "algocomponents.tasks.model_evaluator",
         "algocomponents.tasks.model_evaluator.sql",
         "algocomponents.tasks.task_verifier",
         "algocomponents.tasks.task_verifier.sql",
