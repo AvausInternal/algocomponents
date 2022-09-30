@@ -27,5 +27,5 @@ __all__ = [
     "Feature",
     "UnionTablesTask",
     "ModelEvaluator",
-    "VisualizeDataset"
+    "VisualizeDataset",
 ]

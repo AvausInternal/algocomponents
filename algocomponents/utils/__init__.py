@@ -3,6 +3,7 @@ from algocomponents.utils._loggiedoggie import LoggieDoggie
 from algocomponents.utils._tools import config_to_str, merge_configs
 from algocomponents.utils._save_plots import save_boxplot, save_histogram
 
+
 """Allows classes to live in separate files while keeping imports short
 
 All the classes are imported into this init-file, and from this file they can
@@ -17,5 +18,5 @@ __all__ = [
     "config_to_str",
     "merge_configs",
     "save_boxplot",
-    "save_histogram"
+    "save_histogram",
 ]
