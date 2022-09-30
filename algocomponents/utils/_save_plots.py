@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 def save_boxplot(
         df: pd.DataFrame,
         output_folder: str = "",
@@ -15,6 +16,7 @@ def save_boxplot(
 
     plt.savefig(f"{output_folder}{file_name}.png")
     print(f"Boxplot saved under \'{file_name}.png\' file")
+
 
 def save_histogram(
         df: pd.DataFrame,
