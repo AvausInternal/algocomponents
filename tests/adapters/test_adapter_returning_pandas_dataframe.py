@@ -65,3 +65,16 @@ class TestAdapterReturningPandasDataframe(TestCase):
         )
         assert df_list[0].shape[0] == 30
         sql_adapter_max_one_row.disconnect()
+
+    def test_table_as_pandas_df(self):
+        self.sql_adapter.connect()
+        module = sys.modules[self.__class__.__module__]
+        sql_folder = os.path.join(
+            os.path.dirname(module.__file__),
+            "test_adapter_returning_pandas_dataframe_queries",
+        )
+        self.sql_adapter.run_sql_file(
+            os.path.join(sql_folder, "table_creation_query.sql")
+        )
+        df = self.sql_adapter.table_as_pandas_df("test_table_as_pandas")
+        assert df.shape[0] == 30

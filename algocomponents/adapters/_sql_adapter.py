@@ -266,6 +266,9 @@ class SQLAdapter(ABC):
     def latest_query_as_pandas(self):
         pass
 
+    def table_as_pandas_df(self, table: str) -> pd.DataFrame:
+        return self.run_sql_string(f"SELECT * FROM {table}")[0]
+
     @abstractmethod
     def latest_query_as_csv(self, path: str):
         pass
