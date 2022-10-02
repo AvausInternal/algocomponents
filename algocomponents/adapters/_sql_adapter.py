@@ -272,3 +272,6 @@ class SQLAdapter(ABC):
     @abstractmethod
     def latest_query_as_csv(self, path: str):
         pass
+
+    def table_is_empty(self, table: str) -> bool:
+        return len(self.table_as_pandas_df(table)) == 0
