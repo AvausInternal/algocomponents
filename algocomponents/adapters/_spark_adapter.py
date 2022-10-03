@@ -59,5 +59,8 @@ class SparkAdapter(SQLAdapter):
     def latest_query_as_pandas(self):
         raise NotImplementedError()
 
+    def pandas_df_as_table(self, df, table):
+        raise NotImplementedError()
+
     def latest_query_as_csv(self, path: str):
         raise NotImplementedError()
