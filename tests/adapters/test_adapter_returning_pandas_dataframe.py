@@ -78,3 +78,27 @@ class TestAdapterReturningPandasDataframe(TestCase):
         )
         df = self.sql_adapter.table_as_pandas_df("test_table_as_pandas")
         assert df.shape[0] == 30
+
+    def test_table_is_empty_empty_table(self):
+        self.sql_adapter.connect()
+        module = sys.modules[self.__class__.__module__]
+        sql_folder = os.path.join(
+            os.path.dirname(module.__file__),
+            "test_adapter_returning_pandas_dataframe_queries",
+        )
+        self.sql_adapter.run_sql_file(
+            os.path.join(sql_folder, "create_empty_table.sql")
+        )
+        assert self.sql_adapter.table_is_empty("empty_table")
+
+    def test_table_is_empty_populated_table(self):
+        self.sql_adapter.connect()
+        module = sys.modules[self.__class__.__module__]
+        sql_folder = os.path.join(
+            os.path.dirname(module.__file__),
+            "test_adapter_returning_pandas_dataframe_queries",
+        )
+        self.sql_adapter.run_sql_file(
+            os.path.join(sql_folder, "table_creation_query.sql")
+        )
+        assert not self.sql_adapter.table_is_empty("test_table_as_pandas")
