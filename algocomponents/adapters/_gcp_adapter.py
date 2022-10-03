@@ -2,6 +2,8 @@ import re
 from configparser import ConfigParser
 from typing import List
 
+import pandas as pd
+
 from algocomponents.adapters import SQLAdapter
 
 
@@ -164,6 +166,9 @@ class GCPAdapter(SQLAdapter):
 
     def latest_query_as_pandas(self):
         return self.query_job.to_dataframe()
+
+    def pandas_df_as_table(self, df: pd.DataFrame, table: str):
+        raise NotImplementedError()
 
     def latest_query_as_csv(self, path: str):
         dataframe = self.latest_query_as_pandas()
