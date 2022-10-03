@@ -36,12 +36,22 @@ class VisualizeDataset(AdapterTask):
             ), "You must provide sql_adapter with input_table_name."
 
         assert (
-            len([1 for val in [self.input_csv_file, self.input_table_name, self.input_df] if val is not None]) == 1
+            len(
+                [
+                    1
+                    for val in [
+                        self.input_csv_file,
+                        self.input_table_name,
+                        self.input_df,
+                    ]
+                    if val is not None
+                ]
+            )
+            == 1
         ), "VisualizeDataset Must get only one dataset source (input_csv_file/input_table_name/input_df), got more."
 
         if self.input_df is not None:
-            assert (not input_df.empty
-                    ), "Input_df is empty."
+            assert not input_df.empty, "Input_df is empty."
 
     def run(self):
         if self.input_csv_file:

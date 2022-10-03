@@ -25,5 +25,5 @@ __all__ = [
     "FeatureBase",
     "Feature",
     "ModelEvaluator",
-    "VisualizeDataset"
+    "VisualizeDataset",
 ]

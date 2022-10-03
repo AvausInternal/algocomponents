@@ -7,13 +7,13 @@ from algocomponents.adapters import GCPAdapter
 
 
 class TestVisualizeDataset(TestCase):
-    """ Test VisualizeDataset task class"""
+    """Test VisualizeDataset task class"""
 
     csv_file_path = "visualize_dataset_csv/email_marketing_campaign.csv"
     csv_empty_path = "visualize_dataset_csv/empty.csv"
     df = pd.read_csv(csv_file_path)
     df_empty = pd.DataFrame()
-    gcp_input_table = '{TMP_DB}.dataset_email_response'
+    gcp_input_table = "{TMP_DB}.dataset_email_response"
     folder = "visualize_dataset_csv"
 
     def test_that_error_is_raised_no_dataset_argument(self):
@@ -24,19 +24,24 @@ class TestVisualizeDataset(TestCase):
         with self.assertRaises(Exception):
             VisualizeDataset(input_df=self.df, input_csv_file=self.csv_file_path)
         with self.assertRaises(Exception):
-            VisualizeDataset(input_df=self.df,
-                             input_table_name=self.gcp_input_table,
-                             sql_adapter=GCPAdapter(config=None))
+            VisualizeDataset(
+                input_df=self.df,
+                input_table_name=self.gcp_input_table,
+                sql_adapter=GCPAdapter(config=None),
+            )
         with self.assertRaises(Exception):
-            VisualizeDataset(input_csv_file=self.csv_file_path,
-                             input_table_name=self.gcp_input_table,
-                             sql_adapter=GCPAdapter(config=None))
+            VisualizeDataset(
+                input_csv_file=self.csv_file_path,
+                input_table_name=self.gcp_input_table,
+                sql_adapter=GCPAdapter(config=None),
+            )
         with self.assertRaises(Exception):
-            VisualizeDataset(input_df=self.df,
-                             input_csv_file=self.csv_file_path,
-                             input_table_name=self.gcp_input_table,
-                             sql_adapter=GCPAdapter(config=None)
-                             )
+            VisualizeDataset(
+                input_df=self.df,
+                input_csv_file=self.csv_file_path,
+                input_table_name=self.gcp_input_table,
+                sql_adapter=GCPAdapter(config=None),
+            )
 
     def test_that_error_is_raised_input_table_without_adapter(self):
         with self.assertRaises(Exception):
@@ -49,8 +54,8 @@ class TestVisualizeDataset(TestCase):
             folder_name = self.folder
         else:
             folder_name = self.folder + "/"
-        self.assertTrue(os.path.exists(f'{folder_name}boxplot.png'))
-        self.assertTrue(os.path.exists(f'{folder_name}normalized_boxplot.png'))
+        self.assertTrue(os.path.exists(f"{folder_name}boxplot.png"))
+        self.assertTrue(os.path.exists(f"{folder_name}normalized_boxplot.png"))
         # should it be extended to histograms and corr as well?
 
     def test_empty_df(self):
@@ -63,5 +68,6 @@ class TestVisualizeDataset(TestCase):
     def test_empty_table(self):
         pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

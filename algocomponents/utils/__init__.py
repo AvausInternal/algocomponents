@@ -16,5 +16,5 @@ __all__ = [
     "launch_task",
     "config_to_str",
     "save_boxplot",
-    "save_histogram"
+    "save_histogram",
 ]
