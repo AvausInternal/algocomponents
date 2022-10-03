@@ -94,6 +94,9 @@ class LocalSqliteAdapter(SQLAdapter):
             columns=self.columns,
         )
 
+    def pandas_df_as_table(self, df: pd.DataFrame, table: str):
+        df.to_sql(table, self.connection, if_exists="replace")
+
     def latest_query_as_csv(self, path: str):
         dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)

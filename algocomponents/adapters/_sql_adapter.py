@@ -270,6 +270,10 @@ class SQLAdapter(ABC):
         return self.run_sql_string(f"SELECT * FROM {table}")[0]
 
     @abstractmethod
+    def pandas_df_as_table(self, df: pd.DataFrame, table: str):
+        pass
+
+    @abstractmethod
     def latest_query_as_csv(self, path: str):
         pass
 
