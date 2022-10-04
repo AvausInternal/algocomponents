@@ -58,11 +58,13 @@ class GCPAdapter(SQLAdapter):
         return f"`{gcp_project}.{table}`"
 
     def table_exists(self, table: str) -> bool:
+        from google.api_core.exceptions import NotFound
+
         formatted_table = self._format_table_name(table).replace("`", "")
         try:
             self.client.get_table(formatted_table)
             return True
-        except:
+        except NotFound:
             return False
 
     def get_table_columns(self, table: str) -> List[str]:

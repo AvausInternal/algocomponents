@@ -1,17 +1,13 @@
-from configparser import ConfigParser
-
 from algocomponents.tasks import SQLPipeline
-from algocomponents.adapters import SQLAdapter
 
 
 class ModelEvaluator(SQLPipeline):
     """A task to evaluate models.
 
-    The task takes an input table with a prediction column
-    and a target label column. The task calculates different
-    evaluation metrics such as: true positives, false positives,
-    true negatives, false negatives, accuracy, precision, recall,
-    f1 score for different threshold boundaries.
+    The task takes an input table with a prediction column and a target label
+    column. The task calculates different evaluation metrics such as: true
+    positives, false positives, true negatives, false negatives, accuracy,
+    precision, recall, f1 score for different threshold boundaries.
     """
 
     def __init__(

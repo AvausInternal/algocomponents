@@ -1,6 +1,8 @@
-from algocomponents.utils import LoggieDoggie
-from scipy import stats
 import math
+
+from scipy import stats
+
+from algocomponents.utils import LoggieDoggie
 
 
 class ABTools(LoggieDoggie):
