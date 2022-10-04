@@ -1,28 +1,27 @@
 import os
 
+from algocomponents.adapters import GCPAdapter, SparkAdapter
 from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     DataMismatchException,
 )
-from algocomponents.adapters import GCPAdapter, SparkAdapter
 from algocomponents.tasks import AdapterTask, Task
 
 
 class VerifyOutput(Task):
     """A task to verify the output of another task
 
-    Task that takes another task and compares that task's output
-    table to an another table specified by user. Can be used
-    to verify that task's output stays constant over time.
-    Before using this task, you can save the task's output
-    with SaveExpectedOutput task.
+    This task takes another task and compares that task's output table to
+    another table specified by user. Can be used to verify that task's output
+    stays constant over time. Before using this task, you can save the task's
+    output with SaveExpectedOutput task.
     """
 
     def __init__(
         self,
-        for_task: AdapterTask,  # task which output will be saved
-        task_output_table: str,  # table where the task normally saves it's output
-        expected_output_table: str,  # table where the output will be saved with this task
+        for_task: AdapterTask,  # task which output will be verified
+        task_output_table: str,  # table where the task saves it's output
+        expected_output_table: str,  # table which the output will be compared to
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -52,7 +51,7 @@ class VerifyOutput(Task):
         if not sql_adapter.table_exists(self.task_output_table):
             sql_adapter.disconnect()
             raise TableMissingException(
-                f"Task's Output table: {self.task_output_table} doesn't exists"
+                f"Task's output table: {self.task_output_table} doesn't exist"
             )
 
         # check if table with the expected output exists
@@ -72,11 +71,13 @@ class VerifyOutput(Task):
         if columns_expected_output_table != columns_task_output_table:
             sql_adapter.disconnect()
             raise DataMismatchException(
-                f"Tables don't match.\nColumns in expected output table: {columns_expected_output_table}\nColumns in task's output table: {columns_task_output_table}"
+                f"Tables don't match.\n"
+                f"Columns in expected output table: {columns_expected_output_table}\n"
+                f"Columns in task's output table: {columns_task_output_table}"
             )
 
         try:
-            # make sql query that compares tables and returns mismatching rows
+            # run the sql query that compares two tables and returns mismatching rows
             result = sql_adapter.run_sql_file(
                 os.path.join(self.sql_folder, "differences_in_two_table.sql"),
                 self.format_variables,
@@ -91,8 +92,8 @@ class VerifyOutput(Task):
 
         if len(result[0]) != 0:
             sql_adapter.disconnect()
-            raise DataMismatchException("Tables don't match")
+            raise DataMismatchException("Tables are not identical")
         else:
-            self.logger.info("Tables match")
+            self.logger.info("Tables are identical")
 
         sql_adapter.disconnect()
