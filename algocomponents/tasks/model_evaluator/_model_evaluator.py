@@ -1,7 +1,4 @@
-from configparser import ConfigParser
-
 from algocomponents.tasks import SQLPipeline
-from algocomponents.adapters import SQLAdapter
 
 
 class ModelEvaluator(SQLPipeline):
