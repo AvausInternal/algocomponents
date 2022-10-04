@@ -274,6 +274,10 @@ class SQLAdapter(ABC):
         pass
 
     @abstractmethod
+    def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
+        pass
+
+    @abstractmethod
     def latest_query_as_csv(self, path: str):
         pass
 
