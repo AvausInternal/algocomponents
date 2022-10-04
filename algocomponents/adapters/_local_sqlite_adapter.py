@@ -106,6 +106,9 @@ class LocalSqliteAdapter(SQLAdapter):
                 )
             df.to_sql(table, self.connection)
 
+    def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
+        df.to_sql(table, self.connection, if_exists="append")
+
     def latest_query_as_csv(self, path: str):
         dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)
