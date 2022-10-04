@@ -167,7 +167,7 @@ class GCPAdapter(SQLAdapter):
     def latest_query_as_pandas(self):
         return self.query_job.to_dataframe()
 
-    def pandas_df_as_table(self, df: pd.DataFrame, table: str):
+    def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
         raise NotImplementedError()
 
     def latest_query_as_csv(self, path: str):
