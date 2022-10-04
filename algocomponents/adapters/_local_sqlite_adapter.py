@@ -96,6 +96,7 @@ class LocalSqliteAdapter(SQLAdapter):
         )
 
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
+        table = self._format_table_name(table=table)
         if overwrite:
             df.to_sql(table, self.connection, if_exists="replace")
         else:
