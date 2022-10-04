@@ -4,7 +4,15 @@ from algocomponents.tasks import Task, AdapterTask
 
 
 class GroupTask(AdapterTask):
-    """GroupTask iterates over a list of tasks and starts them."""
+    """GroupTask iterates over a list of tasks and starts them.
+
+    GroupTask also keeps its task list up to date with any changes: If
+    add_to_config() is called, any addition will also be added to the tasks in
+    the task_list (which can themselves be GroupTasks, in which case they will
+    do the same). Similarly, any adapter given to a GroupTask will propagate
+    down into all tasks in the task list (where GroupTasks in the task_list
+    will do the same).
+    """
 
     def __init__(
         self,
