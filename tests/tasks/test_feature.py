@@ -1,11 +1,10 @@
 import os
-from typing import List
 from unittest import TestCase
 
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
-from algocomponents.tasks import FeatureBase, Feature, SQLPipeline
+from algocomponents.tasks import FeatureBase, Feature
 
 
 # Define class here so finding sql folder is easier

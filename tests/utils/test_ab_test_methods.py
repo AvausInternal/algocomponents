@@ -1,6 +1,8 @@
 from unittest import TestCase
+
 import numpy
 from scipy import stats
+
 from algocomponents.utils._ab_tools import ABTools
 
 
