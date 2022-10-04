@@ -7,17 +7,16 @@ from algocomponents.tasks import AdapterTask, Task
 class SaveExpectedOutput(Task):
     """A task to store the output of another task
 
-    Task that takes another task and saves that task's output to a table
-    specified by user. After the output is saved, you can use the
-    VerifyOutput task to verify that task's output stays constant
-    over time.
+    This task takes another task and saves that task's output to a table
+    specified by user. After the output is saved, you can use the VerifyOutput
+    task to verify that the task's output stays constant over time.
     """
 
     def __init__(
         self,
         for_task: AdapterTask,  # task which output will be saved
-        task_output_table: str,  # table where the task normally saves it's output
-        expected_output_table: str,  # table where the output will be saved with this task
+        task_output_table: str,  # table where the task saves it's output
+        expected_output_table: str,  # table where the expected output for this task will be saved
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -49,7 +48,7 @@ class SaveExpectedOutput(Task):
             self.format_variables,
         )
         self.logger.info(
-            f"Succesfully saved the output table from {self.task_output_table} to {self.expected_output_table}"
+            f"Successfully saved the output table from {self.task_output_table} to {self.expected_output_table}"
         )
 
         sql_adapter.disconnect()
