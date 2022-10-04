@@ -6,6 +6,10 @@ class TableMissingException(AdapterException):
     pass
 
 
+class TableAlreadyExistsException(AdapterException):
+    pass
+
+
 class DatabaseMissingException(AdapterException):
     pass
 
