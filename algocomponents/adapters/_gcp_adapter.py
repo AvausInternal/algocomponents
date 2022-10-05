@@ -168,10 +168,18 @@ class GCPAdapter(SQLAdapter):
         return self.query_job.to_dataframe()
 
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
-        job_config = bigquery.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+        self.pandas_df_helper_method(df, table, "WRITE_TRUNCATE")
+
+    def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
+        self.pandas_df_helper_method(df, table, "WRITE_APPEND")
+
+    def pandas_df_helper_method(
+        self, df: pd.DataFrame, table: str, write_disposition: str
+    ):
+        job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
         table = self._format_table_name(table).replace("`", "")
         job = self.client.load_table_from_dataframe(df, table, job_config=job_config)
-        job.result()  
+        job.result()
 
     def latest_query_as_csv(self, path: str):
         dataframe = self.latest_query_as_pandas()
