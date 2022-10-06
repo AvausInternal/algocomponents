@@ -7,8 +7,9 @@ def config_to_str(config):
 
 
 def merge_configs(merge_this, into_this, overwrite: bool = False):
-    # Use .keys() instead of .sections() to also get the DEFAULT-section
-    for section in merge_this.keys():
+    # Assure DEFAULT is last, adding to this will add to all sections
+    sections = merge_this.sections() + ["DEFAULT"]
+    for section in sections:
         if section not in into_this.keys():
             into_this.add_section(section)
         for key, value in merge_this[section].items():
