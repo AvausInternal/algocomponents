@@ -5,7 +5,7 @@ from scipy import stats
 from algocomponents.utils import LoggieDoggie
 
 
-class ABTools(LoggieDoggie):
+class ABTools:
     """A/B testing tools
 
     ABTools contain a number of methods that are useful for conducting A/B tests
