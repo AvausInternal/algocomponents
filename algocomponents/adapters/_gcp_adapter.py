@@ -144,8 +144,10 @@ class GCPAdapter(SQLAdapter):
         match = re.findall(
             # First, at least 1 newline or whitespace
             r"\s+"
-            # ml. followed by at least one word-character
-            r"(?:ml.)\w+"
+            # Maybe FROM, if the ML-method is used that way
+            r"(from\s+)?"
+            # ml. followed by at least one word-character and maybe whitespace
+            r"(?:ml.)\w+\s*"
             # Everything from open paranthesis to close paranthesis
             r"\([^)]*\)",
             # Search in the sql string
