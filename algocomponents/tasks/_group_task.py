@@ -1,6 +1,7 @@
 from typing import List
 
 from algocomponents.tasks import Task, AdapterTask
+from algocomponents.utils._tools import merge_configs
 
 
 class GroupTask(AdapterTask):
@@ -28,6 +29,9 @@ class GroupTask(AdapterTask):
         if self.sql_adapter is not None:
             self.propagate_sql_adapter(self.sql_adapter)
 
+        if self.config is not None:
+            self.propagate_config()
+
     def run(self):
         for task in self.task_list:
             task.parent = self
@@ -48,3 +52,9 @@ class GroupTask(AdapterTask):
             if hasattr(task, "sql_adapter"):
                 if task.sql_adapter is None:
                     task.set_sql_adapter(sql_adapter)
+
+    def propagate_config(self):
+        for task in self.task_list:
+            task.config = merge_configs(
+                merge_this=self.config, into_this=task.config, overwrite=False
+            )
