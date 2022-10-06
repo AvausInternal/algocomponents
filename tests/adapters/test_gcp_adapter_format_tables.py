@@ -176,6 +176,21 @@ class TestGCPAdapterFormatTables(TestCase):
           WHERE event_date BETWEEN '2021-08-01' AND CURRENT_DATE()
           order by event_date
     """
+    advanced_query_with_ml_methods = f"""
+    CREATE OR REPLACE TABLE `{gcp_project}.db.output_prediction` AS
+
+    SELECT
+        *
+    FROM ML.PREDICT (
+        MODEL `{gcp_project}.db.output_model`,
+        (
+            SELECT
+                * EXCEPT(dataframe, snacker_id)
+            FROM `{gcp_project}.db.data_split_table`
+            WHERE dataframe = 'test'
+        )
+    )
+    """
 
     def test_formatting_simple_query(self):
         query = self.gcp_adapter._format_table_names(query=self.simple_query)
@@ -256,3 +271,9 @@ class TestGCPAdapterFormatTables(TestCase):
             query=self.advanced_query_with_wildcard_table
         )
         assert query == self.advanced_query_with_wildcard_table
+
+    def test_formatting_advanced_query_with_ml_methods(self):
+        query = self.gcp_adapter_without_config._format_table_names(
+            query=self.advanced_query_with_ml_methods,
+        )
+        assert query == self.advanced_query_with_ml_methods
