@@ -1,6 +1,6 @@
 from algocomponents.utils._launch_task import launch_task
 from algocomponents.utils._loggiedoggie import LoggieDoggie
-from algocomponents.utils._tools import config_to_str
+from algocomponents.utils._tools import config_to_str, merge_configs
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -14,4 +14,5 @@ __all__ = [
     "LoggieDoggie",
     "launch_task",
     "config_to_str",
+    "merge_configs",
 ]

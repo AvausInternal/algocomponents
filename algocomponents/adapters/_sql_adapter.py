@@ -6,7 +6,7 @@ from typing import Dict, List
 
 import pandas as pd
 
-from algocomponents.utils import LoggieDoggie
+from algocomponents.utils import LoggieDoggie, merge_configs
 
 
 class SQLAdapter(ABC):
@@ -39,12 +39,10 @@ class SQLAdapter(ABC):
         self.config.read(os.path.join(global_config_dir, "config.ini"))
 
         # Then append or overwrite from config inheritance
-        if config:
-            for section in config:
-                if section not in self.config.keys():
-                    self.config.add_section(section)
-                for key, value in config[section].items():
-                    self.config[section][key] = value
+        if config is not None:
+            self.config = merge_configs(
+                merge_this=config, into_this=self.config, overwrite=True
+            )
 
         if self.class_name in self.config:
             self.adapter_format_variables = self.config[self.class_name]

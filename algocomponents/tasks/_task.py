@@ -5,7 +5,7 @@ from configparser import ConfigParser
 from datetime import datetime
 from types import ModuleType
 
-from algocomponents.utils import LoggieDoggie, config_to_str
+from algocomponents.utils import LoggieDoggie, config_to_str, merge_configs
 
 
 class Task:
@@ -42,16 +42,14 @@ class Task:
         # First read global config
         self.config.read(os.path.join(global_config_dir, "config.ini"))
 
-        # Then append or overwrite from config inheritance
-        if config:
-            for section in config:
-                if section not in self.config.keys():
-                    self.config.add_section(section)
-                for key, value in config[section].items():
-                    self.config[section][key] = value
-
         # Then append or overwrite from the local config file
         self.config.read(os.path.join(self.classpath, local_config_dir, "config.ini"))
+
+        # Then append or overwrite from a passed config
+        if config is not None:
+            self.config = merge_configs(
+                merge_this=config, into_this=self.config, overwrite=True
+            )
 
         # Set a logger for the task
         self.logger = LoggieDoggie().fetch_logger(
