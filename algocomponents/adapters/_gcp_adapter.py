@@ -29,6 +29,7 @@ class GCPAdapter(SQLAdapter):
         super().connect()
         # Import inside method to allow non GCP-users of algocomponents
         # to use library without having to install the google package
+        global bigquery
         from google.cloud import bigquery
 
         self.client = bigquery.Client()
