@@ -3,6 +3,8 @@ import os
 from typing import List
 from unittest import TestCase
 
+import pandas as pd
+
 from algocomponents.adapters import SQLAdapter
 from algocomponents.tasks import Task
 
@@ -36,6 +38,12 @@ class CustomAdapter(SQLAdapter):
         pass
 
     def latest_query_as_pandas(self):
+        pass
+
+    def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
+        pass
+
+    def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
         pass
 
     def latest_query_as_csv(self, path: str):
