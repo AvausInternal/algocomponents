@@ -178,8 +178,15 @@ class GCPAdapter(SQLAdapter):
     ):
         job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
         table = self._format_table_name(table).replace("`", "")
-        job = self.client.load_table_from_dataframe(df, table, job_config=job_config)
-        job.result()
+
+        try:
+            job = self.client.load_table_from_dataframe(
+                df, table, job_config=job_config
+            )
+            job.result()
+
+        except TypeError as e:
+            raise ValueError("Your dataframe is missing column names") from e
 
     def latest_query_as_csv(self, path: str):
         dataframe = self.latest_query_as_pandas()
