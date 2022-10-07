@@ -5,6 +5,7 @@ from algocomponents.tasks._group_task import GroupTask
 from algocomponents.tasks._sql_pipeline import SQLPipeline
 from algocomponents.tasks._feature_base import FeatureBase
 from algocomponents.tasks._feature import Feature
+from algocomponents.tasks._union_tables_task import UnionTablesTask
 from algocomponents.tasks.model_evaluator._model_evaluator import ModelEvaluator
 
 """Allows classes to live in separate files while keeping imports short
@@ -23,5 +24,6 @@ __all__ = [
     "SQLPipeline",
     "FeatureBase",
     "Feature",
+    "UnionTablesTask",
     "ModelEvaluator",
 ]
