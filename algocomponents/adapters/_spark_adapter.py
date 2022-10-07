@@ -62,5 +62,8 @@ class SparkAdapter(SQLAdapter):
     def pandas_df_as_table(self, df, table, overwrite=False):
         raise NotImplementedError()
 
+    def insert_pandas_df_into_table(self, df, table):
+        raise NotImplementedError()
+
     def latest_query_as_csv(self, path: str):
         raise NotImplementedError()
