@@ -3,8 +3,10 @@ import os
 from unittest import TestCase
 
 import pandas as pd
+import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
+from algocomponents.adapters.custom_exceptions import TableAlreadyExistsException
 from algocomponents.tasks import SQLTask
 
 
@@ -36,6 +38,33 @@ class TestLocalSqliteAdapterCSVPandas(TestCase):
     def test_pandas_column_names(self):
         pdf = self.run_pandas_task()
         assert pdf.columns.values.tolist() == self.column_names
+
+    def test_pandas_df_methods_(self):
+        columns = ["a", "b", "c"]
+        df = pd.DataFrame([[1, 2, 3]], columns=columns)
+        self.sqlite_adapter.connect()
+        self.sqlite_adapter.run_sql_string("DROP TABLE IF EXISTS tmp.pandas_test")
+        self.sqlite_adapter.pandas_df_as_table(df, "tmp.pandas_test")
+
+        assert self.sqlite_adapter.table_exists("tmp.pandas_test")
+        assert not self.sqlite_adapter.table_is_empty("tmp.pandas_test")
+        assert self.sqlite_adapter.get_table_columns("tmp.pandas_test") == columns
+        assert len(self.sqlite_adapter.table_as_pandas_df("tmp.pandas_test")) == 1
+
+        self.sqlite_adapter.pandas_df_as_table(df, "tmp.pandas_test", overwrite=True)
+        assert len(self.sqlite_adapter.table_as_pandas_df("tmp.pandas_test")) == 1
+
+        self.sqlite_adapter.insert_pandas_df_into_table(df, "tmp.pandas_test")
+        assert len(self.sqlite_adapter.table_as_pandas_df("tmp.pandas_test")) == 2
+
+        with pytest.raises(TableAlreadyExistsException):
+            self.sqlite_adapter.pandas_df_as_table(df, "tmp.pandas_test")
+
+        self.sqlite_adapter.pandas_df_as_table(df, "tmp.pandas_test", overwrite=True)
+        assert len(self.sqlite_adapter.table_as_pandas_df("tmp.pandas_test")) == 1
+
+        self.sqlite_adapter.run_sql_string("DROP TABLE IF EXISTS tmp.pandas_test")
+        self.sqlite_adapter.disconnect()
 
     def test_create_csv_file(self):
         SQLTask(
