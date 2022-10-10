@@ -16,6 +16,14 @@ class TestGCPAdapterFormatTables(TestCase):
     simple_query_with_backticks = """CREATE TABLE `tmp`"""
     simple_query_formatted = """CREATE TABLE `avaus-academy.tmp`"""
     simple_query_with_gcp_project = """CREATE TABLE `another_gcp_project.db.tmp`"""
+    simple_query_with_sponge_case = """DROP TABLE IF EXISTS memes.dONt_Use_SpONgeCasE_In_tAblEs;
+        
+        CREATE TABLE memes.DonT_uSE_sPonGEcASe_iN_TaBLeS AS
+        SELECT 1"""
+    simple_query_with_sponge_case_formatted = """DROP TABLE IF EXISTS `avaus-academy.memes.dONt_Use_SpONgeCasE_In_tAblEs`;
+        
+        CREATE TABLE `avaus-academy.memes.DonT_uSE_sPonGEcASe_iN_TaBLeS` AS
+        SELECT 1"""
 
     advanced_query = """
         CREATE TABLE other_client_db.customer_product_sales_table AS
@@ -221,6 +229,12 @@ class TestGCPAdapterFormatTables(TestCase):
             query=self.simple_query
         )
         assert query == self.simple_query_with_backticks
+
+    def test_formatting_simple_query_with_spongecase(self):
+        query = self.gcp_adapter._format_table_names(
+            query=self.simple_query_with_sponge_case
+        )
+        assert query == self.simple_query_with_sponge_case_formatted
 
     def test_formatting_advanced_query(self):
         query = self.gcp_adapter._format_table_names(query=self.advanced_query)
