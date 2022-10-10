@@ -1,5 +1,6 @@
 import os
 import re
+import uuid
 from abc import ABC, abstractmethod
 from configparser import ConfigParser
 from typing import Dict, List
@@ -145,9 +146,35 @@ class SQLAdapter(ABC):
 
     def _format_table_names(self, query: str, ignore_ctes: bool = True):
         tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
+        # There is a trick here to prevent replacing a table which exists inside
+        # another table, for example:
+
+        #             customer_db.customers
+        # downsampled_customer_db.customers_formatted
+
+        # The replacement is done in a two step process. First, tables are
+        # replaced with a unique identifier, then that unique identifier is
+        # replaced with the formatted table.
+
+        # For a string to exist inside another one, it must be shorter. So, we
+        # order the list of tables so that it starts with the longest table,
+        # and because the middle step of swapping the table for a unique
+        # identifier exists, we will never accidentally format part of a table.
+        tables.sort(key=len, reverse=True)
+        unique_ids = {}
+
+        # 1. downsampled_customer_db.customers_formatted -> 8q73456
+        # 2. customer_db.customers -> 57he6gtf
+        for table in tables:
+            unique_ids[table] = str(uuid.uuid4())
+            query = query.replace(table, unique_ids[table])
+
+        # 3. 8q73456 -> formatted(downsampled_customer_db.customers_formatted)
+        # 4. 57he6gtf -> formatted(customer_db.customers)
         for table in tables:
             reformatted_table = self._format_table_name(table=table)
-            query = query.replace(table, reformatted_table)
+            query = query.replace(unique_ids[table], reformatted_table)
+
         return query
 
     @abstractmethod
