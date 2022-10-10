@@ -22,6 +22,8 @@ setup(
         "setuptools==63.2.0",
         "db-dtypes",
         "scipy==1.9.1",
+        "plotly==5.10.0",
+        "kaleido==0.1.0post1",
     ],
     package_data={"": ["*.sql"]},
     url="",

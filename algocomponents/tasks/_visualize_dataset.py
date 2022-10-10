@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+
 from algocomponents.tasks import AdapterTask, SQLTask
 from algocomponents.utils import save_boxplot, save_histogram
 
@@ -66,7 +67,7 @@ class VisualizeDataset(AdapterTask):
             self.df_numeric.max() - self.df_numeric.min()
         )
 
-        save_boxplot(df=self.input_df, output_folder=self.output_folder)
+        save_boxplot(df=self.df_numeric, output_folder=self.output_folder)
         save_boxplot(
             df=self.df_normalized,
             output_folder=self.output_folder,
