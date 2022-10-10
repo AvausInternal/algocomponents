@@ -9,12 +9,12 @@ from algocomponents.adapters import LocalSqliteAdapter
 class TestVisualizeDataset(TestCase):
     """Test VisualizeDataset task class"""
 
-    csv_file_path = "visualize_dataset_csv/tiny_dataset.csv"
-    csv_empty_path = "visualize_dataset_csv/empty.csv"
+    csv_file_path = "tests/tasks/visualize_dataset_csv/tiny_dataset.csv"
+    csv_empty_path = "tests/tasks/visualize_dataset_csv/empty.csv"
     df = pd.read_csv(csv_file_path)
     df_empty = pd.DataFrame()
-    gcp_input_table = "{TMP_DB}.dataset_email_response"
-    folder = "visualize_dataset_csv"
+    gcp_input_table = "{TMP_DB}.tiny_dataset"
+    folder = "tests/tasks/visualize_dataset_csv"
 
     def test_that_error_is_raised_no_dataset_argument(self):
         with self.assertRaises(ValueError):
