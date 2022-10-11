@@ -4,6 +4,10 @@ from unittest import TestCase
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
+from algocomponents.adapters.custom_exceptions import (
+    TableMissingException,
+    DataMismatchException,
+)
 from algocomponents.tasks import FeatureBase, Feature
 
 
@@ -89,7 +93,7 @@ class TestFeatureBase(TestCase):
             output_table="{TMP_DB}.feature_test",
         )
 
-        with pytest.raises(Exception):
+        with pytest.raises(DataMismatchException):
             feature.start()
 
     def test_output_table_missing(self):
@@ -111,7 +115,7 @@ class TestFeatureBase(TestCase):
             output_table="{TMP_DB}.feature_test",
         )
 
-        with pytest.raises(Exception):
+        with pytest.raises(TableMissingException):
             feature.start()
 
     def test_input_column_missing(self):
@@ -127,7 +131,7 @@ class TestFeatureBase(TestCase):
 
         # Exception is thrown after output table is created,
         # so Feature can still use the table for this test
-        with pytest.raises(Exception):
+        with pytest.raises(DataMismatchException):
             feature_base.start()
 
         feature = SimpleFeature(
@@ -138,7 +142,7 @@ class TestFeatureBase(TestCase):
             output_table="{TMP_DB}.feature_test",
         )
 
-        with pytest.raises(Exception):
+        with pytest.raises(DataMismatchException):
             feature.start()
 
     def test_input_table_missing(self):
@@ -152,7 +156,7 @@ class TestFeatureBase(TestCase):
             output_table=connecting_table,
         )
 
-        with pytest.raises(Exception):
+        with pytest.raises(TableMissingException):
             feature_base.start()
 
         feature = SimpleFeature(
@@ -163,5 +167,5 @@ class TestFeatureBase(TestCase):
             output_table="{TMP_DB}.feature_test",
         )
 
-        with pytest.raises(Exception):
+        with pytest.raises(TableMissingException):
             feature.start()

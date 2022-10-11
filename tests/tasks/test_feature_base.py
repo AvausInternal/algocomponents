@@ -4,6 +4,10 @@ from unittest import TestCase
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
+from algocomponents.adapters.custom_exceptions import (
+    TableMissingException,
+    DataMismatchException,
+)
 from algocomponents.tasks import FeatureBase
 
 
@@ -43,7 +47,7 @@ class TestFeatureBase(TestCase):
         feature_base.sql_adapter.disconnect()
 
     def test_lacking_output_table(self):
-        with pytest.raises(Exception):
+        with pytest.raises(TableMissingException):
             feature_base = SimpleFeatureBase(
                 global_config_dir=os.path.join("tests", "tasks", "feature_base_config"),
                 sql_folder="feature_base_no_output_table_queries",
@@ -53,7 +57,7 @@ class TestFeatureBase(TestCase):
             feature_base.start()
 
     def test_lacking_columns_in_output_table(self):
-        with pytest.raises(Exception):
+        with pytest.raises(DataMismatchException):
             feature_base = SimpleFeatureBase(
                 global_config_dir=os.path.join("tests", "tasks", "feature_base_config"),
                 sql_folder="feature_base_missing_columns_queries",
