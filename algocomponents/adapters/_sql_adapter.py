@@ -252,9 +252,9 @@ class SQLAdapter(ABC):
             # set of different keywords followed by 1 or more newline or whitespace
             # ?: is used to make it a non-capturing group. preventing re.findall
             # from only returning the match for the paranthesis
-            r"(?:from|join|table|insert|update|upsert|merge|delete|like|copy|clone|view|function)\s+"
+            r"(?:from|join|table|insert|update|upsert|merge|delete|like|copy|clone|view|function|using)\s+"
             # Maybe if exists / if not exists, then maybe newline / whitespace
-            r"(?:if exists|if not exists|into|using)*\s*"
+            r"(?:if exists|if not exists|into)*\s*"
             # The actual table, which can consist of words, .'s, `'s -'s and *'s
             r"[\w.`\-\*]+",
             # Search in the sql string
