@@ -48,7 +48,7 @@ class FeatureBase(SQLPipeline, ABC):
     ):
         super().__init__(**kwargs)
         self.output_table = output_table.format(**self.config[self.section])
-        self.add_to_config("OUTPUT_TABLE", self.output_table)
+        self.add_to_config("output_table", self.output_table)
 
     def run(self):
         """Runs like an SQLPipeline, and then verifies the output table.
