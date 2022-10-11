@@ -2,7 +2,10 @@ import re
 from configparser import ConfigParser
 from typing import List
 
+import pandas as pd
+
 from algocomponents.adapters import SQLAdapter
+from algocomponents.adapters.custom_exceptions import TableAlreadyExistsException
 
 
 class GCPAdapter(SQLAdapter):
@@ -27,6 +30,7 @@ class GCPAdapter(SQLAdapter):
         super().connect()
         # Import inside method to allow non GCP-users of algocomponents
         # to use library without having to install the google package
+        global bigquery
         from google.cloud import bigquery
 
         self.client = bigquery.Client()
@@ -164,6 +168,35 @@ class GCPAdapter(SQLAdapter):
 
     def latest_query_as_pandas(self):
         return self.query_job.to_dataframe()
+
+    def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
+        if overwrite:
+            self.pandas_df_helper_method(df, table, "WRITE_TRUNCATE")
+        else:
+            table = self._format_table_name(table=table)
+            if self.table_exists(table):
+                raise TableAlreadyExistsException(
+                    f"Table {table} already exists. If you wish to overwrite it, call this method with overwrite=True"
+                )
+            self.pandas_df_helper_method(df, table, "WRITE_TRUNCATE")
+
+    def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
+        self.pandas_df_helper_method(df, table, "WRITE_APPEND")
+
+    def pandas_df_helper_method(
+        self, df: pd.DataFrame, table: str, write_disposition: str
+    ):
+        job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
+        table = self._format_table_name(table).replace("`", "")
+
+        try:
+            job = self.client.load_table_from_dataframe(
+                df, table, job_config=job_config
+            )
+            job.result()
+
+        except TypeError as e:
+            raise ValueError("Your dataframe is missing column names") from e
 
     def latest_query_as_csv(self, path: str):
         dataframe = self.latest_query_as_pandas()

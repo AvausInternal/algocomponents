@@ -5,6 +5,7 @@ from typing import List
 import pandas as pd
 
 from algocomponents.adapters import SQLAdapter
+from algocomponents.adapters.custom_exceptions import TableAlreadyExistsException
 
 
 class LocalSqliteAdapter(SQLAdapter):
@@ -93,6 +94,21 @@ class LocalSqliteAdapter(SQLAdapter):
             data=self.rows,
             columns=self.columns,
         )
+
+    def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
+        table = self._format_table_name(table=table)
+        if overwrite:
+            df.to_sql(table, self.connection, if_exists="replace", index=False)
+        else:
+            if self.table_exists(table):
+                raise TableAlreadyExistsException(
+                    f"Table {table} already exists. If you wish to overwrite it, call this method with overwrite=True"
+                )
+            df.to_sql(table, self.connection, index=False)
+
+    def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
+        table = self._format_table_name(table=table)
+        df.to_sql(table, self.connection, if_exists="append", index=False)
 
     def latest_query_as_csv(self, path: str):
         dataframe = self.latest_query_as_pandas()
