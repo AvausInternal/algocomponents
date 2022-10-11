@@ -3,6 +3,10 @@ from configparser import ConfigParser
 from typing import List
 
 from algocomponents.adapters import SQLAdapter
+from algocomponents.adapters.custom_exceptions import (
+    TableMissingException,
+    DataMismatchException,
+)
 from algocomponents.tasks import FeatureBase
 
 
@@ -49,12 +53,14 @@ class Feature(FeatureBase, ABC):
             self.sql_adapter.connect()
 
         if not self.sql_adapter.table_exists(self.input_table):
-            raise Exception(f"Input table does not exist: {self.input_table}")
+            raise TableMissingException(
+                f"Input table does not exist: {self.input_table}"
+            )
 
         input_table_columns = self.sql_adapter.get_table_columns(self.input_table)
 
         if not all(elem in self.input_columns for elem in input_table_columns):
-            raise Exception(
+            raise DataMismatchException(
                 f"Input table does not contain all columns specified.\n"
                 f"Input table: {self.input_table}\n"
                 f"Has columns: {input_table_columns}\n"

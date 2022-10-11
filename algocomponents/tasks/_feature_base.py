@@ -3,6 +3,10 @@ from configparser import ConfigParser
 from typing import List
 
 from algocomponents.adapters import SQLAdapter
+from algocomponents.adapters.custom_exceptions import (
+    TableMissingException,
+    DataMismatchException,
+)
 from algocomponents.tasks import SQLPipeline
 
 
@@ -47,13 +51,15 @@ class FeatureBase(SQLPipeline, ABC):
     def run(self):
         super().run()
         if not self.sql_adapter.table_exists(self.output_table):
-            raise Exception(f"Output table has not been created: {self.output_table}")
+            raise TableMissingException(
+                f"Output table has not been created: {self.output_table}"
+            )
 
         all_columns = self.output_primary_keys + self.output_columns_created
         output_columns = self.sql_adapter.get_table_columns(self.output_table)
 
         if not sorted(all_columns) == sorted(output_columns):
-            raise Exception(
+            raise DataMismatchException(
                 f"Output table does not contain columns specified.\n"
                 f"Output table: {self.output_table}\n"
                 f"Has columns: {all_columns}\n"
