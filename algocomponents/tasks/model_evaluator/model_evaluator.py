@@ -27,11 +27,11 @@ class ModelEvaluator(SQLPipeline):
     ):
         super().__init__(**kwargs)
 
-        self.add_to_config("INPUT_TABLE", input_table)
-        self.add_to_config("OUTPUT_TABLE", output_table)
-        self.add_to_config("PREDICTION_COLUMN", prediction_column)
-        self.add_to_config("TARGET_LABEL_COLUMN", target_label_column)
-        self.add_to_config("THRESHOLD_STRING", self.create_thresholds(100))
+        self.add_to_config("input_table", input_table)
+        self.add_to_config("output_table", output_table)
+        self.add_to_config("prediction_column", prediction_column)
+        self.add_to_config("target_label_column", target_label_column)
+        self.add_to_config("threshold_string", self.create_thresholds(100))
 
     def create_thresholds(self, n_thresholds):
         """Creates a query that produces a table with n_thresholds.

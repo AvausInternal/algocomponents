@@ -48,7 +48,7 @@ class Feature(FeatureBase, ABC):
     ):
         super().__init__(**kwargs)
         self.input_table = input_table.format(**self.config[self.section])
-        self.add_to_config("INPUT_TABLE", self.input_table)
+        self.add_to_config("input_table", self.input_table)
 
     def startup(self):
         """Connects the adapter, and verifies the input table.
