@@ -253,7 +253,7 @@ class SQLAdapter(ABC):
             # ?: is used to make it a non-capturing group. preventing re.findall
             # from only returning the match for the paranthesis
             r"(?:from|join|table|insert|update|upsert|merge|delete|like|copy|clone|view|function|using)\s+"
-            # Maybe if exists / if not exists, then maybe newline / whitespace
+            # Maybe if exists / if not exists / into, then maybe newline / whitespace
             r"(?:if exists|if not exists|into)*\s*"
             # The actual table, which can consist of words, .'s, `'s -'s and *'s
             r"[\w.`\-\*]+",
