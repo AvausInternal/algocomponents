@@ -36,3 +36,18 @@ def save_histogram(
         print(
             f"Histogram of a feature: '{col}' saved under '{file_name}-{col_name}.html' file"
         )
+
+
+def save_corr_matrix(
+    df: pd.DataFrame, output_folder: str = "", file_name: str = "corr_matrix"
+):
+    if output_folder == "" or output_folder[-1] == "/":
+        pass
+    else:
+        output_folder = output_folder + "/"
+
+    fig = px.imshow(df.corr())
+    fig.write_image(f"{output_folder}{file_name}.png")
+    print(f"Correlation matrix saved under '{file_name}.png' file")
+    plotly.offline.plot(fig, filename=f"{output_folder}{file_name}.html")
+    print(f"Correlation matrix saved under '{file_name}.html' file")
