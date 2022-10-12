@@ -1,7 +1,11 @@
 from algocomponents.utils._launch_task import launch_task
 from algocomponents.utils._loggiedoggie import LoggieDoggie
 from algocomponents.utils._tools import config_to_str, merge_configs
-from algocomponents.utils._save_plots import save_boxplot, save_histogram
+from algocomponents.utils._save_plots import (
+    save_boxplot,
+    save_histogram,
+    save_corr_matrix,
+)
 
 
 """Allows classes to live in separate files while keeping imports short
@@ -19,4 +23,5 @@ __all__ = [
     "merge_configs",
     "save_boxplot",
     "save_histogram",
+    "save_corr_matrix",
 ]

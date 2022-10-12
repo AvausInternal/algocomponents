@@ -3,7 +3,7 @@ import numpy as np
 
 
 from algocomponents.tasks import AdapterTask, SQLTask
-from algocomponents.utils import save_boxplot, save_histogram
+from algocomponents.utils import save_boxplot, save_histogram, save_corr_matrix
 
 
 class VisualizeDataset(AdapterTask):
@@ -22,10 +22,7 @@ class VisualizeDataset(AdapterTask):
         self.input_df = input_df
         self.input_csv_file = input_csv_file
         self.input_table_name = input_table_name
-        if output_folder == "" or output_folder[-1] == "/":
-            self.output_folder = output_folder
-        else:
-            self.output_folder = output_folder + "/"
+        self.output_folder = output_folder
 
         if (
             self.input_csv_file is None
@@ -74,3 +71,5 @@ class VisualizeDataset(AdapterTask):
             file_name="normalized_boxplot",
         )
         save_histogram(df=self.df_numeric, output_folder=self.output_folder)
+
+        save_corr_matrix(df=self.df_numeric, output_folder=self.output_folder)

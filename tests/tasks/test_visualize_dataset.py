@@ -1,4 +1,4 @@
-from unittest import TestCase, main
+from unittest import TestCase
 import pandas as pd
 import os.path
 
