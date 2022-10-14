@@ -21,6 +21,7 @@ setup(
         "pytest==7.1.2",
         "setuptools==63.2.0",
         "db-dtypes",
+        "scipy==1.9.1",
     ],
     package_data={"": ["*.sql"]},
     url="",
