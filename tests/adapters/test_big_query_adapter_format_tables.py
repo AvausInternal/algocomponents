@@ -2,26 +2,27 @@ import os
 from configparser import ConfigParser
 from unittest import TestCase
 
-from algocomponents.adapters import GCPAdapter, SQLAdapter
+from algocomponents.adapters import BigQueryAdapter, SQLAdapter
 
 
-class TestGCPAdapterFormatTables(TestCase):
+class TestBigQueryAdapterFormatTables(TestCase):
 
     gcp_project = "avaus-academy"
     config = ConfigParser()
     config.set(section="DEFAULT", option="gcp_project", value=gcp_project)
-    gcp_adapter = GCPAdapter(config=config)
-    gcp_adapter_without_config = GCPAdapter()
+    big_query_adapter = BigQueryAdapter(config=config)
+    big_query_adapter_without_config = BigQueryAdapter()
 
-    def test_gcp_adapter_format_tables(self):
+    def test_big_query_adapter_format_tables(self):
         self.format_queries_in_folder(
-            folder="gcp_adapter_format_queries", sql_adapter=self.gcp_adapter
+            folder="big_query_adapter_format_queries",
+            sql_adapter=self.big_query_adapter,
         )
 
-    def test_gcp_adapter_format_tables_without_config(self):
+    def test_big_query_adapter_format_tables_without_config(self):
         self.format_queries_in_folder(
-            folder="gcp_adapter_format_queries_without_config",
-            sql_adapter=self.gcp_adapter_without_config,
+            folder="big_query_adapter_format_queries_without_config",
+            sql_adapter=self.big_query_adapter_without_config,
         )
 
     @staticmethod

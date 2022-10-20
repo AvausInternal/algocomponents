@@ -1,6 +1,6 @@
 import os
 
-from algocomponents.adapters import GCPAdapter, SparkAdapter
+from algocomponents.adapters import BigQueryAdapter, SparkAdapter
 from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     DataMismatchException,
@@ -32,7 +32,7 @@ class VerifyOutput(Task):
         self.sql_folder = os.path.join(self.classpath, "sql")
 
         # GCP and Spark supports only "EXCEPT DISTINCT" and sqlite support only "EXCEPT"
-        if isinstance(self.task.sql_adapter, (GCPAdapter, SparkAdapter)):
+        if isinstance(self.task.sql_adapter, (BigQueryAdapter, SparkAdapter)):
             distinct_statement = "EXCEPT DISTINCT"
         else:
             distinct_statement = "EXCEPT"

@@ -1,13 +1,13 @@
 import random
 from unittest import TestCase
 
-from algocomponents.adapters import LocalSqliteAdapter, GCPAdapter
+from algocomponents.adapters import LocalSqliteAdapter, BigQueryAdapter
 
 
 class TestAdapterFindTableNames(TestCase):
 
     sql_adapter = LocalSqliteAdapter()
-    gcp_adapter = GCPAdapter()
+    big_query_adapter = BigQueryAdapter()
 
     simple_query = """CREATE TABLE tmp"""
 
@@ -54,7 +54,7 @@ class TestAdapterFindTableNames(TestCase):
         CROSS JOIN avg
     """
 
-    query_with_gcp_extract_method = """
+    query_with_big_query_extract_method = """
         CREATE TABLE other_client_db.customer_product_sales_table AS
         SELECT
             a.customer_id,
@@ -91,7 +91,7 @@ class TestAdapterFindTableNames(TestCase):
         "gcp-project.client_db.sales_table",
         "gcp-project.other_client_db.customer_product_sales_table",
     ]
-    query_with_gcp_extract_tables = [
+    query_with_big_query_extract_tables = [
         "client_db.sales_table",
         "other_client_db.customer_product_sales_table",
         # Notably, "start_at" should not be a table even though it trails FROM
@@ -114,31 +114,31 @@ class TestAdapterFindTableNames(TestCase):
 
         assert table_names == self.simple_tables
 
-    def test_finding_tables_without_finding_parameters_in_gcp_method(self):
-        table_names = self.gcp_adapter.find_table_names(
-            sql=self.query_with_gcp_extract_method
+    def test_finding_tables_without_finding_parameters_in_big_query_method(self):
+        table_names = self.big_query_adapter.find_table_names(
+            sql=self.query_with_big_query_extract_method
         )
 
-        assert sorted(table_names) == self.query_with_gcp_extract_tables
+        assert sorted(table_names) == self.query_with_big_query_extract_tables
 
-    def test_finding_tables_without_finding_parameters_in_gcp_method_bad_formatting(
+    def test_finding_tables_without_finding_parameters_in_big_query_method_bad_formatting(
         self,
     ):
-        query_with_gcp_extract_method_bad_formatting = self.sql_query_format_scrambler(
-            self.query_with_gcp_extract_method
+        query_with_big_query_extract_method_bad_formatting = (
+            self.sql_query_format_scrambler(self.query_with_big_query_extract_method)
         )
 
-        table_names = self.gcp_adapter.find_table_names(
-            sql=query_with_gcp_extract_method_bad_formatting
+        table_names = self.big_query_adapter.find_table_names(
+            sql=query_with_big_query_extract_method_bad_formatting
         )
 
         # Lowercase necessary as query formatting is scrambled
         table_names = [t.lower() for t in table_names]
 
         # Check that every table is found
-        assert all([t in table_names for t in self.query_with_gcp_extract_tables])
+        assert all([t in table_names for t in self.query_with_big_query_extract_tables])
         # Check that only expected tables are found
-        assert all([t in self.query_with_gcp_extract_tables for t in table_names])
+        assert all([t in self.query_with_big_query_extract_tables for t in table_names])
 
     def test_finding_multiple_tables(self):
         table_names = self.sql_adapter.find_table_names(sql=self.advanced_query)
