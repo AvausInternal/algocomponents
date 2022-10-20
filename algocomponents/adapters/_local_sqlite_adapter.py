@@ -1,5 +1,4 @@
 import sqlite3
-from configparser import ConfigParser
 from typing import List
 
 import pandas as pd
@@ -21,10 +20,9 @@ class LocalSqliteAdapter(SQLAdapter):
     def __init__(
         self,
         commit_queries: bool = True,
-        config: ConfigParser = None,
-        section: str = "DEFAULT",
+        **kwargs,
     ):
-        super().__init__(config=config, section=section)
+        super().__init__(**kwargs)
         self.commit_queries = commit_queries
         self.db_path = self.db_file
         self.connection = None

@@ -1,5 +1,4 @@
 import re
-from configparser import ConfigParser
 from typing import List
 
 import pandas as pd
@@ -18,10 +17,9 @@ class BigQueryAdapter(SQLAdapter):
 
     def __init__(
         self,
-        config: ConfigParser = None,
-        section: str = "DEFAULT",
+        **kwargs,
     ):
-        super().__init__(config=config, section=section)
+        super().__init__(**kwargs)
         self.client = None
         self.connected = False
         self.query_job = None

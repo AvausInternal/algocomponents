@@ -1,4 +1,3 @@
-from configparser import ConfigParser
 from typing import List
 
 from algocomponents.adapters import SQLAdapter
@@ -12,10 +11,9 @@ class SparkAdapter(SQLAdapter):
 
     def __init__(
         self,
-        config: ConfigParser = None,
-        section: str = "DEFAULT",
+        **kwargs,
     ):
-        super().__init__(config=config, section=section)
+        super().__init__(**kwargs)
         self.spark = None
         self.sdf = None
 
