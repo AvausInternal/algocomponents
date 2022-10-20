@@ -40,6 +40,21 @@ class SQLPipeline(GroupTask, ABC):
         self.propagate_sql_adapter(self.sql_adapter)
 
     def get_sql_tasks(self):
+        """Creates SQLTasks from all the sql-files in the sql_folder
+
+        The files will be added to the task_list in their numbered order. When
+        a number has several digits, the ide can incorrectly order them like so
+
+        1_asd.sql, 10_asd.sql, 11_asd.sql, 2_asd.sql, 3_asd.sql etc.
+
+        This method ensures they are added in the correct order, like so
+
+        1_asd.sql, 2_asd.sql, 3_asd.sql, ... ,10_asd.sql, 11_asd.sql
+
+        Raises:
+            NameError if the files do not follow the sql_file_pattern
+
+        """
         if not os.path.exists(self.sql_folder):
             self.logger.warning(f"Folder does not exist: {self.sql_folder}")
             return []

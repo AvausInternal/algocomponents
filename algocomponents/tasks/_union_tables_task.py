@@ -48,6 +48,13 @@ class UnionTablesTask(SQLTask):
     def generate_union_query(
         tables: List[str], overwrite_output_table_if_exists: bool = True
     ) -> str:
+        """Generates the query that will union all the tables
+
+        Args:
+            tables: List of strings of tables to union
+            overwrite_output_table_if_exists: If existing tables are overwritten
+
+        """
         query = ""
         for table in tables:
             if query == "":
@@ -71,6 +78,12 @@ class UnionTablesTask(SQLTask):
         return query
 
     def startup(self):
+        """Connects the sql_adapter and verifies that the table exists
+
+        Also runs a check that all the tables that should be union:ed contain
+        the same columns.
+
+        """
         self.sql_adapter.connect()
         columns = []
         for table in self.tables:

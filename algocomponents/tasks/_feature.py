@@ -51,6 +51,12 @@ class Feature(FeatureBase, ABC):
         self.add_to_config("INPUT_TABLE", self.input_table)
 
     def startup(self):
+        """Connects the adapter, and verifies the input table
+
+        Checks whether the input-table exists, and that it has the columns
+        specified in input_table_columns.
+
+        """
         super().startup()
         if not self.sql_adapter.is_connected():
             self.sql_adapter.connect()

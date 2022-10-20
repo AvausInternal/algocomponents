@@ -4,7 +4,15 @@ import os
 
 
 def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
-    """Find a task by file name and start it with it's .start()-method"""
+    """Find a task by file name and start it with it's .start()-method
+
+    Args:
+        task_file_name: Name of the python module (file.py) declaring the Task
+        section: What part of config to use
+        adapter_type: Which adapter to give the Task
+        **task_kwargs: Any keyword argument not matched is passed on to the Task
+
+    """
 
     ignored_files = ["__init__.py"]
     ignored_dirs = ["venv", ".git", "algocomponents"]
@@ -64,7 +72,13 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
 
 
 def _find_modules(ignored_files, ignored_dirs):
-    """Find all python modules in the repository"""
+    """Find all python modules (files) in the repository
+
+    Args:
+        ignored_files: Files to not consider when searching for python modules
+        ignored_dirs: Directories to not look inside when searching
+
+    """
 
     modules_found = {}
     current_dir = os.getcwd()
@@ -101,7 +115,12 @@ def _find_modules(ignored_files, ignored_dirs):
 
 
 def _get_classes_in_module(module):
-    """Finds all classes declared in a module, aka a .py-file"""
+    """Finds all classes declared in a module, aka a .py-file
+
+    Args:
+        module: The module to search for classes in
+
+    """
     classes = []
 
     for _, obj in inspect.getmembers(module):
@@ -127,6 +146,11 @@ def _get_classes_in_module(module):
 
 
 def _get_adapter(adapter_type: str):
+    """Given an adapter_type (str), return an instantiated adapter
+
+    adapter_type: The string used to map to an sql_adapter-class
+
+    """
     if adapter_type is None:
         return None
     if adapter_type.lower() in [

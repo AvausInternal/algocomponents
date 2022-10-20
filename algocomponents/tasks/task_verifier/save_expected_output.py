@@ -38,6 +38,15 @@ class SaveExpectedOutput(Task):
         }
 
     def run(self):
+        """Saves the output of self.task into an expected_output table
+
+        This expected_output table should be used by the task VerifyOutput when
+        verifying the output of a task.
+
+        Raises:
+            TableMissingException: If the output table does not exist
+
+        """
         sql_adapter = self.task.sql_adapter
         sql_adapter.connect()
 
