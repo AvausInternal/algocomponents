@@ -13,6 +13,11 @@ class SQLPipeline(GroupTask, ABC):
     class, and run all of those queries in order. If no adapter is given, the
     LocalSqliteAdapter will be used. The files in the sql folder must have a
     specific format: 1_example.sql, 2_second_example.sql, etc
+
+    Args:
+        sql_folder: Where the SQLPipeline will look for sql files
+        sql_folder_relative_path: Whether the path sql_folder is relative or not
+
     """
 
     sql_file_pattern = "[0-9]+_"  # Numeric followed by underscore

@@ -11,18 +11,18 @@ class ABTools:
     ABTools contain a number of methods that are useful for conducting A/B tests
     and report results of A/B tests.
 
-    Methods
-    -------
-    get_min_sample_size_binomial():
-        Calculate the minimum sample size to set up an A/B test for a binomial metric.
-    get_min_sample_size_continuous():
-        Calculate the minimum sample size to set up an A/B test for a continuous metric.
-    get_unequal_sample_size():
-        Calculate the minimum sample size of the control group when the samples have unequal size.
-    is_significant_binomial():
-        Calculate if an A/B test with binomial metric was statistically significant (Z-test).
-    is_significant_continuous()
-        Calculate if an A/B test with continuous metric was statistically significant (Welch's t-test).
+    Methods:
+        get_min_sample_size_binomial():
+            Calculate the minimum sample size to set up an A/B test for a binomial metric.
+        get_min_sample_size_continuous():
+            Calculate the minimum sample size to set up an A/B test for a continuous metric.
+        get_unequal_sample_size():
+            Calculate the minimum sample size of the control group when the samples have unequal size.
+        is_significant_binomial():
+            Calculate if an A/B test with binomial metric was statistically significant (Z-test).
+        is_significant_continuous()
+            Calculate if an A/B test with continuous metric was statistically significant (Welch's t-test).
+
     """
 
     _default_power = 0.8
@@ -40,28 +40,19 @@ class ABTools:
         sig_level: float = _default_significance_level,
         tail: str = _default_tail,
     ):
-
         """Returns the minimum sample size to set up an A/B test for a binomial metric.
 
         We assume the same sample size for both test and control group.
 
         Args:
-        -------
-            p1 (float): probability of success for target group.
-
-            p2 (float): probability of success for control group, sometimes
-            referred to as `baseline conversion rate`.
-
-            power (float): probability of rejecting the null hypothesis when the null hypothesis is false, typically 0.8.
-
-            sig_level (float): significance level often denoted as alpha, typically 0.05.
-
-            tail (string): `one_sided` or `two_sided` test.
+            p1: probability of success for target group.
+            p2: probability of success for control group, sometimes referred to as `baseline conversion rate`.
+            power: probability of rejecting the null hypothesis when the null hypothesis is false, typically 0.8.
+            sig_level: significance level often denoted as alpha, typically 0.05.
+            tail: `one_sided` or `two_sided` test.
 
         Returns:
-        -------
-            min_N (int): minimum sample size required in each group.
-
+            min_N: minimum sample size required in each group.
         """
 
         if not 0 < power <= 1:
@@ -109,29 +100,20 @@ class ABTools:
         sig_level: float = _default_significance_level,
         tail: str = _default_tail,
     ):
-
         """Returns the minimum sample size to set up an A/B test for a continuous metric.
 
         We assume the same sample size for both test and control group.
 
         Args:
-        -------
-            u1 (float): expected value for target group.
-
-            u2 (float): estimated value for control group.
-
-            var (float): estimated variance for control group.
-
-            power (float): probability of rejecting the null hypothesis when the null hypothesis is false, typically 0.8.
-
-            sig_level (float): significance level often denoted as alpha, typically 0.05.
-
-            tail (string): `one_sided` or `two_sided` test.
+            u1: expected value for target group.
+            u2: estimated value for control group.
+            var: estimated variance for control group.
+            power: probability of rejecting the null hypothesis when the null hypothesis is false, typically 0.8.
+            sig_level: significance level often denoted as alpha, typically 0.05.
+            tail: "one_sided" or "two_sided" test.
 
         Returns:
-        -------
-            min_N (int): minimum sample size required in each group.
-
+            min_N: minimum sample size required in each group.
         """
 
         if not 0 < power <= 1:
@@ -169,23 +151,19 @@ class ABTools:
         return min_n
 
     def get_unequal_sample_size(self, N: int, N_adj: int):
-        """Returns the minimum sample size of the control group
-        when the samples have unequal size.
+        """Returns the minimum sample size of the control group when the samples have unequal size.
 
-        When the control and target groups are of different sizes, the total sample size
-        needs to be adjusted because unequal groups produces higher variance in the test statistic.
-
+        When the control and target groups are of different sizes, the total
+        sample size needs to be adjusted because unequal groups produces higher
+        variance in the test statistic.
 
         Args:
-        -------
-            N (int): The minimal sample size (both test & control group).
-            N_adj (int): The adjusted sample size. Needs to be bigger than N.
+            N: The minimal sample size (both test & control group).
+            N_adj: The adjusted sample size. Needs to be bigger than N.
 
         Returns:
-        -------
-            control_sample_size (int):
-            test_sample_size (int):
-
+            control_sample_size: Minimum sample size of the control group
+            test_sample_size:  Minimum sample size of the test group
         """
 
         if N >= N_adj:
@@ -203,7 +181,12 @@ class ABTools:
         return (control_sample_size, test_sample_size)
 
     def get_control_group_ratio_constant(self, N: int, N_adj: int):
-        """Returns the control group ratio constant k."""
+        """Returns the control group ratio constant k.
+
+        Args:
+            N: The minimal sample size (both test & control group).
+            N_adj: The adjusted sample size. Needs to be bigger than N.
+        """
 
         k = -(2 * N - 4 * N_adj) / (2 * N) + (
             ((2 * N - 4 * N_adj) / (2 * N)) ** 2 - 1
@@ -219,32 +202,23 @@ class ABTools:
         sig_level: float = _default_significance_level,
         tail: str = _default_tail,
     ):
-        """We test the null hypothesis against the given alternative:
+        """Tests the null hypothesis against the given alternative for significance:
 
         H0: p1=p2 vs HA: p1!=p2
 
         using Z-test with the pooled standard error.
 
         Args:
-        ------
-            n1 (int): target group size.
-
-            n2 (int): control group size.
-
-            p1 (float): probability of success for target group.
-
-            p2 (float): probability of success for control group, sometimes
-            referred to as `baseline conversion rate`.
-
-            sig_level (float): significance level often denoted as alpha, typically 0.05.
-
-            tail (string): `one_sided` or `two_sided` test.
+            n1: target group size.
+            n2: control group size.
+            p1: probability of success for target group.
+            p2: probability of success for control group, sometimes referred to as `baseline conversion rate`.
+            sig_level: significance level often denoted as alpha, typically 0.05.
+            tail: "one_sided" or "two_sided" test.
 
         Returns:
-        -------
-        z (float): z-score value.
-        p (float): p-value.
-
+            z: z-score value.
+            p: p-value.
         """
 
         if not 0 <= sig_level:
@@ -313,28 +287,18 @@ class ABTools:
         using Welch-test with the unpooled standard error.
 
         Args:
-        ------
-            n1 (int): target group size.
-
-            n2 (int): control group size.
-
-            x1 (float): observed value for target group.
-
-            x2 (float): observed value for control group.
-
-            var1 (float): variance of target group.
-
-            var2 (float): variance of control group.
-
-            sig_level (float): significance level often denoted as alpha, typically 0.05.
-
-            tail (string): `one_sided` or `two_sided` test.
+            n1: target group size.
+            n2: control group size.
+            x1: observed value for target group.
+            x2: observed value for control group.
+            var1: variance of target group.
+            var2: variance of control group.
+            sig_level: significance level often denoted as alpha, typically 0.05.
+            tail: "one_sided" or "two_sided" test.
 
         Returns:
-        -------
-        t (float): t-score value.
-        p (float): p-value.
-
+            t: t-score value.
+            p: p-value.
         """
 
         if not 0 <= sig_level:

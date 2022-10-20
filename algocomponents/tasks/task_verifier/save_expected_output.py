@@ -10,13 +10,19 @@ class SaveExpectedOutput(Task):
     This task takes another task and saves that task's output to a table
     specified by user. After the output is saved, you can use the VerifyOutput
     task to verify that the task's output stays constant over time.
+
+    Args:
+        for_task: Which task we want to save the expected output for
+        task_output_table: The output table for the task
+        expected_output_table: Where we want to save the expected output
+
     """
 
     def __init__(
         self,
-        for_task: AdapterTask,  # task which output will be saved
-        task_output_table: str,  # table where the task saves it's output
-        expected_output_table: str,  # table where the expected output for this task will be saved
+        for_task: AdapterTask,
+        task_output_table: str,
+        expected_output_table: str,
         **kwargs,
     ):
         super().__init__(**kwargs)

@@ -13,6 +13,12 @@ class UnionTablesTask(SQLTask):
 
     This task first verifies that the tables have the same columns and column
     names, then puts them all in the same table using UNION ALL.
+
+    Args:
+        tables: Which tables to union, written as database.table
+        task_output_table: The output table for the task
+        expected_output_table: Where we want to save the expected output
+
     """
 
     def __init__(

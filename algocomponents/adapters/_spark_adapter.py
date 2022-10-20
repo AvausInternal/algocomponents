@@ -7,6 +7,7 @@ class SparkAdapter(SQLAdapter):
     """Used to run queries in spark.
 
     This adapter functions when running queries in Databricks as well.
+
     """
 
     def __init__(

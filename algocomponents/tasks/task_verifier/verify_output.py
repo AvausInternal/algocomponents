@@ -15,13 +15,19 @@ class VerifyOutput(Task):
     another table specified by user. Can be used to verify that task's output
     stays constant over time. Before using this task, you can save the task's
     output with SaveExpectedOutput task.
+
+    Args:
+        for_task: Which task we want to verify the output for
+        task_output_table: The output table for the task
+        expected_output_table: Where the expected output of the task is stored
+
     """
 
     def __init__(
         self,
-        for_task: AdapterTask,  # task which output will be verified
-        task_output_table: str,  # table where the task saves it's output
-        expected_output_table: str,  # table which the output will be compared to
+        for_task: AdapterTask,
+        task_output_table: str,
+        expected_output_table: str,
         **kwargs,
     ):
         super().__init__(**kwargs)

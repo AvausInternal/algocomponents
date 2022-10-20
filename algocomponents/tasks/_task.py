@@ -15,6 +15,13 @@ class Task:
     parses a config file. The log is written to a file in root called log.log,
     and the config file is read from a folder called config, located where this
     class resides. The config is an ini-file, parsed with pythons ConfigParser.
+
+    Args:
+        global_config_dir: Path from project root to global config.ini-file
+        global_config_dir: Relative path to local config.ini-file
+        config: A passed ConfigParser object, which overwrites any files read
+        section: Which section of the ConfigParsers should be read from
+
     """
 
     _default_section = "DEFAULT"

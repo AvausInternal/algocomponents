@@ -19,6 +19,12 @@ class SQLAdapter(ABC):
 
     The purpose of the sql adapter is to generalize how we set up connections to
     different services. There will be one adapter per service.
+
+    Args:
+        global_config_dir: Path from project root to global config.ini-file
+        config: A passed ConfigParser object, which overwrites any files read
+        section: Which section of the ConfigParsers should be read from
+
     """
 
     default_max_rows_displayed = 20

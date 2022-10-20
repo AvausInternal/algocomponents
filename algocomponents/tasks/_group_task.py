@@ -13,6 +13,13 @@ class GroupTask(AdapterTask):
     do the same). Similarly, any adapter given to a GroupTask will propagate
     down into all tasks in the task list (where GroupTasks in the task_list
     will do the same).
+
+    Tasks in the task_list can be referred to as "children", and they refer to
+    the GroupTask as their "parent".
+
+    Args:
+        task_list: The list of tasks this GroupTask will start
+
     """
 
     def __init__(

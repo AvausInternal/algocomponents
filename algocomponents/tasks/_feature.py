@@ -24,13 +24,16 @@ class Feature(FeatureBase, ABC):
     primary keys specified for the feature should be the primary keys of the
     output table.
 
-    @property input_columns: What columns are necessary in the input table.
-    @property output_primary_keys: The primary keys of the output table.
-    @property output_columns_created: All columns in the output table except for
-                                      the primary keys.
 
-    @param input_table: The table from which this SQLPipeline starts
-    @param output_table: Where this SQLPipeline writes it's results
+    Properties:
+        input_columns: What columns are necessary in the input table.
+        output_primary_keys: The primary keys of the output table.
+        output_columns_created: All columns in the output table except for the primary keys.
+
+    Args:
+        input_table: The table from which this SQLPipeline starts
+        output_table: Where this SQLPipeline writes it's results
+
     """
 
     @property
