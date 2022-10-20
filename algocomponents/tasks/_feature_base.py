@@ -22,11 +22,13 @@ class FeatureBase(SQLPipeline, ABC):
            example when the sendout will occur, or what channel it will occur in
            is necessary for some features, these should be included
 
-    @property output_primary_keys: The primary keys of the output table.
-    @property output_columns_created: All columns in the output table except for
-                                      the primary keys.
+    Properties:
+        output_primary_keys: The primary keys of the output table.
+        output_columns_created: All columns in the output table except for the primary keys.
 
-    @param output_table: Where this SQLPipeline writes it's results
+    Args:
+        output_table: Where this SQLPipeline writes it's results
+
     """
 
     @property

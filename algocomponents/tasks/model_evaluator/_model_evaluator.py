@@ -8,6 +8,13 @@ class ModelEvaluator(SQLPipeline):
     column. The task calculates different evaluation metrics such as: true
     positives, false positives, true negatives, false negatives, accuracy,
     precision, recall, f1 score for different threshold boundaries.
+
+    Args:
+        input_table: Table where model predictions and target labels exists
+        output_table: Table where results should be put
+        prediction_column: Column in input table for model predictions
+        target_label_column: Column in input table for model target label
+
     """
 
     def __init__(

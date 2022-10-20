@@ -13,6 +13,7 @@ class BigQueryAdapter(SQLAdapter):
     This adapter is intended for running queries on Google BigQuery.
     The script expects that the user is authenticated in the affected
     gcp project using googles python client libraries and setup instructions.
+
     """
 
     def __init__(

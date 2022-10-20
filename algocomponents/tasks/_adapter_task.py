@@ -9,6 +9,10 @@ class AdapterTask(Task):
     The adapter task will disconnect it's adapter if it is not inherited from
     it's parent. This happens either if this is the only task, or if this is
     called from a GroupTask that has another adapter set.
+
+    Args:
+        sql_adapter: The adapter the task will use
+
     """
 
     def __init__(

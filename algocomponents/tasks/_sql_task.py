@@ -5,6 +5,11 @@ class SQLTask(AdapterTask):
     """A task used to run SQL queries with an adapter.
 
     The sql_file_path is the path to the file from the project root.
+
+    Args:
+        sql_file_path: Where the sql file to be run is
+        sql_string: The sql string to run
+
     """
 
     def __init__(

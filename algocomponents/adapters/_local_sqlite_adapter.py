@@ -13,6 +13,10 @@ class LocalSqliteAdapter(SQLAdapter):
     This adapter exists to be able to run queries locally for development
     purposes. Such as mocking a number of queries, testing out a pipeline
     structure, etc.
+
+    Args:
+        commit_queries: Whether tables created should remain once disconnected
+
     """
 
     db_file = "local_sqlite.db"

@@ -8,6 +8,7 @@ class DatabricksAdapter(SparkAdapter):
     spark context and stops it when necessary. Therefore, this adapter works the
     exact same was as the SparkAdapter, except that it does not stop the spark
     context when disconnecting.
+
     """
 
     def disconnect(self):
