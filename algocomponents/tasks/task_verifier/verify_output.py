@@ -50,6 +50,20 @@ class VerifyOutput(Task):
         }
 
     def run(self):
+        """Verifies the output of self.task
+
+        This checks if the output table is exactly identical to the expected
+        output table. Many parts of SQL are not deterministic, keep this in mind
+        when verifying outputs.
+
+        Raises:
+            TableMissingException: If the output table does not exist, or if the
+                expected output does not exist
+            DataMismatchException: If the expected_output_table does not contain
+                the same columns as the output_table, or if there are array
+                columns in either table
+
+        """
         sql_adapter = self.task.sql_adapter
         sql_adapter.connect()
 

@@ -28,6 +28,12 @@ class SQLTask(AdapterTask):
         ), "SQLTask Must get either sql_file_path or sql_string, got neither."
 
     def run(self):
+        """Runs either the sql_string or the sql_file_path
+
+        If an sql_string is given, this takes priority. If an sql_file_path is
+        given, the text inside it is parsed and then run using run_sql_string()
+
+        """
         if self.sql_string:
             self.sql_adapter.run_sql_string(
                 sql_string=self.sql_string,
@@ -40,7 +46,17 @@ class SQLTask(AdapterTask):
             )
 
     def as_pandas(self):
+        """Returns the result as a pandas dataframe
+
+        This method is intended for method cascading: task.start().as_pandas()
+
+        """
         return self.sql_adapter.latest_query_as_pandas()
 
     def to_csv(self, path: str):
+        """Returns the result as a csv_file
+
+        This method is intended for method cascading: task.start().to_csv(path)
+
+        """
         self.sql_adapter.latest_query_as_csv(path=path)

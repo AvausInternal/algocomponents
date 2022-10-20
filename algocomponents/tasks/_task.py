@@ -69,6 +69,19 @@ class Task:
         self.parent = None
 
     def start(self):
+        """Starts the task
+
+        This is the method to use when starting a task. This method will call
+        the three following methods in order:
+
+            startup()
+            run()
+            shutdown()
+
+        The above methods are the methods other tasks overwrite with their own
+        functionality. For a Task, all of these three methods are blank.
+
+        """
         run_start = datetime.now()
 
         if self.parent:
@@ -91,13 +104,23 @@ class Task:
         return self
 
     def startup(self):
+        """What the task needs to do before executing it's main functionality"""
         pass
 
     def run(self):
+        """The tasks main functionality"""
         pass
 
     def shutdown(self):
+        """What the task needs to do after executing it's main funcionality"""
         pass
 
     def add_to_config(self, key, value):
+        """Add values to config for the current section
+
+        Args:
+            key: Which key to add or update
+            value: What value to give the key
+
+        """
         self.config[self.section][key] = str(value)

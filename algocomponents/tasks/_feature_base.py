@@ -51,6 +51,12 @@ class FeatureBase(SQLPipeline, ABC):
         self.add_to_config("OUTPUT_TABLE", self.output_table)
 
     def run(self):
+        """Runs like an SQLPipeline, and then verifies the output table
+
+        It is verified that the output table exists, and that it contains the
+        columns specified in the FeatureBase
+
+        """
         super().run()
         if not self.sql_adapter.table_exists(self.output_table):
             raise TableMissingException(

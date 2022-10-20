@@ -12,4 +12,5 @@ class DatabricksAdapter(SparkAdapter):
     """
 
     def disconnect(self):
+        """Overwritten to do nothing"""
         pass

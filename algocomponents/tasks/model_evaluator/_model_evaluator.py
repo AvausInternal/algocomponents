@@ -34,6 +34,12 @@ class ModelEvaluator(SQLPipeline):
         self.add_to_config("THRESHOLD_STRING", self.create_thresholds(100))
 
     def create_thresholds(self, n_thresholds):
+        """Creates a query that produces a table with n_thresholds
+
+        Args:
+            n_thresholds: How many thresholds, or how many rows, to produce
+
+        """
         step = 100 / n_thresholds
         s = f"SELECT {step/100} AS threshold"
         for i in range(2 * int(step), 100, int(step)):
