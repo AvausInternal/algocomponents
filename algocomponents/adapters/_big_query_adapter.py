@@ -8,7 +8,7 @@ from algocomponents.adapters import SQLAdapter
 from algocomponents.adapters.custom_exceptions import TableAlreadyExistsException
 
 
-class GCPAdapter(SQLAdapter):
+class BigQueryAdapter(SQLAdapter):
     """Used to run queries on BigQuery.
 
     This adapter is intended for running queries on Google BigQuery.
@@ -48,7 +48,7 @@ class GCPAdapter(SQLAdapter):
 
         if "gcp_project" not in list(self.adapter_format_variables):
             self.logger.info(
-                "The GCPAdapter does not have a gcp_project, tables are not formatted"
+                "The BigQueryAdapter does not have a gcp_project, tables are not formatted"
             )
             return f"`{table}`"
 

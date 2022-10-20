@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from algocomponents.adapters import (
     LocalSqliteAdapter,
-    GCPAdapter,
+    BigQueryAdapter,
     SparkAdapter,
     DatabricksAdapter,
 )
@@ -40,8 +40,8 @@ class ThatThatLoggersInitCorrectly(TestCase):
         adapter = LocalSqliteAdapter()
         self.verify_logger(adapter.logger)
 
-    def test_that_gcp_adapter_gets_correct_logger(self):
-        adapter = GCPAdapter()
+    def test_that_big_query_adapter_gets_correct_logger(self):
+        adapter = BigQueryAdapter()
         self.verify_logger(adapter.logger)
 
     def test_that_spark_adapter_gets_correct_logger(self):

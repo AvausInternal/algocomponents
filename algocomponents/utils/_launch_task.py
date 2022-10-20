@@ -130,18 +130,20 @@ def _get_adapter(adapter_type: str):
     if adapter_type is None:
         return None
     if adapter_type.lower() in [
+        "big_query_adapter",
+        "bigqueryadapter",
+        "bigquery",
+        "bq",
+        "googlecloudplatform",
+        "google",
         "gcp_adapter",
         "gcpadapter",
         "gcp",
         "g",
-        "googlecloudplatform",
-        "google",
-        "bigquery",
-        "bq",
     ]:
-        from algocomponents.adapters import GCPAdapter
+        from algocomponents.adapters import BigQueryAdapter
 
-        return GCPAdapter()
+        return BigQueryAdapter()
     if adapter_type.lower() in [
         "local_sqlite_adapter",
         "localsqliteadapter",
