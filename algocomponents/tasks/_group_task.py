@@ -15,7 +15,7 @@ class GroupTask(AdapterTask):
     will do the same).
 
     Tasks in the task_list can be referred to as "children", and they refer to
-    the GroupTask as their "parent". All tasks connected this way can be
+    the GroupTask as their "parent". All tasks c    onnected this way can be
     referred to as the "task-tree".
 
     Args:
