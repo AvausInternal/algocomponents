@@ -33,7 +33,17 @@ class BigQueryAdapter(SQLAdapter):
         global bigquery
         from google.cloud import bigquery
 
-        self.client = bigquery.Client()
+        if "serv_acc_key_path" in self.config[self.section].keys():
+            from google.oauth2 import service_account
+
+            key_path = self.config[self.section]["serv_acc_key_path"]
+            credentials = service_account.Credentials.from_service_account_file(
+                key_path,
+                scopes=["https://www.googleapis.com/auth/cloud-platform"],
+            )
+            self.client = bigquery.Client(credentials=credentials)
+        else:
+            self.client = bigquery.Client()
 
     def is_connected(self):
         return self.client is not None
