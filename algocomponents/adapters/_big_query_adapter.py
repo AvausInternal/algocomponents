@@ -99,13 +99,13 @@ class BigQueryAdapter(SQLAdapter):
 
         return df
 
-    def adapter_specific_filters(self, sql: str):
-        sql = self.remove_extract_method_calls_from_sql(sql=sql)
-        sql = self.remove_unnest_method_calls_from_sql(sql=sql)
-        sql = self.remove_ml_methods_from_sql(sql=sql)
-        return sql
+    def adapter_specific_filters(self, query: str):
+        query = self.remove_extract_method_calls_from_query(query=query)
+        query = self.remove_unnest_method_calls_from_query(query=query)
+        query = self.remove_ml_methods_from_query(query=query)
+        return query
 
-    def remove_extract_method_calls_from_sql(self, sql: str):
+    def remove_extract_method_calls_from_query(self, query: str):
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
@@ -114,19 +114,19 @@ class BigQueryAdapter(SQLAdapter):
             r"(?:extract)\s*"
             # Everything from open paranthesis to close paranthesis
             r"\([^)]*\)",
-            # Search in the sql string
-            sql,
+            # Search the query
+            query,
             # Ignore case
             re.IGNORECASE,
         )
 
         # replace every match with an empty string
         for x in match:
-            sql = sql.replace(x, "")
+            query = query.replace(x, "")
 
-        return sql
+        return query
 
-    def remove_unnest_method_calls_from_sql(self, sql: str):
+    def remove_unnest_method_calls_from_query(self, query: str):
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
@@ -139,19 +139,19 @@ class BigQueryAdapter(SQLAdapter):
             r"(?:unnest)"
             # Everything from open paranthesis to close paranthesis
             r"\([^)]*\)",
-            # Search in the sql string
-            sql,
+            # Search the query
+            query,
             # Ignore case
             re.IGNORECASE,
         )
 
         # replace every match with an empty string
         for x in match:
-            sql = sql.replace(x, "")
+            query = query.replace(x, "")
 
-        return sql
+        return query
 
-    def remove_ml_methods_from_sql(self, sql: str):
+    def remove_ml_methods_from_query(self, query: str):
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
@@ -162,17 +162,17 @@ class BigQueryAdapter(SQLAdapter):
             r"(?:ml.)\w+\s*"
             # Everything from open paranthesis to close paranthesis
             r"\([^)]*\)",
-            # Search in the sql string
-            sql,
+            # Search the query
+            query,
             # Ignore case
             re.IGNORECASE,
         )
 
         # replace every match with an empty string
         for x in match:
-            sql = sql.replace(x, "")
+            query = query.replace(x, "")
 
-        return sql
+        return query
 
     def latest_query_as_pandas(self):
         return self.query_job.to_dataframe()

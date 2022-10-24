@@ -98,7 +98,7 @@ class TestAdapterFindTableNames(TestCase):
     ]
 
     def test_finding_single_table(self):
-        table_names = self.sql_adapter.find_table_names(sql=self.simple_query)
+        table_names = self.sql_adapter.find_table_names(query=self.simple_query)
         assert table_names == self.simple_tables
 
     def test_finding_single_table_bad_formatting(self):
@@ -106,7 +106,7 @@ class TestAdapterFindTableNames(TestCase):
             self.simple_query
         )
         table_names = self.sql_adapter.find_table_names(
-            sql=simple_query_poor_formatting
+            query=simple_query_poor_formatting
         )
 
         # Lowercase necessary as query formatting is scrambled
@@ -116,7 +116,7 @@ class TestAdapterFindTableNames(TestCase):
 
     def test_finding_tables_without_finding_parameters_in_big_query_method(self):
         table_names = self.big_query_adapter.find_table_names(
-            sql=self.query_with_big_query_extract_method
+            query=self.query_with_big_query_extract_method
         )
 
         assert sorted(table_names) == self.query_with_big_query_extract_tables
@@ -129,7 +129,7 @@ class TestAdapterFindTableNames(TestCase):
         )
 
         table_names = self.big_query_adapter.find_table_names(
-            sql=query_with_big_query_extract_method_bad_formatting
+            query=query_with_big_query_extract_method_bad_formatting
         )
 
         # Lowercase necessary as query formatting is scrambled
@@ -141,7 +141,7 @@ class TestAdapterFindTableNames(TestCase):
         assert all([t in self.query_with_big_query_extract_tables for t in table_names])
 
     def test_finding_multiple_tables(self):
-        table_names = self.sql_adapter.find_table_names(sql=self.advanced_query)
+        table_names = self.sql_adapter.find_table_names(query=self.advanced_query)
 
         assert sorted(table_names) == self.advanced_tables
 
@@ -150,7 +150,7 @@ class TestAdapterFindTableNames(TestCase):
             self.advanced_query
         )
         table_names = self.sql_adapter.find_table_names(
-            sql=advanced_query_poor_formatting
+            query=advanced_query_poor_formatting
         )
 
         # Lowercase necessary as query formatting is scrambled
@@ -165,7 +165,7 @@ class TestAdapterFindTableNames(TestCase):
 
     def test_finding_multiple_tables_with_gcp_project(self):
         table_names = self.sql_adapter.find_table_names(
-            sql=self.advanced_query_with_gcp_project
+            query=self.advanced_query_with_gcp_project
         )
 
         assert sorted(table_names) == self.advanced_tables_with_gcp_project
@@ -175,7 +175,7 @@ class TestAdapterFindTableNames(TestCase):
             self.sql_query_format_scrambler(self.advanced_query_with_gcp_project)
         )
         table_names = self.sql_adapter.find_table_names(
-            sql=advanced_query_with_gcp_project_poor_formatting
+            query=advanced_query_with_gcp_project_poor_formatting
         )
 
         # Lowercase necessary as query formatting is scrambled
@@ -190,7 +190,7 @@ class TestAdapterFindTableNames(TestCase):
 
     def test_finding_multiple_tables_with_cte(self):
         table_names = self.sql_adapter.find_table_names(
-            sql=self.advanced_query_with_cte
+            query=self.advanced_query_with_cte
         )
 
         assert sorted(table_names) == self.advanced_tables
@@ -200,7 +200,7 @@ class TestAdapterFindTableNames(TestCase):
             self.advanced_query_with_cte
         )
         table_names = self.sql_adapter.find_table_names(
-            sql=advanced_query_with_cte_poor_formatting
+            query=advanced_query_with_cte_poor_formatting
         )
 
         # Lowercase necessary as query formatting is scrambled
@@ -214,24 +214,24 @@ class TestAdapterFindTableNames(TestCase):
         assert [t.lower() in table_names for t in self.advanced_tables]
 
     def test_finding_tables_in_drop_statement(self):
-        table_names = self.sql_adapter.find_table_names(sql=self.drop_table_statement)
+        table_names = self.sql_adapter.find_table_names(query=self.drop_table_statement)
         assert table_names == ["client_db.customer_product_table"]
 
     def test_finding_tables_in_drop_statement_with_if(self):
         table_names = self.sql_adapter.find_table_names(
-            sql=self.drop_table_statement_with_if
+            query=self.drop_table_statement_with_if
         )
         assert table_names == ["client_db.customer_product_table"]
 
     def test_finding_tables_in_create_statement_with_if(self):
         table_names = self.sql_adapter.find_table_names(
-            sql=self.create_table_statement_with_if
+            query=self.create_table_statement_with_if
         )
         assert table_names == ["client_db.customer_product_table"]
 
     def test_finding_tables_in_commented_query(self):
         table_names = self.sql_adapter.find_table_names(
-            sql=self.query_with_table_in_comments
+            query=self.query_with_table_in_comments
         )
         assert table_names == ["client_db.customer_product_table"]
 

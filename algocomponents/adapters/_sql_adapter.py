@@ -145,7 +145,7 @@ class SQLAdapter(ABC):
         return query
 
     def _format_table_names(self, query: str, ignore_ctes: bool = True):
-        tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
+        tables = self.find_table_names(query=query, ignore_ctes=ignore_ctes)
         # There is a trick here to prevent replacing a table which exists inside
         # another table, for example:
 
@@ -181,15 +181,15 @@ class SQLAdapter(ABC):
     def _format_table_name(self, table: str):
         pass
 
-    def find_possible_cte_names(self, sql: str) -> List[str]:
-        sql = self.remove_comments_from_sql(sql)
-        # Remove newlines from sql
-        sql = sql.replace("\n", " ")
+    def find_possible_cte_names(self, query: str) -> List[str]:
+        query = self.remove_comments_from_query(query)
+        # Remove newlines from the query
+        query = query.replace("\n", " ")
         # Transform multi-whitespaces into single whitespace
-        sql = " ".join(sql.split())
+        query = " ".join(query.split())
 
         # Allow adapter specific filtering of query
-        sql = self.adapter_specific_filters(sql=sql)
+        query = self.adapter_specific_filters(query=query)
 
         # regex explanation
         match = re.findall(
@@ -201,8 +201,8 @@ class SQLAdapter(ABC):
             r"(?:with)\s+"
             # The cte, which can consist of words, .'s, `'s and -'s
             r"[\w.`-]+",
-            # Search in the sql string
-            sql,
+            # Search the query
+            query,
             # Ignore case
             re.IGNORECASE,
         )
@@ -226,8 +226,8 @@ class SQLAdapter(ABC):
             # This is the step where other things can technically
             # match, but no cte can be missed
             r"\w+",
-            # Search in the sql string
-            sql,
+            # Search the query
+            query,
             # Ignore case
             re.IGNORECASE,
         )
@@ -236,14 +236,14 @@ class SQLAdapter(ABC):
 
         return first_withs + trailing_withs
 
-    def find_table_names(self, sql: str, ignore_ctes: bool = True):
-        sql = self.remove_comments_from_sql(sql)
-        # Remove newlines from sql
-        sql = sql.replace("\n", " ")
+    def find_table_names(self, query: str, ignore_ctes: bool = True):
+        query = self.remove_comments_from_query(query)
+        # Remove newlines from the query
+        query = query.replace("\n", " ")
         # Transform multi-whitespaces into single whitespace
-        sql = " ".join(sql.split())
+        query = " ".join(query.split())
 
-        sql = self.adapter_specific_filters(sql=sql)
+        query = self.adapter_specific_filters(query=query)
 
         # regex explanation
         match = re.findall(
@@ -257,8 +257,8 @@ class SQLAdapter(ABC):
             r"(?:if exists|if not exists|into)*\s*"
             # The actual table, which can consist of words, .'s, `'s -'s and *'s
             r"[\w.`\-\*]+",
-            # Search in the sql string
-            sql,
+            # Search the query
+            query,
             # Ignore case
             re.IGNORECASE,
         )
@@ -270,22 +270,22 @@ class SQLAdapter(ABC):
         tables = list(set([x.split("\n")[-1].split(" ")[-1] for x in match]))
 
         if ignore_ctes:
-            ctes = self.find_possible_cte_names(sql)
+            ctes = self.find_possible_cte_names(query)
             tables = [t for t in tables if t not in ctes]
 
         return tables
 
-    def adapter_specific_filters(self, sql: str):
-        return sql
+    def adapter_specific_filters(self, query: str):
+        return query
 
-    def remove_comments_from_sql(self, sql: str):
-        lines = sql.split("\n")
+    def remove_comments_from_query(self, query: str):
+        lines = query.split("\n")
         lines_without_comments = []
         for line in lines:
             line_before_comment = line.split("--")[0]
             lines_without_comments.append(line_before_comment)
-        sql = "\n".join(lines_without_comments)
-        return sql
+        query = "\n".join(lines_without_comments)
+        return query
 
     @abstractmethod
     def latest_query_as_pandas(self):
