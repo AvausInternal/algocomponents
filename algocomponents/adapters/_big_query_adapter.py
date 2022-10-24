@@ -67,8 +67,6 @@ class BigQueryAdapter(SQLAdapter):
             return f"`{table}`"
 
         gcp_project = self.adapter_format_variables["gcp_project"]
-        if table.startswith(gcp_project + "."):
-            table = table[len(gcp_project) + 1 :]
         return f"`{gcp_project}.{table}`"
 
     def table_exists(self, table: str) -> bool:
