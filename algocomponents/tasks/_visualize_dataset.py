@@ -7,8 +7,18 @@ from algocomponents.utils import save_boxplot, save_histogram, save_corr_matrix
 
 
 class VisualizeDataset(AdapterTask):
-    """A task that visualizes features
-    given a dataset table"""
+    """A task that visualizes features given a dataset table.
+
+
+    Attributes:
+        input_df (pd.DataFrame, optional): Pandas DataFrame with dataset to visualize.
+        input_csv_file (str, optional): Csv file path with dataset to visualize.
+        input_table_name (str, optional): Database table name with dataset to visualize
+            following "{DATASET}.{TABLE}" naming convention.
+        output_folder (str, optional): Folder name, where to save plots.
+        interactive_plots (bool, optional): Whether to additionally save interactive plots.
+
+    """
 
     def __init__(
         self,
@@ -16,6 +26,7 @@ class VisualizeDataset(AdapterTask):
         input_csv_file: str = None,
         input_table_name: str = None,
         output_folder: str = "",
+        interactive_plots: bool = True,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -23,26 +34,22 @@ class VisualizeDataset(AdapterTask):
         self.input_csv_file = input_csv_file
         self.input_table_name = input_table_name
         self.output_folder = output_folder
-
-        if (
-            self.input_csv_file is None
-            and self.input_table_name is None
-            and self.input_df is None
-        ):
-            raise ValueError(
-                "VisualizeDataset Must get either input_csv_file or input_table_name or input_df,"
-                " got neither."
-            )
+        self.interactive_plots = interactive_plots
 
         only_one_true_list = [
             self.input_csv_file is not None,
             self.input_table_name is not None,
             self.input_df is not None,
         ]
-        if only_one_true_list.count(True) != 1:
+        if only_one_true_list.count(True) > 1:
             raise ValueError(
-                "VisualizeDataset Must get only one dataset source: input_csv_file or input_table_name or input_df, "
-                "got more. "
+                "VisualizeDataset task must get only one dataset source: "
+                "input_csv_file or input_table_name or input_df, got more."
+            )
+        elif only_one_true_list.count(True) < 1:
+            raise ValueError(
+                "VisualizeDataset task must get a dataset source: input_csv_file or input_table_name or input_df, "
+                "got none."
             )
 
         if self.input_table_name and self.sql_adapter is None:
@@ -64,12 +71,28 @@ class VisualizeDataset(AdapterTask):
             self.df_numeric.max() - self.df_numeric.min()
         )
 
-        save_boxplot(df=self.df_numeric, output_folder=self.output_folder)
+        save_boxplot(
+            df=self.df_numeric,
+            output_folder=self.output_folder,
+            interactive_plots=self.interactive_plots,
+            logger=self.logger,
+        )
         save_boxplot(
             df=self.df_normalized,
             output_folder=self.output_folder,
             file_name="normalized_boxplot",
+            interactive_plots=self.interactive_plots,
         )
-        save_histogram(df=self.df_numeric, output_folder=self.output_folder)
+        save_histogram(
+            df=self.df_numeric,
+            output_folder=self.output_folder,
+            interactive_plots=self.interactive_plots,
+            logger=self.logger,
+        )
 
-        save_corr_matrix(df=self.df_numeric, output_folder=self.output_folder)
+        save_corr_matrix(
+            df=self.df_numeric,
+            output_folder=self.output_folder,
+            interactive_plots=self.interactive_plots,
+            logger=self.logger,
+        )
