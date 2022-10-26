@@ -2,20 +2,23 @@ import pandas as pd
 import numpy as np
 
 
-from algocomponents.tasks import AdapterTask, SQLTask
+from algocomponents.tasks import AdapterTask
 from algocomponents.utils import save_boxplot, save_histogram, save_corr_matrix
 
 
 class VisualizeDataset(AdapterTask):
     """A task that visualizes features given a dataset table.
 
+    The task takes one of the following dataset sources as input:
+    input_df, input_csv_file or input_table_name and save descriptive plots:
+    boxplot, normalized boxplot, histograms, correlation matrix of that dataset.
 
     Attributes:
         input_df (pd.DataFrame, optional): Pandas DataFrame with dataset to visualize.
         input_csv_file (str, optional): Csv file path with dataset to visualize.
         input_table_name (str, optional): Database table name with dataset to visualize
             following "{DATASET}.{TABLE}" naming convention.
-        output_folder (str, optional): Folder name, where to save plots.
+        output_folder (str, optional): Folder name or folder path, where plots are to be saved.
         interactive_plots (bool, optional): Whether to additionally save interactive plots.
 
     """
