@@ -68,7 +68,8 @@ class VisualizeDataset(AdapterTask):
             self.input_df = self.sql_adapter.table_as_pandas_df(self.input_table_name)
 
         # dataframe with only numerical features
-        self.df_numeric = self.input_df.select_dtypes(include=np.number)
+        numerics = ["int16", "int32", "int64", "float16", "float32", "float64"]
+        self.df_numeric = self.input_df.select_dtypes(include=numerics)
         # dataframe with only numerical features and normalized values
         self.df_normalized = (self.df_numeric - self.df_numeric.min()) / (
             self.df_numeric.max() - self.df_numeric.min()
@@ -87,7 +88,7 @@ class VisualizeDataset(AdapterTask):
             interactive_plots=self.interactive_plots,
         )
         save_histogram(
-            df=self.df_numeric,
+            df=self.input_df,
             output_folder=self.output_folder,
             interactive_plots=self.interactive_plots,
             logger=self.logger,
