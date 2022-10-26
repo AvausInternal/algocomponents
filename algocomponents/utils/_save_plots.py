@@ -14,6 +14,21 @@ def save_boxplot(
     interactive_plots: bool = True,
     logger: Logger = None,
 ):
+    """Function that saves boxplot of columns in given dataset.
+
+    It takes a dataset as pandas DataFrame
+    and saves boxplot in specified folder in .png format.
+    If argument 'interactive_plots' is set to True, it additionally
+    saves plotly interactive plot with .html format.
+
+    Args:
+        df (pd.DataFrame): Pandas DataFrame with dataset to visualize.
+        output_folder (str, optional): Folder name or folder path, where to save plot.
+        file_name (str, optional): Name of destination file.
+        interactive_plots (bool, optional): Whether to additionally save interactive plot.
+        logger (Logger, optional): Specific Logger if desired.
+
+    """
     save_file_path = os.path.join(output_folder, file_name)
     logger = logger or LoggieDoggie().fetch_logger(logger_name="save_boxplot")
 
@@ -34,6 +49,21 @@ def save_histogram(
     interactive_plots: bool = True,
     logger: Logger = None,
 ):
+    """Function that saves histogram of each column in given dataset.
+
+    It takes a dataset as pandas DataFrame
+    and saves saves histograms in specified folder in .png format.
+    If argument 'interactive_plots' is set to True, it additionally
+    saves plotly interactive plots with .html format.
+
+    Args:
+        df (pd.DataFrame): Pandas DataFrame with dataset to visualize.
+        output_folder (str, optional): Folder name or folder path, where to save plots.
+        file_name (str, optional): Name of destination file, with column name suffix.
+        interactive_plots (bool, optional): Whether to additionally save interactive plots.
+        logger (Logger, optional): Specific Logger if desired.
+
+    """
     save_file_path = os.path.join(output_folder, file_name)
     logger = logger or LoggieDoggie().fetch_logger(logger_name="save_histogram")
 
@@ -59,6 +89,21 @@ def save_corr_matrix(
     interactive_plots: bool = True,
     logger: Logger = None,
 ):
+    """Function that saves correlation matrix of columns in given dataset.
+
+    It takes a dataset as pandas DataFrame
+    and saves saves correlation matrix in specified folder in .png format.
+    If argument 'interactive_plots' is set to True, it additionally
+    saves plotly interactive plot with .html format.
+
+    Args:
+        df (pd.DataFrame): Pandas DataFrame with dataset to visualize.
+        output_folder (str, optional): Folder name or folder path, where to save plot.
+        file_name (str, optional): Name of destination file.
+        interactive_plots (bool, optional): Whether to additionally save interactive plot.
+        logger (Logger, optional): Specific Logger if desired.
+
+    """
     save_file_path = os.path.join(output_folder, file_name)
     logger = logger or LoggieDoggie().fetch_logger(logger_name="save_corr_matrix")
 
