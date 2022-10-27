@@ -2,7 +2,7 @@ from algocomponents.tasks import SQLPipeline
 from algocomponents.adapters import SQLAdapter
 
 
-class StratifyGroups(SQLPipeline):
+class Stratify_Groups(SQLPipeline):
     """ Given a table, a set of columns that decide the group, 
     what columns to stratify on and how many groups, 
     an output table is created with stratified groups. """
@@ -17,8 +17,8 @@ class StratifyGroups(SQLPipeline):
             output_table: str,  # AB_TESTING_DB.my_test_groups
     ):
         super().__init__(sql_adapter=sql_adapter)
-        self.add_to_config("Input_table", input_table)
-        self.add_to_config("Primary_keys", primary_keys)
-        self.add_to_config("Stratify_on", stratify_on)
-        self.add_to_config("Nbr_groups", nbr_groups)
-        self.add_to_config("Output_table", output_table)
+        self.add_to_config("INPUT_TABLE", input_table)
+        self.add_to_config("PRIMARY_KEYS", primary_keys)
+        self.add_to_config("STRATIFY_ON", stratify_on)
+        self.add_to_config("NBR_GROUPS", nbr_groups)
+        self.add_to_config("OUTPUT_TABLE", output_table)
