@@ -5,7 +5,7 @@ sql_pipeline = Stratify_Groups(
     sql_adapter=GCPAdapter(),
     input_table='Customer',
     primary_keys=["CustomerId"],
-    stratify_on=["CustomerId","Country"], # ["City", "Country"],
+    stratify_on="CustomerId, Country, City",
     nbr_groups=4,
     output_table='Stratified')
 

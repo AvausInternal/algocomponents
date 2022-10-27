@@ -12,7 +12,7 @@ class Stratify_Groups(SQLPipeline):
             sql_adapter: SQLAdapter,
             input_table: str,  # CUSTOMER_DB.all_profilable_customers
             primary_keys: list,  # ["customer_key"]
-            stratify_on: list,  # ["age", "postal_code"]
+            stratify_on: str,  # "age", postal_code"
             nbr_groups: int,  # 2
             output_table: str,  # AB_TESTING_DB.my_test_groups
     ):
