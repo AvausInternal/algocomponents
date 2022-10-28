@@ -5,4 +5,5 @@ SELECT
     user_id,
     COUNT(*) AS n_products_bought
 FROM {INPUT_TABLE}
+GROUP BY user_id
 ;
