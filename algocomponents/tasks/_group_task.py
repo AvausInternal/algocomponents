@@ -19,7 +19,7 @@ class GroupTask(AdapterTask):
     referred to as the "task-tree".
 
     Args:
-        task_list: The list of tasks this GroupTask will start
+        task_list: The list of tasks this GroupTask will start.
 
     """
 
@@ -41,9 +41,9 @@ class GroupTask(AdapterTask):
             self.propagate_config()
 
     def run(self):
-        """Iterate through task list and .start() every task
+        """Iterate through task list and .start() every task.
 
-        Also sets the parent of every task into this GroupTask
+        Also sets the parent of every task into this GroupTask.
 
         """
         for task in self.task_list:
@@ -51,15 +51,15 @@ class GroupTask(AdapterTask):
             task.start()
 
     def add_to_config(self, key, value):
-        """Recursively add values to config for the current section
+        """Recursively add values to config for the current section.
 
         This will also call add_to_config for all tasks in the task_list. As
         those tasks will either inherit from GroupTasks or Tasks, everything in
         the task tree below this task will get these values added.
 
         Args:
-            key: Which key to add or update
-            value: What value to give the key
+            key: Which key to add or update.
+            value: What value to give the key.
 
         """
         self.config[self.section][key] = str(value)
@@ -68,26 +68,26 @@ class GroupTask(AdapterTask):
             task.add_to_config(key, value)
 
     def set_sql_adapter(self, sql_adapter):
-        """Set the SQLAdapter for this GroupTask and all tasks in it's task list
+        """Set the SQLAdapter for this GroupTask and all tasks in it's task list.
 
         As all tasks in the task list either inherit from GroupTasks or Tasks,
         everything in the task tree below this task will get this SQLAdapter
-        (unless the Task or GroupTask already has an sql_adapter)
+        (unless the Task or GroupTask already has an sql_adapter).
 
         Args:
-            sql_adapter: The SQLAdapter to set
+            sql_adapter: The SQLAdapter to set.
 
         """
         self.sql_adapter = sql_adapter
         self.propagate_sql_adapter(sql_adapter)
 
     def propagate_sql_adapter(self, sql_adapter):
-        """Propagates the SQLAdapter to all tasks in this GroupTasks task_list
+        """Propagates the SQLAdapter to all tasks in this GroupTasks task_list.
 
-        Unless the Task already has an SQLAdapter, this SQLAdapter will be set
+        Unless the Task already has an SQLAdapter, this SQLAdapter will be set.
 
         Args:
-            sql_adapter: The SQLAdapter to set
+            sql_adapter: The SQLAdapter to set.
 
         """
         for task in self.task_list:
@@ -96,7 +96,7 @@ class GroupTask(AdapterTask):
                     task.set_sql_adapter(sql_adapter)
 
     def propagate_config(self):
-        """Propagates the config to all tasks in this GroupTasks task_list
+        """Propagates the config to all tasks in this GroupTasks task_list.
 
         This uses the merge_config-method with overwrite as False. This means
         that a GroupTask will never overwrite config-values for tasks in its

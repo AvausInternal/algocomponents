@@ -10,10 +10,10 @@ class ModelEvaluator(SQLPipeline):
     precision, recall, f1 score for different threshold boundaries.
 
     Args:
-        input_table: Table where model predictions and target labels exists
-        output_table: Table where results should be put
-        prediction_column: Column in input table for model predictions
-        target_label_column: Column in input table for model target label
+        input_table: Table where model predictions and target labels exists.
+        output_table: Table where results should be put.
+        prediction_column: Column in input table for model predictions.
+        target_label_column: Column in input table for model target label.
 
     """
 
@@ -34,10 +34,10 @@ class ModelEvaluator(SQLPipeline):
         self.add_to_config("THRESHOLD_STRING", self.create_thresholds(100))
 
     def create_thresholds(self, n_thresholds):
-        """Creates a query that produces a table with n_thresholds
+        """Creates a query that produces a table with n_thresholds.
 
         Args:
-            n_thresholds: How many thresholds, or how many rows, to produce
+            n_thresholds: How many thresholds, or how many rows, to produce.
 
         """
         step = 100 / n_thresholds

@@ -1,7 +1,7 @@
 def config_to_str(config):
-    """Convert a ConfigParser-object to a string
+    """Convert a ConfigParser-object to a string.
 
-    This is used to log the contents of Tasks configs
+    This is used to log the contents of Tasks configs.
 
     """
     config_dict = dict(config)
@@ -12,15 +12,15 @@ def config_to_str(config):
 
 
 def merge_configs(merge_this, into_this, overwrite: bool = False):
-    """Merge two ConfigParser-objects
+    """Merge two ConfigParser-objects.
 
     When ConfigParser reads a second config, it always overwrites. This method
     is created in order to merge two configs without overwriting.
 
     Args:
-        merge_this: The ConfigParser to put into another ConfigParser
-        into_this: The ConfigParser you wish to update
-        overwrite: Whether existing values in into_this should be kept or not
+        merge_this: The ConfigParser to put into another ConfigParser.
+        into_this: The ConfigParser you wish to update.
+        overwrite: Whether existing values in into_this should be kept or not.
 
     Examples:
         merge_this = {DEFAULT: {"a": 1, "b": 2,  "c": 3}}
