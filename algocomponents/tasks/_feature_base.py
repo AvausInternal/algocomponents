@@ -11,7 +11,7 @@ from algocomponents.tasks import SQLPipeline
 
 
 class FeatureBase(SQLPipeline, ABC):
-    """An SQLPipeline that produces a Feature base
+    """An SQLPipeline that produces a Feature base.
 
     A Feature Base is two things:
 
@@ -20,14 +20,14 @@ class FeatureBase(SQLPipeline, ABC):
            are valid, taking all business rules into account, for some sendout.
         2. Everything required to calculate all features in said scoring. If for
            example when the sendout will occur, or what channel it will occur in
-           is necessary for some features, these should be included
+           is necessary for some features, these should be included.
 
     Properties:
         output_primary_keys: The primary keys of the output table.
         output_columns_created: All columns in the output table except for the primary keys.
 
     Args:
-        output_table: Where this SQLPipeline writes it's results
+        output_table: Where this SQLPipeline writes it's results.
 
     """
 
@@ -51,10 +51,10 @@ class FeatureBase(SQLPipeline, ABC):
         self.add_to_config("OUTPUT_TABLE", self.output_table)
 
     def run(self):
-        """Runs like an SQLPipeline, and then verifies the output table
+        """Runs like an SQLPipeline, and then verifies the output table.
 
         It is verified that the output table exists, and that it contains the
-        columns specified in the FeatureBase
+        columns specified in the FeatureBase.
 
         """
         super().run()

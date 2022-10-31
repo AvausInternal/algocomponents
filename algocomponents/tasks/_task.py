@@ -9,7 +9,7 @@ from algocomponents.utils import LoggieDoggie, config_to_str, merge_configs
 
 
 class Task:
-    """A generic task which starts using its start()-method
+    """A generic task which starts using its start()-method.
 
     The task initiates a logger, finds its classpath (where it is located), and
     parses a config file. The log is written to a file in root called log.log,
@@ -17,10 +17,10 @@ class Task:
     class resides. The config is an ini-file, parsed with pythons ConfigParser.
 
     Args:
-        global_config_dir: Path from project root to global config.ini-file
-        global_config_dir: Relative path to local config.ini-file
-        config: A passed ConfigParser object, which overwrites any files read
-        section: Which section of the ConfigParsers should be read from
+        global_config_dir: Path from project root to global config.ini-file.
+        global_config_dir: Relative path to local config.ini-file.
+        config: A passed ConfigParser object, which overwrites any files read.
+        section: Which section of the ConfigParsers should be read from.
 
     """
 

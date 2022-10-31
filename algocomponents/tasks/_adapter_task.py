@@ -3,7 +3,7 @@ from algocomponents.tasks import Task
 
 
 class AdapterTask(Task):
-    """A task that has access to an adapter
+    """A task that has access to an adapter.
 
     An adapter can be used to run queries to whichever source the adapter uses.
     The adapter task will disconnect it's adapter if it is not inherited from
@@ -11,7 +11,7 @@ class AdapterTask(Task):
     called from a GroupTask that has another adapter set.
 
     Args:
-        sql_adapter: The adapter the task will use
+        sql_adapter: The adapter the task will use.
 
     """
 
@@ -28,14 +28,14 @@ class AdapterTask(Task):
             self.sql_adapter = None
 
     def shutdown(self):
-        """Disconnects the sql_adapter, if no other task will use it
+        """Disconnects the sql_adapter, if no other task will use it.
 
         We will try to disconnect if we have an adapter and it is connected.
 
         We disconnect if either of these are true:
-            - There is no parent
-            - The parent does not have an sql_adapter
-            - The parent does not have the same sql_adapter
+            - There is no parent.
+            - The parent does not have an sql_adapter.
+            - The parent does not have the same sql_adapter.
 
         In other words: Disconnect unless we share the adapter with our parent.
 

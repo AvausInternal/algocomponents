@@ -9,7 +9,7 @@ from algocomponents.tasks import AdapterTask, Task
 
 
 class VerifyOutput(Task):
-    """A task to verify the output of another task
+    """A task to verify the output of another task.
 
     This task takes another task and compares that task's output table to
     another table specified by user. Can be used to verify that task's output
@@ -17,9 +17,9 @@ class VerifyOutput(Task):
     output with SaveExpectedOutput task.
 
     Args:
-        for_task: Which task we want to verify the output for
-        task_output_table: The output table for the task
-        expected_output_table: Where the expected output of the task is stored
+        for_task: Which task we want to verify the output for.
+        task_output_table: The output table for the task.
+        expected_output_table: Where the expected output of the task is stored.
 
     """
 
@@ -50,7 +50,7 @@ class VerifyOutput(Task):
         }
 
     def run(self):
-        """Verifies the output of self.task
+        """Verifies the output of self.task.
 
         This checks if the output table is exactly identical to the expected
         output table. Many parts of SQL are not deterministic, keep this in mind
@@ -58,10 +58,10 @@ class VerifyOutput(Task):
 
         Raises:
             TableMissingException: If the output table does not exist, or if the
-                expected output does not exist
+                expected output does not exist.
             DataMismatchException: If the expected_output_table does not contain
                 the same columns as the output_table, or if there are array
-                columns in either table
+                columns in either table.
 
         """
         sql_adapter = self.task.sql_adapter

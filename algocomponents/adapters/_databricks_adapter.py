@@ -2,7 +2,7 @@ from algocomponents.adapters import SparkAdapter
 
 
 class DatabricksAdapter(SparkAdapter):
-    """Used to run queries in databricks notebooks
+    """Used to run queries in databricks notebooks.
 
     Databricks notebooks use spark, but the notebook itself keeps track of a
     spark context and stops it when necessary. Therefore, this adapter works the
@@ -12,5 +12,5 @@ class DatabricksAdapter(SparkAdapter):
     """
 
     def disconnect(self):
-        """Overwritten to do nothing"""
+        """Overwritten to do nothing."""
         pass

@@ -162,8 +162,8 @@ class ABTools:
             N_adj: The adjusted sample size. Needs to be bigger than N.
 
         Returns:
-            control_sample_size: Minimum sample size of the control group
-            test_sample_size:  Minimum sample size of the test group
+            control_sample_size: Minimum sample size of the control group.
+            test_sample_size:  Minimum sample size of the test group.
         """
 
         if N >= N_adj:

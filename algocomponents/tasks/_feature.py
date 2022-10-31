@@ -11,7 +11,7 @@ from algocomponents.tasks import FeatureBase
 
 
 class Feature(FeatureBase, ABC):
-    """A feature that models can use to train and predict
+    """A feature that models can use to train and predict.
 
     All features require an input table, and for every distinct combination of
     whichever columns are specified as input columns, the feature should be
@@ -31,8 +31,8 @@ class Feature(FeatureBase, ABC):
         output_columns_created: All columns in the output table except for the primary keys.
 
     Args:
-        input_table: The table from which this SQLPipeline starts
-        output_table: Where this SQLPipeline writes it's results
+        input_table: The table from which this SQLPipeline starts.
+        output_table: Where this SQLPipeline writes it's results.
 
     """
 
@@ -51,7 +51,7 @@ class Feature(FeatureBase, ABC):
         self.add_to_config("INPUT_TABLE", self.input_table)
 
     def startup(self):
-        """Connects the adapter, and verifies the input table
+        """Connects the adapter, and verifies the input table.
 
         Checks whether the input-table exists, and that it has the columns
         specified in input_table_columns.
