@@ -38,7 +38,7 @@ class AvausVisuals:
         #plot Data 
         # sns.countplot(x=df.columns, data=df, palette=pal) 
 
-        df.plot(kind="bar")
+        df.plot(kind="bar", color=[self.primary_colors["BLUEBERRY"], self.primary_colors["ROSE"]])
         plt.show()
 
 
