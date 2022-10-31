@@ -20,6 +20,8 @@ jobs:
           pip install scipy
           pip install plotly
           pip install kaleido
+          pip install matplotlib
+          pip install seaborn
       - name: Test with pytest
         run: |
           pytest
