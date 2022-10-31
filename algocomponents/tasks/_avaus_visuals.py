@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -27,9 +28,50 @@ class AvausVisuals:
         "GRAVEL": "#EDEDEF",
         "WOOD": "#DEC8C0",
     }
+    heatmap_palette = sns.light_palette(
+        primary_colors["BLUEBERRY"], input="rgb", as_cmap=True
+    )
+    histogram_colors = [primary_colors["BLUEBERRY"], primary_colors["BLUEBERRY"]]
+    histogram_palette = sns.set_palette(sns.color_palette(histogram_colors))
 
     def __init__(self):
         sns.set_style("whitegrid", {"axes.grid": False})
+
+    def histplot(
+        self,
+        df: pd.DataFrame,
+        x_col: str = None,
+        y_cols: List[str] = None,
+        title: str = None,
+        legend: bool = False,
+        show: bool = True,
+        file_name: str = None,
+        output_folder: str = None,
+    ):
+        sns.histplot(data=df, x=x_col, y=y_cols, palette=self.histogram_palette)
+        self.visualize(
+            title=title,
+            legend=legend,
+            show=show,
+            file_name=file_name,
+            output_folder=output_folder,
+        )
+
+    def heatmap(
+        self,
+        df: pd.DataFrame,
+        title: str = None,
+        show: bool = True,
+        file_name: str = None,
+        output_folder: str = None,
+    ):
+        sns.heatmap(data=df.corr(), cmap=self.heatmap_palette)
+        self.visualize(
+            title=title,
+            show=show,
+            file_name=file_name,
+            output_folder=output_folder,
+        )
 
     def boxplot(
         self,
