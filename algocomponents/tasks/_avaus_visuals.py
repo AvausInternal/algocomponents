@@ -1,7 +1,11 @@
+from mimetypes import init
+from sys import platlibdir
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np 
+import plotly.express as px
+
 
 
 class AvausVisuals:
@@ -19,62 +23,58 @@ class AvausVisuals:
         "GRAVEL": "#EDEDEF",
         "WOOD": "#DEC8C0",
     }
+    color_list = ["#363760", "#135A61", "#FAEFED", "#515458"]
 
-    # def __init__(self):
+    def __init__(self):
+        sns.set(style="whitegrid", color_codes=True)
+        
 
     def bar_chart(
         self,
         df: pd.DataFrame,
-        output_folder: str = None,
+        title: str = None, 
         file_name: str = None,
-        base_color: str = None,
+        output_folder: str = None,
+        mono_color: bool = True, 
     ):
-        base_color = base_color or self.primary_colors["BLUEBERRY"]
 
-        #create color palette
-        # pal = sns.color_palette([self.primary_colors["BLUEBERRY"], self.primary_colors["BLUEBERRY"]])
-        # specify the custom font to use
-        # sns.set_style({'font.family': 'Roboto'})
-        #plot Data 
-        # sns.countplot(x=df.columns, data=df, palette=pal) 
+        # Create barpot 
+        if mono_color: 
+            sns.barplot(df, color=self.color_list[0])
+        else: 
+            sns.barplot(df, palette=self.color_list)
+        
+        # Remove borders 
+        sns.despine(bottom = True, left = True)
 
-        df.plot(kind="bar", color=[self.primary_colors["BLUEBERRY"], self.primary_colors["ROSE"]])
-        plt.show()
+        # Add title if defined 
+        if title: 
+            plt.title(label=title, fontsize=20, loc="left", fontweight="bold")
 
-
-        # df.plot.bar(x="City", y="Customers", rot=0)
-        # #Email.set_title ('email subscription ')
-        # plt.xlabel('')
-        # plt.ylabel('')
-        # # plt.title (label='Email Subscription', fontsize = 20 , loc="left",  fontweight="bold" )
-        # #Email.set(xlabel='', ylabel='', title='some title')
-        # # Remove all borders
-        # sns.despine(bottom = True, left = True)
-        # plt.show()
-
-
-
+        # Save plot if path and name is defined
         if output_folder and file_name:
             print("save")
+
+        plt.show()
 
     def line_chart(self):
         pass
 
-    def heatmap(
-        self,
-    ):
+    def heatmap(self):
         pass
+
+    def pimp_my_plot(self):
+        pass
+
 
 
 if __name__ == "__main__":
     plotter = AvausVisuals()
-    # print(plotter.primary_colors["BLUEBERRY"])
 
-    # df = pd.DataFrame({'City':['Stockholm', 'Göteborg', 'Malmö'], 'Customers':[10, 30, 20]})
+    df_ab_test = pd.DataFrame([[0.10, 0.22]], columns=["Test", "Control"])
+    df_monthly_sales = pd.DataFrame([[132, 232, 254, 343, 154, 222, 254, 343, 254, 323, 432, 267]], columns=["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"])
 
-    df = pd.DataFrame([[10, 22]], columns=["Stockolhm", "Gothenburg"])
-    print(df.head())
-    plotter.bar_chart(df=df)
+    plotter.bar_chart(df=df_monthly_sales, title="Sales")
 
 
 # Vi ska göra en klass som heter något smart, typ AvausPlotter eller något liknande
