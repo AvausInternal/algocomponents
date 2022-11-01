@@ -1,14 +1,22 @@
-from mimetypes import init
-from sys import platlibdir
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np 
-import plotly.express as px
+from typing import List
 
+
+#TODO: 
+"""
+-
+
+
+"""
 
 
 class AvausVisuals:
+    """
+    !Write doc-string here!!!
+    """
 
     primary_colors = {
         "BLUEBERRY": "#363760",
@@ -26,39 +34,46 @@ class AvausVisuals:
     color_list = ["#363760", "#135A61", "#FAEFED", "#515458"]
 
     def __init__(self):
-        sns.set(style="whitegrid", color_codes=True)
+        sns.set_style("whitegrid", {'axes.grid' : False})
         
-
-    def bar_chart(
+    def barplot(
         self,
         df: pd.DataFrame,
         title: str = None, 
         file_name: str = None,
         output_folder: str = None,
         mono_color: bool = True, 
+        x_col: str = None, 
+        y_cols: List[str] = None,
     ):
 
-        # Create barpot 
-        if mono_color: 
-            sns.barplot(df, color=self.color_list[0])
+        if x_col and  y_cols: 
+            if mono_color: 
+                sns.barplot(data=df, x=x_col, y=y_cols, color=self.color_list[0])
+            else: 
+                sns.barplot(data=df, x=x_col, y=y_cols, palette=self.color_list)
         else: 
-            sns.barplot(df, palette=self.color_list)
-        
-        # Remove borders 
-        sns.despine(bottom = True, left = True)
+            if mono_color: 
+                sns.barplot(data=df, color=self.color_list[0])
+            else: 
+                sns.barplot(data=df, palette=self.color_list)
 
-        # Add title if defined 
-        if title: 
-            plt.title(label=title, fontsize=20, loc="left", fontweight="bold")
+        self.format(df=df, title=title, file_name=file_name, output_folder=output_folder)
+       
 
-        # Save plot if path and name is defined
-        if output_folder and file_name:
-            print("save")
+    def lineplot(
+        self,
+        df: pd.DataFrame,
+        title: str = None, 
+        file_name: str = None,
+        output_folder: str = None,
+        x_col: str = None, 
+        y_cols: List[str] = None,
+    ):
 
-        plt.show()
+        sns.lineplot(data=df, x=x_col, y=y_cols, palette=self.color_list, dashes=False)
 
-    def line_chart(self):
-        pass
+        self.format(df=df, title=title, file_name=file_name, output_folder=output_folder)
 
     def heatmap(self):
         pass
@@ -66,15 +81,48 @@ class AvausVisuals:
     def pimp_my_plot(self):
         pass
 
+    def format(self, 
+        df: pd.DataFrame,
+        title: str = None, 
+        file_name: str = None,
+        output_folder: str = None
+        ):
+            # Add title if defined 
+            if title: 
+                plt.title(label=title, fontsize=20, loc="left", fontweight="bold")
+            
+            # Remove borders 
+            sns.despine(bottom = True, left = True)
+
+            # Remove labels and add horizontal grid lines 
+            plt.xlabel("")
+            plt.ylabel("")
+            plt.grid(axis="y")
+
+            #TODO Check if y-columns contain negative numbers
+            num = df.select_dtypes(include=np.number)
+            if (num["Sales2021"] > 0).any(): 
+                plt.ylim(bottom=0)
+
+            # Save plot if path and name is defined
+            if output_folder and file_name:
+                print("save")
+
+            # Show the plot
+            plt.show()
 
 
 if __name__ == "__main__":
     plotter = AvausVisuals()
 
     df_ab_test = pd.DataFrame([[0.10, 0.22]], columns=["Test", "Control"])
-    df_monthly_sales = pd.DataFrame([[132, 232, 254, 343, 154, 222, 254, 343, 254, 323, 432, 267]], columns=["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"])
 
-    plotter.bar_chart(df=df_monthly_sales, title="Sales")
+    # df_monthly_sales = pd.DataFrame([[132, 232, 254, 343, 154, 222, 254, 343, 254, 323, 432, 267]], columns=["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"])
+    df_sales_col = pd.DataFrame([["Jan", 12],["Feb", 54],["Mar", 34], ["Apr", 46], ["Maj", 96], ["Jun", 43], ["Jul", 43], ["Aug", 57], ["Sep", 43], ["Okt", 75], ["Nov", 32], ["Dec", 64]], columns=["Month", "Sales"])
+
+    df_multi = pd.DataFrame([["Jan", 12, 23],["Feb", 54, 23],["Mar", 34, 23], ["Apr", 46, 23], ["Maj", 96, 23], ["Jun", 43, 23], ["Jul", 43, 23], ["Aug", 57, 23], ["Sep", 43, 23], ["Okt", 75, 23], ["Nov", 32, 23], ["Dec", 64, 23]], columns=["Month", "Sales2021", "Sales2022"])
+
+    plotter.lineplot(df=df_multi, title="Sales", x_col="Month", y_cols="Sales2021")
 
 
 # Vi ska göra en klass som heter något smart, typ AvausPlotter eller något liknande
