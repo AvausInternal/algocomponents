@@ -9,12 +9,19 @@ from algocomponents.utils import LoggieDoggie, config_to_str, merge_configs
 
 
 class Task:
-    """A generic task which starts using its start()-method
+    """A generic task which starts using its start()-method.
 
     The task initiates a logger, finds its classpath (where it is located), and
     parses a config file. The log is written to a file in root called log.log,
     and the config file is read from a folder called config, located where this
     class resides. The config is an ini-file, parsed with pythons ConfigParser.
+
+    Args:
+        global_config_dir: Path from project root to global config.ini-file.
+        global_config_dir: Relative path to local config.ini-file.
+        config: A passed ConfigParser object, which overwrites any files read.
+        section: Which section of the ConfigParsers should be read from.
+
     """
 
     _default_section = "DEFAULT"
@@ -62,6 +69,19 @@ class Task:
         self.parent = None
 
     def start(self):
+        """Starts the task
+
+        This is the method to use when starting a task. This method will call
+        the three following methods in order:
+
+            startup()
+            run()
+            shutdown()
+
+        The above methods are the methods other tasks overwrite with their own
+        functionality. For a Task, all of these three methods are blank.
+
+        """
         run_start = datetime.now()
 
         if self.parent:
@@ -84,13 +104,23 @@ class Task:
         return self
 
     def startup(self):
+        """What the task needs to do before executing it's main functionality"""
         pass
 
     def run(self):
+        """The tasks main functionality"""
         pass
 
     def shutdown(self):
+        """What the task needs to do after executing it's main funcionality"""
         pass
 
     def add_to_config(self, key, value):
+        """Add values to config for the current section
+
+        Args:
+            key: Which key to add or update
+            value: What value to give the key
+
+        """
         self.config[self.section][key] = str(value)

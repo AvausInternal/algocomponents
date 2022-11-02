@@ -19,6 +19,12 @@ class SQLAdapter(ABC):
 
     The purpose of the sql adapter is to generalize how we set up connections to
     different services. There will be one adapter per service.
+
+    Args:
+        global_config_dir: Path from project root to global config.ini-file.
+        config: A passed ConfigParser object, which overwrites any files read.
+        section: Which section of the ConfigParsers should be read from.
+
     """
 
     default_max_rows_displayed = 20
@@ -65,27 +71,65 @@ class SQLAdapter(ABC):
 
     @abstractmethod
     def connect(self):
+        """Connects the adapter.
+
+        Non-abstract adapters extend this method using super().connect().
+
+        """
         self.logger.info(f"{self.class_name} establishing connection...")
 
     @abstractmethod
     def is_connected(self):
+        """Checks whether the adapter is connected.
+
+        Non-abstract adapters overwrite this method.
+
+        """
         pass
 
     @abstractmethod
     def disconnect(self):
+        """Checks whether the adapter is connected.
+
+        Non-abstract adapters extend this method using super().disconnect().
+
+        """
         self.logger.info(f"{self.class_name} disconnected.")
 
     @abstractmethod
     def table_exists(self, table: str) -> bool:
+        """Checks whether a table exists.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            table: The table to look for.
+
+        """
         pass
 
     @abstractmethod
     def get_table_columns(self, table: str) -> List[str]:
+        """Gets the columns of a table.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            table: The table to look at.
+
+        """
         pass
 
     def run_sql_file(
         self, path: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
+        """Parses an SQL file and runs it using the run_sql_string-method().
+
+        Args:
+            path: Path to the SQL file, from project root.
+            format_variables: A dictionary used to .format() the SQL string.
+
+        """
         with open(path) as f:
             sql_string = f.read()
             return self.run_sql_string(
@@ -96,6 +140,13 @@ class SQLAdapter(ABC):
     def run_sql_string(
         self, sql_string: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
+        """Formats an SQL string and runs it using _format_table_names().
+
+        Args:
+            sql_string: The SQL string to run. Can be several queries ;-separated.
+            format_variables: A dictionary used to .format() the SQL string.
+
+        """
         if not format_variables:
             format_variables = {}
 
@@ -122,13 +173,40 @@ class SQLAdapter(ABC):
 
     @abstractmethod
     def _run_formatted_query(self, query: str) -> pd.DataFrame:
+        """Runs an SQL query towards whichever service this adapter is connected.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            query: The query to run.
+
+        """
         pass
 
     def _format_query(
         self, query: str, format_variables: Dict[str, str], max_depth: int = 5
     ):
-        # Format until no change is detected to allow nested templating:
-        # {OUTPUT_TABLE} -> {TMP_DB}.output_table -> tmp.output_table
+        """Recursively .format():s a query given a dict until it does not change.
+
+        A max depth is used, as writing a more general approach to this method
+        involves solving self-referencing problems in the format variables. For
+        example, {"a": "{b}", "b": "{a}"} which will cause "{a}" to be formatted
+        into "{b}", which will format into "{a}", etc. There are solutions, but
+        the added code complexity was deemed to not be worth it.
+
+        Args:
+            query: The string to format.
+            format_variables: A dictionary used to .format() the SQL string.
+            max_depth: Max number of times .format() will be done.
+
+        Raises:
+            RecursionError: When .format():ing more than max_depth times and the
+                query is still changing
+
+        Examples:
+            {output_table} -> {tmp_db}.output_table -> tmp.output_table
+
+        """
         format_variables.update(self.adapter_format_variables)
         previous_query = ""
         depth = 0
@@ -145,6 +223,15 @@ class SQLAdapter(ABC):
         return query
 
     def _format_table_names(self, query: str, ignore_ctes: bool = True):
+        """Run _format_table_name on all tables in a query.
+
+        Uses the method find_table_names() to get all the tables in a query.
+
+        Args:
+            query: The string to format the table names in.
+            ignore_ctes: Whether CTE:s should be ignored, defaults to True.
+
+        """
         tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
         # There is a trick here to prevent replacing a table which exists inside
         # another table, for example:
@@ -179,9 +266,27 @@ class SQLAdapter(ABC):
 
     @abstractmethod
     def _format_table_name(self, table: str):
+        """Performs an adapter-specific formatting of the table.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            table: The table to format.
+
+        """
         pass
 
     def find_possible_cte_names(self, sql: str) -> List[str]:
+        """Uses regex to find possible CTE-names in a query.
+
+        This method will always find all CTE:s, but in some queries it mistake
+        things that are not CTE:s for CTE:s and return these as well. It will
+        never return a table name.
+
+        Args:
+            sql: The query to find CTE:s in.
+
+        """
         sql = self.remove_comments_from_sql(sql)
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
@@ -237,6 +342,13 @@ class SQLAdapter(ABC):
         return first_withs + trailing_withs
 
     def find_table_names(self, sql: str, ignore_ctes: bool = True):
+        """Uses regex to find all table names in a query.
+
+        Args:
+            sql: The query to find tabla names in.
+            ignore_ctes: Whether CTE:s should be ignored or not, defaults to True.
+
+        """
         sql = self.remove_comments_from_sql(sql)
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
@@ -276,9 +388,20 @@ class SQLAdapter(ABC):
         return tables
 
     def adapter_specific_filters(self, sql: str):
+        """Filters to apply to a query when finding tables or CTE:s inside it.
+
+        Adapters may overwrite this method if they have any filters to apply.
+
+        """
         return sql
 
     def remove_comments_from_sql(self, sql: str):
+        """Remove comments from a query.
+
+        Args:
+            sql: The query to remove comments from.
+
+        """
         lines = sql.split("\n")
         lines_without_comments = []
         for line in lines:
@@ -289,22 +412,74 @@ class SQLAdapter(ABC):
 
     @abstractmethod
     def latest_query_as_pandas(self):
+        """Get the result of the latest query as a pandas dataframe.
+
+        Non-abstract adapters overwrite this method.
+
+        This method is intended for use in method cascading.
+
+        """
         pass
 
     def table_as_pandas_df(self, table: str) -> pd.DataFrame:
+        """Return all rows in a table as a pandas dataframe.
+
+        Adapters may overwrite this method if they have more efficient methods
+        of converting a table into a pandas dataframe.
+
+        Args:
+            table: The table to return as a pandas dataframe.
+
+        """
         return self.run_sql_string(f"SELECT * FROM {table}")[0]
 
     @abstractmethod
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
+        """Creates a table and puts a pandas dataframe in it.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            df: The pandas dataframe to put in a table.
+            table: The table you want to create.
+            overwrite: Whether to overwrite an existing table, defaults to False.
+
+        """
         pass
 
     @abstractmethod
     def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
+        """Inserts a pandas dataframe into a table.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            df: The pandas dataframe to insert into a table.
+            table: The table where you want to insert it.
+
+        """
         pass
 
     @abstractmethod
     def latest_query_as_csv(self, path: str):
+        """Get the result of the latest query as a csv file.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            path: The path to save the csv file to.
+
+        """
         pass
 
     def table_is_empty(self, table: str) -> bool:
+        """Checks whether a table is empty or not.
+
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
+
+        Args:
+            table: The table to check if it is empty or not.
+
+        """
         return len(self.table_as_pandas_df(table)) == 0
