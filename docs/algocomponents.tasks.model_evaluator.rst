@@ -1,19 +1,19 @@
-algocomponents.tasks.model\_evaluator package
-=============================================
+algocomponents.tasks.model\_evaluator
+=====================================
 
 Submodules
 ----------
 
-algocomponents.tasks.model\_evaluator.model\_evaluator module
--------------------------------------------------------------
+algocomponents.tasks.model\_evaluator.model\_evaluator
+------------------------------------------------------
 
 .. automodule:: algocomponents.tasks.model_evaluator.model_evaluator
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+Contents
+--------
 
 .. automodule:: algocomponents.tasks.model_evaluator
    :members:

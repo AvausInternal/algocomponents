@@ -1,8 +1,8 @@
-algocomponents.utils package
-============================
+algocomponents.utils
+====================
 
-Module contents
----------------
+Contents
+--------
 
 .. automodule:: algocomponents.utils
    :members:

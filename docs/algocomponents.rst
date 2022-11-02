@@ -1,5 +1,5 @@
-algocomponents package
-======================
+algocomponents
+==============
 
 Subpackages
 -----------
@@ -11,8 +11,8 @@ Subpackages
    algocomponents.tasks
    algocomponents.utils
 
-Module contents
----------------
+Contents
+--------
 
 .. automodule:: algocomponents
    :members:
