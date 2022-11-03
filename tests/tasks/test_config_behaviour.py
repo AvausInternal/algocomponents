@@ -154,3 +154,17 @@ class TestConfigBehaviour(TestCase):
         assert task.config["DEFAULT"]["artform"] == "Cinema"
         assert task.config["DEFAULT"]["name"] == "Tron"
         assert task.config["DEFAULT"]["year"] == "1982"
+
+    def test_that_casing_does_not_count_for_keys(self):
+        task = EmptyTask()
+        task.add_to_config("CASING", "does_not_count")
+
+        assert task.config["DEFAULT"]["casing"] == "does_not_count"
+        assert task.config["DEFAULT"]["CASING"] == "does_not_count"
+        assert task.config["DEFAULT"]["Casing"] == "does_not_count"
+
+    def test_that_casing_counts_for_values(self):
+        task = EmptyTask()
+        task.add_to_config("casing", "counts")
+
+        assert not task.config["DEFAULT"]["casing"] == "COUNTS"
