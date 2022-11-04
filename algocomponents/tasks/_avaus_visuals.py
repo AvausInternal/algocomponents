@@ -45,11 +45,14 @@ class AvausVisuals:
         mono_color: bool = True, 
         x_col: str = None, 
         y_cols: List[str] = None,
+        # TODO: Pass "Year" and "Sales" in nice way and replace hardcoded
+        #       "Sales" and "Year" below
     ):
 
-        if x_col and  y_cols: 
-            if mono_color: 
-                sns.barplot(data=df, x=x_col, y=y_cols, color=self.color_list[0])
+        if x_col and y_cols:
+            if mono_color:
+                df_multi_transform = df_multi.melt(x_col, var_name="Year", value_name="Sales")
+                sns.barplot(data=df_multi_transform, x=x_col, y="Sales", hue="Year", color=self.color_list[0])
             else: 
                 sns.barplot(data=df, x=x_col, y=y_cols, palette=self.color_list)
         else: 
@@ -122,7 +125,7 @@ if __name__ == "__main__":
 
     df_multi = pd.DataFrame([["Jan", 12, 23],["Feb", 54, 23],["Mar", 34, 23], ["Apr", 46, 23], ["Maj", 96, 23], ["Jun", 43, 23], ["Jul", 43, 23], ["Aug", 57, 23], ["Sep", 43, 23], ["Okt", 75, 23], ["Nov", 32, 23], ["Dec", 64, 23]], columns=["Month", "Sales2021", "Sales2022"])
 
-    plotter.lineplot(df=df_multi, title="Sales", x_col="Month", y_cols="Sales2021")
+    plotter.barplot(df=df_multi, title="Sales", x_col="Month", y_cols=["Sales2021", "Sales2022"])
 
 
 # Vi ska göra en klass som heter något smart, typ AvausPlotter eller något liknande
