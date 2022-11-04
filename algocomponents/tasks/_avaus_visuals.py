@@ -1,3 +1,6 @@
+from itertools import groupby
+from multiprocessing import Value
+from optparse import Values
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -32,6 +35,7 @@ class AvausVisuals:
         "WOOD": "#DEC8C0",
     }
     color_list = ["#363760", "#135A61", "#FAEFED", "#515458"]
+    heatmap_color =  sns.light_palette('#363760', input='rgb', as_cmap=True)
 
     def __init__(self):
         sns.set_style("whitegrid", {'axes.grid' : False})
@@ -45,6 +49,7 @@ class AvausVisuals:
         mono_color: bool = True, 
         x_col: str = None, 
         y_cols: List[str] = None,
+        
     ):
 
         if x_col and  y_cols: 
@@ -58,7 +63,7 @@ class AvausVisuals:
             else: 
                 sns.barplot(data=df, palette=self.color_list)
 
-        self.format(df=df, title=title, file_name=file_name, output_folder=output_folder)
+        self.format(df=df, title=title, file_name=file_name, output_folder=output_folder )
        
 
     def lineplot(
@@ -75,8 +80,30 @@ class AvausVisuals:
 
         self.format(df=df, title=title, file_name=file_name, output_folder=output_folder)
 
-    def heatmap(self):
-        pass
+    def histplot (
+        self,
+       df: pd.DataFrame,
+       title: str = None, 
+       file_name: str = None,
+       output_folder: str = None,
+       x_col: str = None,
+       y_cols: List[str] = None,
+       hue : str = None ,
+
+        ):
+        sns.histplot (data=df, x=x_col, y=y_cols , palette=self.color_list)
+        self.format(df=df, title=title, file_name=file_name, output_folder=output_folder)
+
+    def heatmap(self,
+       df: pd.DataFrame,
+       annot : True ,
+       title: str = None, 
+       file_name: str = None,
+       output_folder: str = None,
+
+    ):
+       sns.heatmap (data=df  , cmap= self.heatmap_color )
+       self.format(df=df, title=title, file_name=file_name, output_folder=output_folder)  
 
     def pimp_my_plot(self):
         pass
@@ -100,15 +127,15 @@ class AvausVisuals:
             plt.grid(axis="y")
 
             #TODO Check if y-columns contain negative numbers
-            num = df.select_dtypes(include=np.number)
-            if (num["Sales2021"] > 0).any(): 
-                plt.ylim(bottom=0)
+            #num = df.select_dtypes(include=np.number)
+            #if (num["Sales2021"] > 0).any(): 
+                #plt.ylim(bottom=0)
 
             # Save plot if path and name is defined
             if output_folder and file_name:
                 print("save")
 
-            # Show the plot
+            # Show the plot  
             plt.show()
 
 
@@ -119,10 +146,18 @@ if __name__ == "__main__":
 
     # df_monthly_sales = pd.DataFrame([[132, 232, 254, 343, 154, 222, 254, 343, 254, 323, 432, 267]], columns=["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"])
     df_sales_col = pd.DataFrame([["Jan", 12],["Feb", 54],["Mar", 34], ["Apr", 46], ["Maj", 96], ["Jun", 43], ["Jul", 43], ["Aug", 57], ["Sep", 43], ["Okt", 75], ["Nov", 32], ["Dec", 64]], columns=["Month", "Sales"])
-
     df_multi = pd.DataFrame([["Jan", 12, 23],["Feb", 54, 23],["Mar", 34, 23], ["Apr", 46, 23], ["Maj", 96, 23], ["Jun", 43, 23], ["Jul", 43, 23], ["Aug", 57, 23], ["Sep", 43, 23], ["Okt", 75, 23], ["Nov", 32, 23], ["Dec", 64, 23]], columns=["Month", "Sales2021", "Sales2022"])
+    #df_multi = df_multi.any (axis = True )
+    #df_multi_transform =  df_multi.melt ("Month", var_name= "Year", value_name= "Sales" ) 
+    df_multi2 = pd.DataFrame (data = {'Month': [ "Jan", "Feb"], 'Sales2021': [3, 4], 'Sales2022': [5, 6]})
+    Index= ['aaa', 'bbb', 'ccc', 'ddd', 'eee']
+    Cols = ['A', 'B', 'C', 'D']
+    df_heatmap  = pd.DataFrame(abs(np.random.randn(5, 4)), index=Index, columns=Cols)  
 
-    plotter.lineplot(df=df_multi, title="Sales", x_col="Month", y_cols="Sales2021")
+    plotter.barplot(df=df_multi , title= "Sales", x_col= "Month", y_cols =["Sales2021", "Sales2022"] )
+    #print (df_multi)
+    #plotter.heatmap (df = df_heatmap, title = 'heatmap', annot = True )
+
 
 
 # Vi ska göra en klass som heter något smart, typ AvausPlotter eller något liknande
