@@ -40,7 +40,6 @@ class SQLAdapter(ABC):
         self.section = section
 
         self.config = ConfigParser()
-        self.config.optionxform = str  # Preserve casing in config file
 
         # First read global config
         self.config.read(os.path.join(global_config_dir, "config.ini"))

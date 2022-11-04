@@ -42,7 +42,7 @@ class UnionTablesTask(SQLTask):
             sql_string=sql_string,
             **kwargs,
         )
-        self.add_to_config("OUTPUT_TABLE", output_table)
+        self.add_to_config("output_table", output_table)
 
     @staticmethod
     def generate_union_query(
@@ -63,14 +63,14 @@ class UnionTablesTask(SQLTask):
                 query += f"{os.linesep}UNION ALL" f"{os.linesep}SELECT * FROM {table}"
 
         query = (
-            """CREATE TABLE {OUTPUT_TABLE} AS
+            """CREATE TABLE {output_table} AS
         """
             + query
         )
 
         if overwrite_output_table_if_exists:
             query = (
-                """DROP TABLE IF EXISTS {OUTPUT_TABLE};
+                """DROP TABLE IF EXISTS {output_table};
             """
                 + query
             )

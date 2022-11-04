@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS {OUTPUT_TABLE};
+DROP TABLE IF EXISTS {output_table};
 
           SELECT 1 AS user_id, 1 AS product_id
 UNION ALL SELECT 1 AS user_id, 2 AS product_id

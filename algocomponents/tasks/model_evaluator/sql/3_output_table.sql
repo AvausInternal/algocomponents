@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS {TMP_DB}.{OUTPUT_TABLE};
+DROP TABLE IF EXISTS {tmp_db}.{output_table};
 
-CREATE TABLE {TMP_DB}.{OUTPUT_TABLE} AS
+CREATE TABLE {tmp_db}.{output_table} AS
 SELECT
     threshold,
     TP,
@@ -11,6 +11,6 @@ SELECT
     ROUND(1.0*TP/NULLIF(TP+FP,0),2) AS precision,
     ROUND(1.0*TP/NULLIF(TP+FN,0),2) AS recall,
     ROUND(2.0*TP/NULLIF(2*TP+FP+FN,0),2) AS f1_score
-FROM {TMP_DB}.confusion_matrix
+FROM {tmp_db}.confusion_matrix
 ORDER BY threshold ASC
 ;
