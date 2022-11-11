@@ -1,6 +1,7 @@
 import os
 import re
 from abc import ABC
+from typing import List
 
 from algocomponents.tasks import GroupTask, SQLTask
 
@@ -39,7 +40,7 @@ class SQLPipeline(GroupTask, ABC):
 
         self.propagate_sql_adapter(self.sql_adapter)
 
-    def get_sql_tasks(self):
+    def get_sql_tasks(self) -> List[SQLTask]:
         """Creates SQLTasks from all the sql-files in the sql_folder.
 
         The files will be added to the task_list in their numbered order. When
@@ -53,6 +54,10 @@ class SQLPipeline(GroupTask, ABC):
 
         Raises:
             NameError if the files do not follow the sql_file_pattern.
+
+        Returns:
+            A list of SQLTasks where each SQLTask has the contents of a file in
+            the sql_folder as it's query.
 
         """
         if not os.path.exists(self.sql_folder):

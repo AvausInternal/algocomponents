@@ -39,7 +39,7 @@ class ABTools:
         power: float = _default_power,
         sig_level: float = _default_significance_level,
         tail: str = _default_tail,
-    ):
+    ) -> int:
         """Returns the minimum sample size to set up an A/B test for a binomial metric.
 
         We assume the same sample size for both test and control group.
@@ -53,6 +53,7 @@ class ABTools:
 
         Returns:
             min_N: minimum sample size required in each group.
+
         """
 
         if not 0 < power <= 1:
@@ -99,7 +100,7 @@ class ABTools:
         power: float = _default_power,
         sig_level: float = _default_significance_level,
         tail: str = _default_tail,
-    ):
+    ) -> int:
         """Returns the minimum sample size to set up an A/B test for a continuous metric.
 
         We assume the same sample size for both test and control group.
@@ -114,6 +115,7 @@ class ABTools:
 
         Returns:
             min_N: minimum sample size required in each group.
+
         """
 
         if not 0 < power <= 1:
@@ -150,7 +152,7 @@ class ABTools:
         self.logger.info(f"Minimum sample size of each group is: {min_n}")
         return min_n
 
-    def get_unequal_sample_size(self, N: int, N_adj: int):
+    def get_unequal_sample_size(self, N: int, N_adj: int) -> (int, int):
         """Returns the minimum sample size of the control group when the samples have unequal size.
 
         When the control and target groups are of different sizes, the total
@@ -164,6 +166,7 @@ class ABTools:
         Returns:
             control_sample_size: Minimum sample size of the control group.
             test_sample_size:  Minimum sample size of the test group.
+
         """
 
         if N >= N_adj:
@@ -180,12 +183,16 @@ class ABTools:
 
         return (control_sample_size, test_sample_size)
 
-    def get_control_group_ratio_constant(self, N: int, N_adj: int):
+    def get_control_group_ratio_constant(self, N: int, N_adj: int) -> float:
         """Returns the control group ratio constant k.
 
         Args:
             N: The minimal sample size (both test & control group).
             N_adj: The adjusted sample size. Needs to be bigger than N.
+
+        Returns:
+            The control group ratio constant.
+
         """
 
         k = -(2 * N - 4 * N_adj) / (2 * N) + (
@@ -201,7 +208,7 @@ class ABTools:
         p2: float,
         sig_level: float = _default_significance_level,
         tail: str = _default_tail,
-    ):
+    ) -> (float, float):
         """Tests the null hypothesis against the given alternative for significance:
 
         H0: p1=p2 vs HA: p1!=p2
@@ -219,6 +226,7 @@ class ABTools:
         Returns:
             z: z-score value.
             p: p-value.
+
         """
 
         if not 0 <= sig_level:
@@ -277,7 +285,7 @@ class ABTools:
         var2,
         sig_level=_default_significance_level,
         tail=_default_tail,
-    ):
+    ) -> (float, float):
         """Welch's t-test. Unequal variance. Unequal or equal sample size.
 
         We test the null hypothesis against the given alternative:
@@ -299,6 +307,7 @@ class ABTools:
         Returns:
             t: t-score value.
             p: p-value.
+
         """
 
         if not 0 <= sig_level:
