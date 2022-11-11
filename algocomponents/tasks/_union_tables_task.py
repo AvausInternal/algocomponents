@@ -54,6 +54,9 @@ class UnionTablesTask(SQLTask):
             tables: List of strings of tables to union.
             overwrite_output_table_if_exists: If existing tables are overwritten.
 
+        Returns:
+            The query that will union all tables.
+
         """
         query = ""
         for table in tables:

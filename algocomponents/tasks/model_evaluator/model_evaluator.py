@@ -33,11 +33,14 @@ class ModelEvaluator(SQLPipeline):
         self.add_to_config("target_label_column", target_label_column)
         self.add_to_config("threshold_string", self.create_thresholds(100))
 
-    def create_thresholds(self, n_thresholds):
+    def create_thresholds(self, n_thresholds) -> str:
         """Creates a query that produces a table with n_thresholds.
 
         Args:
             n_thresholds: How many thresholds, or how many rows, to produce.
+
+        Returns:
+            The query for creating n thresholds.
 
         """
         step = 100 / n_thresholds

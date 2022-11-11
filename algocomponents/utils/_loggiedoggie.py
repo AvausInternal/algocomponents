@@ -40,7 +40,7 @@ class LoggieDoggie:
         self,
         logger_name: str,
         config: Dict = None,
-    ):
+    ) -> logging.Logger:
         """Fetch a logger by logger name, or create one if one did not exist.
 
         Args:
@@ -48,6 +48,9 @@ class LoggieDoggie:
             config: A dictionary of settings, out of which these are read:
                 log_level: At what level to log.
                 log_to_file: Whether log should also output to file.
+
+        Returns:
+            An instantiated Logger-object.
 
         """
         if not config:
