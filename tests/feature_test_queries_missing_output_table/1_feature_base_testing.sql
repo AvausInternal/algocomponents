@@ -1,8 +1,0 @@
-DROP TABLE IF EXISTS {OUTPUT_TABLE};
-
--- CREATE TABLE {OUTPUT_TABLE} AS
-SELECT
-    user_id,
-    COUNT(*) AS n_products_bought
-FROM {INPUT_TABLE}
-;

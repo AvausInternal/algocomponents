@@ -4,11 +4,21 @@ from typing import Dict
 
 
 class LoggieDoggie:
-    """Your loyal LoggieDoggie that fetches loggers
+    """Your loyal LoggieDoggie that fetches loggers.
 
     LoggieDoggie will fetch a logger given a name. If that logger is fetched for
     the first time, the logger will be set up with handlers. If the logger has
     handlers, it will be evaluated as "having already been set up" and returned.
+
+    Properties:
+        log_file_name: Name of log file to create or append to.
+        logger_format: How log messages will be formatted.
+        date_format: The format to use for the date in the log format.
+        log_levels: Allowed log_levels.
+
+        _default_log_level: Log level to use when no log level is given.
+        _default_log_to_file: Whether to log to file or not when setting is not present in config.
+
     """
 
     log_file_name = "log.log"
@@ -31,6 +41,15 @@ class LoggieDoggie:
         logger_name: str,
         config: Dict = None,
     ):
+        """Fetch a logger by logger name, or create one if one did not exist.
+
+        Args:
+            logger_name: Name of the logger to either create or fetch.
+            config: A dictionary of settings, out of which these are read:
+                log_level: At what level to log.
+                log_to_file: Whether log should also output to file.
+
+        """
         if not config:
             config = {}
 

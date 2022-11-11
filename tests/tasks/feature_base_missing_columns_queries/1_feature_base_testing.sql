@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS {output_table};
+
+CREATE TABLE {output_table} AS
+          SELECT 1 AS user_id
+UNION ALL SELECT 1 AS user_id
+UNION ALL SELECT 1 AS user_id
+UNION ALL SELECT 2 AS user_id
+UNION ALL SELECT 2 AS user_id
+;

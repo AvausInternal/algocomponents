@@ -1,2 +1,2 @@
-DROP TABLE IF EXISTS {TMP_DB}.threshold_table;
-DROP TABLE IF EXISTS {TMP_DB}.confusion_matrix;
+DROP TABLE IF EXISTS {tmp_db}.threshold_table;
+DROP TABLE IF EXISTS {tmp_db}.confusion_matrix;

@@ -1,6 +1,6 @@
 from algocomponents.adapters._sql_adapter import SQLAdapter
 from algocomponents.adapters._local_sqlite_adapter import LocalSqliteAdapter
-from algocomponents.adapters._gcp_adapter import GCPAdapter
+from algocomponents.adapters._big_query_adapter import BigQueryAdapter
 from algocomponents.adapters._spark_adapter import SparkAdapter
 from algocomponents.adapters._databricks_adapter import DatabricksAdapter
 
@@ -9,14 +9,14 @@ from algocomponents.adapters._databricks_adapter import DatabricksAdapter
 All the classes are imported into this init-file, and from this file they can
 then be imported from the __all__-list, which defines which modules are
 available in this package. Note that the modules in the __all__-list must be in
-order of dependency: As GCPAdapter inherits from SQLAdapter, SQLAdapter must
+order of dependency: As BigQueryAdapter inherits from SQLAdapter, SQLAdapter must
 precede it.
 """
 
 __all__ = [
     "SQLAdapter",
     "LocalSqliteAdapter",
-    "GCPAdapter",
+    "BigQueryAdapter",
     "SparkAdapter",
     "DatabricksAdapter",
 ]

@@ -3,11 +3,15 @@ from configparser import ConfigParser
 from typing import List
 
 from algocomponents.adapters import SQLAdapter
+from algocomponents.adapters.custom_exceptions import (
+    TableMissingException,
+    DataMismatchException,
+)
 from algocomponents.tasks import SQLPipeline
 
 
 class FeatureBase(SQLPipeline, ABC):
-    """An SQLPipeline that produces a Feature base
+    """An SQLPipeline that produces a Feature base.
 
     A Feature Base is two things:
 
@@ -16,13 +20,15 @@ class FeatureBase(SQLPipeline, ABC):
            are valid, taking all business rules into account, for some sendout.
         2. Everything required to calculate all features in said scoring. If for
            example when the sendout will occur, or what channel it will occur in
-           is necessary for some features, these should be included
+           is necessary for some features, these should be included.
 
-    @property output_primary_keys: The primary keys of the output table.
-    @property output_columns_created: All columns in the output table except for
-                                      the primary keys.
+    Properties:
+        output_primary_keys: The primary keys of the output table.
+        output_columns_created: All columns in the output table except for the primary keys.
 
-    @param output_table: Where this SQLPipeline writes it's results
+    Args:
+        output_table: Where this SQLPipeline writes it's results.
+
     """
 
     @property
@@ -42,18 +48,26 @@ class FeatureBase(SQLPipeline, ABC):
     ):
         super().__init__(**kwargs)
         self.output_table = output_table.format(**self.config[self.section])
-        self.add_to_config("OUTPUT_TABLE", self.output_table)
+        self.add_to_config("output_table", self.output_table)
 
     def run(self):
+        """Runs like an SQLPipeline, and then verifies the output table.
+
+        It is verified that the output table exists, and that it contains the
+        columns specified in the FeatureBase.
+
+        """
         super().run()
         if not self.sql_adapter.table_exists(self.output_table):
-            raise Exception(f"Output table has not been created: {self.output_table}")
+            raise TableMissingException(
+                f"Output table has not been created: {self.output_table}"
+            )
 
         all_columns = self.output_primary_keys + self.output_columns_created
         output_columns = self.sql_adapter.get_table_columns(self.output_table)
 
         if not sorted(all_columns) == sorted(output_columns):
-            raise Exception(
+            raise DataMismatchException(
                 f"Output table does not contain columns specified.\n"
                 f"Output table: {self.output_table}\n"
                 f"Has columns: {all_columns}\n"

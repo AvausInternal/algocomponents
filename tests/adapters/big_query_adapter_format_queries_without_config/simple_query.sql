@@ -1,0 +1,3 @@
+CREATE TABLE tmp
+;
+CREATE TABLE `tmp`

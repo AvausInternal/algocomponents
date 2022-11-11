@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS {TMP_DB}.threshold_table;
+DROP TABLE IF EXISTS {tmp_db}.threshold_table;
 
-CREATE TABLE {TMP_DB}.threshold_table AS
-{THRESHOLD_STRING}
+CREATE TABLE {tmp_db}.threshold_table AS
+{threshold_string}
 ;
