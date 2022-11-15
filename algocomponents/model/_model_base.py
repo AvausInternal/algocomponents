@@ -65,15 +65,42 @@ class ModelBase(ABC):
     
 
     def train(self):
+
+        """
+          module bule print:
+            -> get training data and convert to dataframe
+            -> train and test split
+            -> check if model name qualifies the default standard
+            -> train model
+            -> test model
+            -> dump model as pickle file in cloud storage
+            
+        """
         pass
 
   
-    def load_model(self):
-         pass
+    def load_model(self,model_name):
+
+        """
+           module bule print:
+                -> check if the model_name exists
+                -> load model in required env
+        """
+
+        pass
         
     
     @abstractmethod
-    def predict(self, data):
+    def predict(self, data,model_name):
+        """
+            module blue print:
+                    ->use load_model to get the model trained
+                    -> validate schema
+                    -> run prediction
+                    -> convert prediction to a data frame
+                    -> export prediction to cloud env
+
+        """
         self.input_schema.validate(data)   #make sure prediction data schema match the schema of training data
 
    
