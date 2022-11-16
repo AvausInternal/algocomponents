@@ -1,14 +1,11 @@
-import os
-import sys
 import uuid
-from configparser import ConfigParser
 from datetime import datetime
-from types import ModuleType
 
-from algocomponents.utils import LoggieDoggie, config_to_str, merge_configs
+from algocomponents.config_reader import ConfigReader
+from algocomponents.utils import config_to_str
 
 
-class Task:
+class Task(ConfigReader):
     """A generic task which starts using its start()-method.
 
     The task initiates a logger, finds its classpath (where it is located), and
@@ -24,47 +21,11 @@ class Task:
 
     """
 
-    _default_section = "DEFAULT"
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-    def __init__(
-        self,
-        global_config_dir: str = "config",
-        local_config_dir: str = "config",
-        config: ConfigParser = None,
-        section: str = None,
-    ):
-        self.task_name = type(self).__name__
-
-        self.section = section or self._default_section
-
-        module = sys.modules[self.__class__.__module__]
-        if isinstance(module, ModuleType):
-            self.classpath = os.path.dirname(module.__file__)
-        else:
-            self.classpath = ""
-
-        self.config = ConfigParser()
-
-        # First read global config
-        self.config.read(os.path.join(global_config_dir, "config.ini"))
-
-        # Then append or overwrite from the local config file
-        self.config.read(os.path.join(self.classpath, local_config_dir, "config.ini"))
-
-        # Then append or overwrite from a passed config
-        if config is not None:
-            self.config = merge_configs(
-                merge_this=config, into_this=self.config, overwrite=True
-            )
-
-        # Set a logger for the task
-        self.logger = LoggieDoggie().fetch_logger(
-            logger_name=self.task_name,
-            config=dict(self.config[self.section]),
-        )
-
+        self.task_name = self.class_name
         self.run_id = None
-
         self.parent = None
 
     def start(self):
@@ -113,13 +74,3 @@ class Task:
     def shutdown(self):
         """What the task needs to do after executing it's main funcionality"""
         pass
-
-    def add_to_config(self, key, value):
-        """Add values to config for the current section
-
-        Args:
-            key: Which key to add or update
-            value: What value to give the key
-
-        """
-        self.config[self.section][key] = str(value)

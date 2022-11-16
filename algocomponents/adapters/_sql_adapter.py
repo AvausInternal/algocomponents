@@ -1,55 +1,25 @@
-import os
 import re
 import uuid
-from abc import ABC, abstractmethod
-from configparser import ConfigParser
+from abc import abstractmethod
 from typing import Dict, List
 
 import pandas as pd
 
-from algocomponents.utils import LoggieDoggie, merge_configs
+from algocomponents.config_reader import ConfigReader
 
 
-class SQLAdapter(ABC):
+class SQLAdapter(ConfigReader):
     """An abstract adapter used for connecting to a service and running queries.
-
-    SQLAdapter will by default read the global config file. If a config is
-    given, the global config file will still be parsed but the supplied config
-    will take precedence over the global config file.
 
     The purpose of the sql adapter is to generalize how we set up connections to
     different services. There will be one adapter per service.
-
-    Args:
-        global_config_dir: Path from project root to global config.ini-file.
-        config: A passed ConfigParser object, which overwrites any files read.
-        section: Which section of the ConfigParsers should be read from.
 
     """
 
     default_max_rows_displayed = 20
 
-    def __init__(
-        self,
-        global_config_dir: str = "config",
-        config: ConfigParser = None,
-        section: str = "DEFAULT",
-    ):
-        self.class_name = type(self).__name__
-
-        self.section = section
-
-        self.config = ConfigParser()
-
-        # First read global config
-        self.config.read(os.path.join(global_config_dir, "config.ini"))
-
-        # Then append or overwrite from config inheritance
-        if config is not None:
-            self.config = merge_configs(
-                merge_this=config, into_this=self.config, overwrite=True
-            )
-
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         if self.class_name in self.config:
             self.adapter_format_variables = self.config[self.class_name]
         else:
@@ -61,12 +31,6 @@ class SQLAdapter(ABC):
             )
         else:
             self.max_rows_displayed = self.default_max_rows_displayed
-
-        # Set a logger for the task
-        self.logger = LoggieDoggie().fetch_logger(
-            logger_name=self.class_name,
-            config=dict(self.config[self.section]),
-        )
 
     @abstractmethod
     def connect(self):
