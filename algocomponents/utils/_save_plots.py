@@ -14,7 +14,6 @@ def save_boxplot(
     interactive_plots: bool = True,
     open_interactive_plot: bool = True,
     logger: Logger = None,
-
 ):
     """Function that saves boxplot of columns in given dataset.
 
@@ -41,7 +40,9 @@ def save_boxplot(
     logger.info(f"Boxplot saved under '{save_file_path}.png' file")
 
     if interactive_plots:
-        plotly.offline.plot(fig, filename=f"{save_file_path}.html", auto_open=open_interactive_plot)
+        plotly.offline.plot(
+            fig, filename=f"{save_file_path}.html", auto_open=open_interactive_plot
+        )
         logger.info(f"Interactive boxplot saved under '{save_file_path}.html' file.")
 
 
@@ -81,7 +82,11 @@ def save_histogram(
             f"Histogram of a feature: '{col}' saved under '{file_name}-{col_name}.png' file."
         )
         if interactive_plots:
-            plotly.offline.plot(fig, filename=f"{save_file_path}-{col_name}.html", auto_open=open_interactive_plot)
+            plotly.offline.plot(
+                fig,
+                filename=f"{save_file_path}-{col_name}.html",
+                auto_open=open_interactive_plot,
+            )
             logger.info(
                 f"Interactive histogram of a feature: '{col}' saved under '{file_name}-{col_name}.html' file."
             )
@@ -119,7 +124,9 @@ def save_corr_matrix(
     logger.info(f"Correlation matrix saved under '{file_name}.png' file.")
 
     if interactive_plots:
-        plotly.offline.plot(fig, filename=f"{save_file_path}.html", auto_open=open_interactive_plot)
+        plotly.offline.plot(
+            fig, filename=f"{save_file_path}.html", auto_open=open_interactive_plot
+        )
         logger.info(
             f"Interactive correlation matrix saved under '{file_name}.html' file."
         )
