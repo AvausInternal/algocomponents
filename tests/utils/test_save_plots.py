@@ -1,6 +1,7 @@
-from unittest import TestCase
-import pandas as pd
 import os.path
+from unittest import TestCase
+
+import pandas as pd
 
 from algocomponents.utils import save_boxplot, save_histogram, save_corr_matrix
 
@@ -24,7 +25,7 @@ class TestSavePlots(TestCase):
 
     def test_saving_boxplot_interactive_name_changed(self):
         save_boxplot(
-            df=self.df_numeric, output_folder=self.folder, file_name="boxplot2"
+            df=self.df_numeric, output_folder=self.folder, file_name="boxplot2", open_interactive_plot=False,
         )
 
         self.assertTrue(os.path.exists(os.path.join(self.folder, "boxplot2.png")))
@@ -40,7 +41,7 @@ class TestSavePlots(TestCase):
 
     def test_saving_corr_matrix_interactive_name_changed(self):
         save_corr_matrix(
-            df=self.df_numeric, output_folder=self.folder, file_name="corr_matrix2"
+            df=self.df_numeric, output_folder=self.folder, file_name="corr_matrix2", open_interactive_plot=False,
         )
 
         self.assertTrue(os.path.exists(os.path.join(self.folder, "corr_matrix2.png")))
@@ -61,7 +62,7 @@ class TestSavePlots(TestCase):
 
     def test_saving_histograms_interactive_name_changed(self):
         save_histogram(
-            df=self.input_df, output_folder=self.folder, file_name="histogram2"
+            df=self.input_df, output_folder=self.folder, file_name="histogram2", open_interactive_plot=False,
         )
 
         for col in self.input_df:
