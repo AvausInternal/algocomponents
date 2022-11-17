@@ -42,6 +42,9 @@ class AvausVisuals:
         secondary_colors["CLOUDBERRY"],
         primary_colors["PINE"]
     ]
+    violin1=  [
+        primary_colors["BLUEBERRY"]
+    ]
     barplot_color = sns.set_palette(sns.color_palette( ["#363760", "#135A61"]))
     heatmap_color = sns.light_palette("#363760", input="rgb", as_cmap=True)
     color = ["#135A61"]
@@ -170,7 +173,7 @@ class AvausVisuals:
         legend: bool = False,
     ):
         sns.violinplot(
-            data=df, x=x_col, y=y_cols, hue=hue, palette=self.color_list, split=True
+            data=df, x=x_col, y=y_cols, hue=hue, palette=self.violin1, split=True
         )
         self.format(
             df=df,
