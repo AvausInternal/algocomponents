@@ -25,7 +25,10 @@ class TestSavePlots(TestCase):
 
     def test_saving_boxplot_interactive_name_changed(self):
         save_boxplot(
-            df=self.df_numeric, output_folder=self.folder, file_name="boxplot2", open_interactive_plot=False,
+            df=self.df_numeric,
+            output_folder=self.folder,
+            file_name="boxplot2",
+            open_interactive_plot=False,
         )
 
         self.assertTrue(os.path.exists(os.path.join(self.folder, "boxplot2.png")))
@@ -41,7 +44,10 @@ class TestSavePlots(TestCase):
 
     def test_saving_corr_matrix_interactive_name_changed(self):
         save_corr_matrix(
-            df=self.df_numeric, output_folder=self.folder, file_name="corr_matrix2", open_interactive_plot=False,
+            df=self.df_numeric,
+            output_folder=self.folder,
+            file_name="corr_matrix2",
+            open_interactive_plot=False,
         )
 
         self.assertTrue(os.path.exists(os.path.join(self.folder, "corr_matrix2.png")))
@@ -62,7 +68,10 @@ class TestSavePlots(TestCase):
 
     def test_saving_histograms_interactive_name_changed(self):
         save_histogram(
-            df=self.input_df, output_folder=self.folder, file_name="histogram2", open_interactive_plot=False,
+            df=self.input_df,
+            output_folder=self.folder,
+            file_name="histogram2",
+            open_interactive_plot=False,
         )
 
         for col in self.input_df:
