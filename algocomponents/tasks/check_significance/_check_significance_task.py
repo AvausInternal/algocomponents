@@ -4,11 +4,11 @@ from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     ColumnMissingException,
 )
-from algocomponents.tasks import AdapterTask
+from algocomponents.tasks import Task
 from algocomponents.utils._ab_tools import ABTools
 
 
-class CheckSignificanceTask(AdapterTask):
+class CheckSignificanceTask(Task):
     """Task that checks whether a test results were statistically significant
 
     This task runs Welch's t-test for every kpi column in the input table.

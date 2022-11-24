@@ -1,7 +1,7 @@
-from algocomponents.tasks import AdapterTask
+from algocomponents.tasks import Task
 
 
-class SQLTask(AdapterTask):
+class SQLTask(Task):
     """A task used to run SQL queries with an adapter.
 
     The sql_file_path is the path to the file from the project root.

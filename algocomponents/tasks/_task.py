@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 
+from algocomponents.adapters import SQLAdapter
 from algocomponents.config_reader import ConfigReader
 from algocomponents.utils import config_to_str
 
@@ -8,25 +9,27 @@ from algocomponents.utils import config_to_str
 class Task(ConfigReader):
     """A generic task which starts using its start()-method.
 
-    The task initiates a logger, finds its classpath (where it is located), and
-    parses a config file. The log is written to a file in root called log.log,
-    and the config file is read from a folder called config, located where this
-    class resides. The config is an ini-file, parsed with pythons ConfigParser.
+    A task has access to an adapter if one is given, and starts with it's
+    start()-method. This class is intended to use either when basic operations
+    straight towards an adapter are needed as tasks, or to be inherited by more
+    fleshed out classes.
 
     Args:
-        global_config_dir: Path from project root to global config.ini-file.
-        global_config_dir: Relative path to local config.ini-file.
-        config: A passed ConfigParser object, which overwrites any files read.
-        section: Which section of the ConfigParsers should be read from.
+        sql_adapter: The adapter the task will use.
 
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, sql_adapter: SQLAdapter = None, **kwargs):
         super().__init__(**kwargs)
 
         self.task_name = self.class_name
         self.run_id = None
         self.parent = None
+
+        if sql_adapter:
+            self.sql_adapter = sql_adapter
+        if not hasattr(self, "sql_adapter"):
+            self.sql_adapter = None
 
     def start(self):
         """Starts the task
@@ -72,5 +75,43 @@ class Task(ConfigReader):
         pass
 
     def shutdown(self):
-        """What the task needs to do after executing it's main funcionality"""
-        pass
+        """Disconnects the sql_adapter, if no other task will use it.
+
+        We will try to disconnect if we have an adapter and it is connected.
+
+        We disconnect if either of these are true:
+            - There is no parent.
+            - The parent does not have an sql_adapter.
+            - The parent does not have the same sql_adapter.
+
+        In other words: Disconnect unless we share the adapter with our parent.
+
+        The most common scenario is that one sql_adapter is used throughout a
+        GroupTask: It passes it's sql_adapter to all it's children. Since that
+        GroupTasks shutdown() is the last method to run, and it is the only task
+        that does not have a parent, the last thing that happens is that the
+        sql_adapter is disconnected.
+
+        However, more complicated setups are supported, where as parts of a
+        task-tree have their own adapters.
+
+        """
+        if self.sql_adapter is not None and self.sql_adapter.is_connected():
+            if not self.parent:
+                self.sql_adapter.disconnect()
+            elif not hasattr(self.parent, "sql_adapter"):
+                self.sql_adapter.disconnect()
+            elif self.sql_adapter != self.parent.sql_adapter:
+                self.sql_adapter.disconnect()
+
+    def set_sql_adapter(self, sql_adapter):
+        """Set the SQLAdapter for this Task
+
+        This is implemented as a method in order for GroupTasks to recursively
+        set_sql_adapter in a task-tree.
+
+        Args:
+            sql_adapter: The SQLAdapter to set.
+
+        """
+        self.sql_adapter = sql_adapter
