@@ -1,10 +1,10 @@
 from typing import List
 
-from algocomponents.tasks import Task, AdapterTask
+from algocomponents.tasks import Task
 from algocomponents.utils import merge_configs
 
 
-class GroupTask(AdapterTask):
+class GroupTask(Task):
     """GroupTask iterates over a list of tasks and starts them.
 
     GroupTask also keeps its task list up to date with any changes: If
