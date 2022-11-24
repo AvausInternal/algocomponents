@@ -1,7 +1,7 @@
 from typing import List
 
 from algocomponents.tasks import Task, AdapterTask
-from algocomponents.utils._tools import merge_configs
+from algocomponents.utils import merge_configs
 
 
 class GroupTask(AdapterTask):
