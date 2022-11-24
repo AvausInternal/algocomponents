@@ -5,7 +5,7 @@ from algocomponents.adapters.custom_exceptions import (
     ColumnMissingException,
 )
 from algocomponents.tasks import Task
-from algocomponents.utils._ab_tools import ABTools
+from algocomponents.utils import ABTools
 
 
 class CheckSignificanceTask(Task):
@@ -25,12 +25,14 @@ class CheckSignificanceTask(Task):
 
     """
 
+    _default_group_names = ["test", "control"]
+
     def __init__(
         self,
         input_table: str,
         group_column: str,
         kpi_columns: list,
-        group_names: list = ["test", "control"],
+        group_names: list = None,
         sig_level: float = ABTools._default_significance_level,
         tail: str = ABTools._default_tail,
         **kwargs,
@@ -42,7 +44,7 @@ class CheckSignificanceTask(Task):
         self.kpi_columns = kpi_columns
         self.sig_level = sig_level
         self.tail = tail
-        self.group_names = group_names
+        self.group_names = group_names or self._default_group_names
 
         self.ab_tools = ABTools()
         self.sql_folder = os.path.join(self.classpath, "sql")
