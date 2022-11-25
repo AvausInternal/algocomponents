@@ -91,9 +91,8 @@ class GroupTask(Task):
 
         """
         for task in self.task_list:
-            if hasattr(task, "sql_adapter"):
-                if task.sql_adapter is None:
-                    task.set_sql_adapter(sql_adapter)
+            if task.sql_adapter is None:
+                task.set_sql_adapter(sql_adapter)
 
     def propagate_config(self):
         """Propagates the config to all tasks in this GroupTasks task_list.
