@@ -1,10 +1,10 @@
 from typing import List
 
-from algocomponents.tasks import Task, AdapterTask
+from algocomponents.tasks import Task
 from algocomponents.utils import merge_configs
 
 
-class GroupTask(AdapterTask):
+class GroupTask(Task):
     """GroupTask iterates over a list of tasks and starts them.
 
     GroupTask also keeps its task list up to date with any changes: If
@@ -91,9 +91,8 @@ class GroupTask(AdapterTask):
 
         """
         for task in self.task_list:
-            if hasattr(task, "sql_adapter"):
-                if task.sql_adapter is None:
-                    task.set_sql_adapter(sql_adapter)
+            if task.sql_adapter is None:
+                task.set_sql_adapter(sql_adapter)
 
     def propagate_config(self):
         """Propagates the config to all tasks in this GroupTasks task_list.

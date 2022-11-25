@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 
 
-from algocomponents.tasks import AdapterTask
+from algocomponents.tasks import Task
 from algocomponents.utils import save_boxplot, save_histogram, save_corr_matrix
 
 
-class VisualizeDataset(AdapterTask):
+class VisualizeDataset(Task):
     """A task that visualizes features given a dataset table.
 
     The task takes one of the following dataset sources as input:
