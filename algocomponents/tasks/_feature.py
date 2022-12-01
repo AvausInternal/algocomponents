@@ -68,7 +68,7 @@ class Feature(FeatureBase, ABC):
 
         input_table_columns = self.sql_adapter.get_table_columns(self.input_table)
 
-        if not all(elem in self.input_columns for elem in input_table_columns):
+        if not set(input_table_columns).issuperset(self.input_columns):
             raise DataMismatchException(
                 f"Input table does not contain all columns specified.\n"
                 f"Input table: {self.input_table}\n"
