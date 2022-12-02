@@ -5,4 +5,5 @@ SELECT
     user_id,
     COUNT(*) AS n_products  -- Not n_products_bought
 FROM {input_table}
+GROUP BY user_id
 ;
