@@ -83,9 +83,9 @@ class LocalSqliteAdapter(SQLAdapter):
 
         """
         formatted_table = self._format_table_name(table)
-        tables = self.cursor.execute(
+        tables = self.run_sql_string(
             f"SELECT name FROM sqlite_master WHERE type='table' AND name='{formatted_table}'"
-        ).fetchall()
+        )[0]
         return len(tables) > 0
 
     def get_table_columns(self, table: str) -> List[str]:
