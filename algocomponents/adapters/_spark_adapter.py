@@ -68,8 +68,9 @@ class SparkAdapter(SQLAdapter):
             table: The table to look for.
 
         """
+        table = self._format_table_name(table=table)
         database, table = table.split(".")
-        sql_tables = self.spark.sql(f"SHOW TABLES in `{database}`").filter(
+        sql_tables = self.run_sql_string(f"SHOW TABLES in `{database}`")[0].filter(
             f"tableName = '{table}'"
         )
         return sql_tables.count() > 0
