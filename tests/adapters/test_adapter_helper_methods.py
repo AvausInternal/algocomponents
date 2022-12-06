@@ -46,3 +46,47 @@ class TestAdapterHelperMethods(TestCase):
         self.sql_adapter.connect()
         assert self.sql_adapter.get_table_columns(table) == columns
         self.sql_adapter.connect()
+
+    def test_table_contains_columns(self):
+        table = "{tmp_db}.columns_table_test"
+        columns = ["a", "b"]
+        SQLTask(
+            sql_string=f"""
+                DROP TABLE IF EXISTS {table};
+
+                CREATE TABLE {table} AS
+                SELECT
+                    1 AS {columns[0]},
+                    2 AS {columns[1]}
+            """,
+            sql_adapter=self.sql_adapter,
+            global_config_dir=os.path.join("tests", "adapters", "config"),
+        ).start()
+
+        self.sql_adapter.connect()
+        assert (
+            self.sql_adapter.table_contains_columns(
+                table=table,
+                # Only the first value in columns
+                columns=columns[:1],
+            )
+            is True
+        )
+        assert (
+            self.sql_adapter.table_contains_columns(
+                table=table,
+                # Only the first value in columns
+                columns=columns[:1],
+                identical=True,
+            )
+            is False
+        )
+        assert (
+            self.sql_adapter.table_contains_columns(
+                table=table,
+                columns=columns,
+                identical=True,
+            )
+            is True
+        )
+        self.sql_adapter.disconnect()
