@@ -95,12 +95,8 @@ class LocalSqliteAdapter(SQLAdapter):
             table: The table to look at.
 
         """
-        formatted_table = self._format_table_name(table)
-        description = self.cursor.execute(
-            f"SELECT * FROM {formatted_table}"
-        ).description
-        columns_names = [column[0] for column in description]
-        return columns_names
+        df = self.table_as_pandas_df(table)
+        return list(df.columns)
 
     def _run_formatted_query(self, query: str):
         """Runs a query towards SQLite.
