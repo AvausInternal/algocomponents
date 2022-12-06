@@ -82,10 +82,13 @@ class LocalSqliteAdapter(SQLAdapter):
             table: The table to look for.
 
         """
+        # This is technically not required, run_sql_string formats table names.
         formatted_table = self._format_table_name(table)
-        tables = self.cursor.execute(
+        # However, to skip it, the regex to find table names has to be updated
+        # to find them in the below query, which is considered too fringe.
+        tables = self.run_sql_string(
             f"SELECT name FROM sqlite_master WHERE type='table' AND name='{formatted_table}'"
-        ).fetchall()
+        )[0]
         return len(tables) > 0
 
     def get_table_columns(self, table: str) -> List[str]:
@@ -95,12 +98,8 @@ class LocalSqliteAdapter(SQLAdapter):
             table: The table to look at.
 
         """
-        formatted_table = self._format_table_name(table)
-        description = self.cursor.execute(
-            f"SELECT * FROM {formatted_table}"
-        ).description
-        columns_names = [column[0] for column in description]
-        return columns_names
+        df = self.table_as_pandas_df(table)
+        return list(df.columns)
 
     def _run_formatted_query(self, query: str):
         """Runs a query towards SQLite.
