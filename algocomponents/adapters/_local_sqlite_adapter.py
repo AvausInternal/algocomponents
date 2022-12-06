@@ -82,7 +82,10 @@ class LocalSqliteAdapter(SQLAdapter):
             table: The table to look for.
 
         """
+        # This is technically not required, run_sql_string formats table names.
         formatted_table = self._format_table_name(table)
+        # However, to skip it, the regex to find table names has to be updated
+        # to find them in the below query, which is considered too fringe.
         tables = self.run_sql_string(
             f"SELECT name FROM sqlite_master WHERE type='table' AND name='{formatted_table}'"
         )[0]
