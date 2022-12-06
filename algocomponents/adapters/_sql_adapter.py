@@ -42,10 +42,13 @@ class SQLAdapter(ConfigReader):
         self.logger.info(f"{self.class_name} establishing connection...")
 
     @abstractmethod
-    def is_connected(self):
+    def is_connected(self) -> bool:
         """Checks whether the adapter is connected.
 
         Non-abstract adapters overwrite this method.
+
+        Returns:
+            True if the adapter is connected, False otherwise.
 
         """
         pass
@@ -80,6 +83,9 @@ class SQLAdapter(ConfigReader):
         Args:
             table: The table to look at.
 
+        Returns:
+            A list with the names of the columns.
+
         """
         pass
 
@@ -91,6 +97,10 @@ class SQLAdapter(ConfigReader):
         Args:
             path: Path to the SQL file, from project root.
             format_variables: A dictionary used to .format() the SQL string.
+
+        Return:
+            A list of pandas dataframes, where each pandas dataframe is the
+            result of each semi colon separated query in the sql file.
 
         """
         with open(path) as f:
@@ -108,6 +118,10 @@ class SQLAdapter(ConfigReader):
         Args:
             sql_string: The SQL string to run. Can be several queries ;-separated.
             format_variables: A dictionary used to .format() the SQL string.
+
+        Return:
+            A list of pandas dataframes, where each pandas dataframe is the
+            result of each semi colon separated query in the sql file.
 
         """
         if not format_variables:
@@ -143,12 +157,15 @@ class SQLAdapter(ConfigReader):
         Args:
             query: The query to run.
 
+        Returns:
+            The result of the query as a pandas dataframe.
+
         """
         pass
 
     def _format_query(
         self, query: str, format_variables: Dict[str, str], max_depth: int = 5
-    ):
+    ) -> str:
         """Recursively .format():s a query given a dict until it does not change.
 
         A max depth is used, as writing a more general approach to this method
@@ -161,6 +178,9 @@ class SQLAdapter(ConfigReader):
             query: The string to format.
             format_variables: A dictionary used to .format() the SQL string.
             max_depth: Max number of times .format() will be done.
+
+        Returns:
+            The provided query, formatted.
 
         Raises:
             RecursionError: When .format():ing more than max_depth times and the
@@ -185,7 +205,7 @@ class SQLAdapter(ConfigReader):
                 )
         return query
 
-    def _format_table_names(self, query: str, ignore_ctes: bool = True):
+    def _format_table_names(self, query: str, ignore_ctes: bool = True) -> str:
         """Run _format_table_name on all tables in a query.
 
         Uses the method find_table_names() to get all the tables in a query.
@@ -193,6 +213,9 @@ class SQLAdapter(ConfigReader):
         Args:
             query: The string to format the table names in.
             ignore_ctes: Whether CTE:s should be ignored, defaults to True.
+
+        Returns:
+            The provided query, with table names formatted.
 
         """
         tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
@@ -228,13 +251,16 @@ class SQLAdapter(ConfigReader):
         return query
 
     @abstractmethod
-    def _format_table_name(self, table: str):
+    def _format_table_name(self, table: str) -> str:
         """Performs an adapter-specific formatting of the table.
 
         Non-abstract adapters overwrite this method.
 
         Args:
             table: The table to format.
+
+        Returns:
+            The table name, formatted to be adapter specific.
 
         """
         pass
@@ -248,6 +274,9 @@ class SQLAdapter(ConfigReader):
 
         Args:
             sql: The query to find CTE:s in.
+
+        Returns:
+            A list of all possible cte names.
 
         """
         sql = self.remove_comments_from_sql(sql)
@@ -304,12 +333,15 @@ class SQLAdapter(ConfigReader):
 
         return first_withs + trailing_withs
 
-    def find_table_names(self, sql: str, ignore_ctes: bool = True):
+    def find_table_names(self, sql: str, ignore_ctes: bool = True) -> List[str]:
         """Uses regex to find all table names in a query.
 
         Args:
             sql: The query to find tabla names in.
             ignore_ctes: Whether CTE:s should be ignored or not, defaults to True.
+
+        Returns:
+            A list of all table names in the sql.
 
         """
         sql = self.remove_comments_from_sql(sql)
@@ -350,19 +382,28 @@ class SQLAdapter(ConfigReader):
 
         return tables
 
-    def adapter_specific_filters(self, sql: str):
+    def adapter_specific_filters(self, sql: str) -> str:
         """Filters to apply to a query when finding tables or CTE:s inside it.
 
         Adapters may overwrite this method if they have any filters to apply.
 
+        Args:
+            sql: The query an adapter may remove parts of.
+
+        Returns:
+            The sql ones said parts are removed.
+
         """
         return sql
 
-    def remove_comments_from_sql(self, sql: str):
+    def remove_comments_from_sql(self, sql: str) -> str:
         """Remove comments from a query.
 
         Args:
             sql: The query to remove comments from.
+
+        Returns:
+            The sql without comments
 
         """
         lines = sql.split("\n")
@@ -374,12 +415,15 @@ class SQLAdapter(ConfigReader):
         return sql
 
     @abstractmethod
-    def latest_query_as_pandas(self):
+    def latest_query_as_pandas(self) -> pd.DataFrame:
         """Get the result of the latest query as a pandas dataframe.
 
         Non-abstract adapters overwrite this method.
 
         This method is intended for use in method cascading.
+
+        Returns:
+            The result of the latest query as a pandas dataframe.
 
         """
         pass
@@ -392,6 +436,9 @@ class SQLAdapter(ConfigReader):
 
         Args:
             table: The table to return as a pandas dataframe.
+
+        Returns:
+            The table as a pandas dataframe.
 
         """
         return self.run_sql_string(f"SELECT * FROM {table}")[0]
@@ -443,6 +490,9 @@ class SQLAdapter(ConfigReader):
 
         Args:
             table: The table to check if it is empty or not.
+
+        Returns:
+            True if the table exists, False otherwise.
 
         """
         return len(self.table_as_pandas_df(table)) == 0
