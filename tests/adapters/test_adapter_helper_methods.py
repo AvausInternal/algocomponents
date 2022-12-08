@@ -32,7 +32,7 @@ class TestAdapterHelperMethods(TestCase):
 
         self.sql_adapter.connect()
         assert self.sql_adapter.table_exists(table)
-        self.sql_adapter.connect()
+        self.sql_adapter.disconnect()
 
     def test_getting_columns_from_table_with_templated_variables(self):
         table = "{tmp_db}.columns_table_test"
@@ -40,7 +40,7 @@ class TestAdapterHelperMethods(TestCase):
 
         self.sql_adapter.connect()
         assert self.sql_adapter.get_table_columns(table) == self.columns
-        self.sql_adapter.connect()
+        self.sql_adapter.disconnect()
 
     def test_table_contains_columns(self):
         table = "{tmp_db}.columns_table_test"
