@@ -89,6 +89,32 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    def table_contains_columns(
+        self, table: str, columns: List[str], identical: bool = False
+    ) -> bool:
+        """Checks whether a table contains a list of columns.
+
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
+
+        Args:
+            table: The table to look inside.
+            columns: What columns to look for.
+            identical: Whether the given columns should be identical to the table columns.
+
+        Returns:
+            True if the tables contains the columns, False otherwise
+
+        """
+        if len(columns) != len(set(columns)):
+            raise ValueError(f"Columns contains duplicate values: {columns}")
+
+        table_columns = self.get_table_columns(table=table)
+        if identical:
+            return sorted(table_columns) == sorted(columns)
+        else:
+            return set(columns).issubset(set(table_columns))
+
     def run_sql_file(
         self, path: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
