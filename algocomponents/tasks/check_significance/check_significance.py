@@ -8,7 +8,7 @@ from algocomponents.tasks import Task
 from algocomponents.utils import ABTools
 
 
-class CheckSignificanceTask(Task):
+class CheckSignificance(Task):
     """Task that checks whether a test results were statistically significant
 
     This task runs Welch's t-test for every kpi column in the input table.

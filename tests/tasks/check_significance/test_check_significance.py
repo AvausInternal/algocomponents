@@ -7,7 +7,7 @@ from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     ColumnMissingException,
 )
-from algocomponents.tasks import SQLPipeline, CheckSignificanceTask
+from algocomponents.tasks import SQLPipeline, CheckSignificance
 
 
 class EmptySQLPipeline(SQLPipeline):
@@ -21,13 +21,13 @@ class TestCheckSignificance(TestCase):
     def setup_class(cls):
         # create the testing database
         EmptySQLPipeline(
-            sql_folder="check_significance_task_queries",
+            sql_folder="check_significance_queries",
             sql_adapter=LocalSqliteAdapter(),
             sql_folder_relative_path=True,
         ).start()
 
     def test_successful_significance_check(self):
-        checker = CheckSignificanceTask(
+        checker = CheckSignificance(
             input_table="dummy_test_results",
             group_column="group_",
             kpi_columns=["sales"],
@@ -40,7 +40,7 @@ class TestCheckSignificance(TestCase):
             self.fail(f"Throws exception on setup: {e}")
 
     def test_missing_column(self):
-        checker = CheckSignificanceTask(
+        checker = CheckSignificance(
             input_table="dummy_test_results",
             group_column="group_",
             kpi_columns=["sales", "impressions"],
@@ -51,7 +51,7 @@ class TestCheckSignificance(TestCase):
             checker.start()
 
     def test_missing_table(self):
-        checker = CheckSignificanceTask(
+        checker = CheckSignificance(
             input_table="missing_table",
             group_column="group_",
             kpi_columns=["sales"],
@@ -62,7 +62,7 @@ class TestCheckSignificance(TestCase):
             checker.start()
 
     def test_too_many_groups(self):
-        checker = CheckSignificanceTask(
+        checker = CheckSignificance(
             input_table="dummy_test_results",
             group_column="group_",
             kpi_columns=["sales"],
