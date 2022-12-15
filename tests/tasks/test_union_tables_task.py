@@ -6,7 +6,7 @@ import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.adapters.custom_exceptions import DataMismatchException
-from algocomponents.tasks import UnionTablesTask, SQLTask
+from algocomponents.tasks import UnionTables, SQLTask
 
 
 class TestUnionTables(TestCase):
@@ -15,7 +15,7 @@ class TestUnionTables(TestCase):
 
     def test_empty_table_list(self):
         with pytest.raises(ValueError):
-            UnionTablesTask(
+            UnionTables(
                 tables=[], output_table="the_triforce", sql_adapter=self.sql_adapter
             )
 
@@ -29,7 +29,7 @@ class TestUnionTables(TestCase):
             sql_file_path=os.path.join(sql_folder, "setup.sql"),
             sql_adapter=self.sql_adapter,
         ).start()
-        union_tables_task = UnionTablesTask(
+        union_tables_task = UnionTables(
             tables=[
                 "triforce_of_power",
                 "triforce_of_wisdom",
@@ -54,7 +54,7 @@ class TestUnionTables(TestCase):
             sql_file_path=os.path.join(sql_folder, "setup.sql"),
             sql_adapter=self.sql_adapter,
         ).start()
-        union_tables_task = UnionTablesTask(
+        union_tables_task = UnionTables(
             tables=[
                 "triforce_of_courage",
                 "light_arrows",

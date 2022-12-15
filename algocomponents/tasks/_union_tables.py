@@ -8,7 +8,7 @@ from algocomponents.adapters.custom_exceptions import (
 from algocomponents.tasks import SQLTask
 
 
-class UnionTablesTask(SQLTask):
+class UnionTables(SQLTask):
     """Performs the UNION ALL operation on all supplied tables.
 
     This task first verifies that the tables have the same columns and column
