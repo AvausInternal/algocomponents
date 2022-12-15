@@ -11,7 +11,9 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   algocomponents.tasks.check_significance
    algocomponents.tasks.model_evaluator
+   algocomponents.tasks.stratify_groups
    algocomponents.tasks.task_verifier
 
 Contents
