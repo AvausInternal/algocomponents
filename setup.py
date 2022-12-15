@@ -6,8 +6,13 @@ setup(
     packages=[
         "algocomponents",
         "algocomponents.tasks",
+        "algocomponents.tasks.check_significance",
+        "algocomponents.tasks.check_significance.sql",
         "algocomponents.tasks.model_evaluator",
         "algocomponents.tasks.model_evaluator.sql",
+        "algocomponents.tasks.stratify_groups",
+        "algocomponents.tasks.stratify_groups.sql",
+        "algocomponents.tasks.stratify_groups.sqlite",
         "algocomponents.tasks.task_verifier",
         "algocomponents.tasks.task_verifier.sql",
         "algocomponents.utils",
