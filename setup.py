@@ -29,7 +29,7 @@ setup(
         "scipy==1.9.1",
         "numpy==1.23.4",
         "plotly==5.10.0",
-        "kaleido==0.1.0post1",
+        "kaleido==0.1.0",
     ],
     package_data={"": ["*.sql"]},
     url="",
