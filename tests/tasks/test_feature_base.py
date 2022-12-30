@@ -29,14 +29,14 @@ class TestFeatureBase(TestCase):
             global_config_dir=os.path.join("tests", "tasks", "feature_base_config"),
             sql_folder="feature_base_test_queries",
             sql_adapter=self.sql_adapter,
-            output_table="{TMP_DB}.feature_base_test",
+            output_table="{tmp_db}.feature_base_test",
         )
         feature_base.start()
 
         # Adapter disconnects as nothing else uses it, so we connect again manually
         feature_base.sql_adapter.connect()
 
-        assert "OUTPUT_TABLE" in feature_base.config[feature_base.section]
+        assert "output_table" in feature_base.config[feature_base.section]
         assert feature_base.sql_adapter.table_exists(feature_base.output_table)
 
         columns = feature_base.sql_adapter.get_table_columns(feature_base.output_table)
@@ -52,7 +52,7 @@ class TestFeatureBase(TestCase):
                 global_config_dir=os.path.join("tests", "tasks", "feature_base_config"),
                 sql_folder="feature_base_no_output_table_queries",
                 sql_adapter=self.sql_adapter,
-                output_table="{TMP_DB}.feature_base_test",
+                output_table="{tmp_db}.feature_base_test",
             )
             feature_base.start()
 
@@ -62,6 +62,6 @@ class TestFeatureBase(TestCase):
                 global_config_dir=os.path.join("tests", "tasks", "feature_base_config"),
                 sql_folder="feature_base_missing_columns_queries",
                 sql_adapter=self.sql_adapter,
-                output_table="{TMP_DB}.feature_base_test",
+                output_table="{tmp_db}.feature_base_test",
             )
             feature_base.start()

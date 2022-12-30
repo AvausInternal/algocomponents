@@ -1,18 +1,24 @@
 import os
 import re
 from abc import ABC
+from typing import List
 
 from algocomponents.tasks import GroupTask, SQLTask
 
 
 class SQLPipeline(GroupTask, ABC):
-    """The SQLPipeline will run all queries in its sql folder as SQLTasks
+    """The SQLPipeline will run all queries in its sql folder as SQLTasks.
 
     Using whichever adapter and config is supplied, the SQLPipeline will go to
     an sql folder expected to be located at the same place as the SQLPipeline
     class, and run all of those queries in order. If no adapter is given, the
     LocalSqliteAdapter will be used. The files in the sql folder must have a
-    specific format: 1_example.sql, 2_second_example.sql, etc
+    specific format: 1_example.sql, 2_second_example.sql, etc.
+
+    Args:
+        sql_folder: Where the SQLPipeline will look for sql files.
+        sql_folder_relative_path: Whether the path sql_folder is relative or not.
+
     """
 
     sql_file_pattern = "[0-9]+_"  # Numeric followed by underscore
@@ -34,7 +40,26 @@ class SQLPipeline(GroupTask, ABC):
 
         self.propagate_sql_adapter(self.sql_adapter)
 
-    def get_sql_tasks(self):
+    def get_sql_tasks(self) -> List[SQLTask]:
+        """Creates SQLTasks from all the sql-files in the sql_folder.
+
+        The files will be added to the task_list in their numbered order. When
+        a number has several digits, the ide can incorrectly order them like so:
+
+        1_asd.sql, 10_asd.sql, 11_asd.sql, 2_asd.sql, 3_asd.sql etc.
+
+        This method ensures they are added in the correct order, like so:
+
+        1_asd.sql, 2_asd.sql, 3_asd.sql, ... ,10_asd.sql, 11_asd.sql
+
+        Raises:
+            NameError if the files do not follow the sql_file_pattern.
+
+        Returns:
+            A list of SQLTasks where each SQLTask has the contents of a file in
+            the sql_folder as it's query.
+
+        """
         if not os.path.exists(self.sql_folder):
             self.logger.warning(f"Folder does not exist: {self.sql_folder}")
             return []

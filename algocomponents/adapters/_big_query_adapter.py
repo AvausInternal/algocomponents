@@ -13,6 +13,7 @@ class BigQueryAdapter(SQLAdapter):
     This adapter is intended for running queries on Google BigQuery.
     The script expects that the user is authenticated in the affected
     gcp project using googles python client libraries and setup instructions.
+
     """
 
     def __init__(
@@ -25,6 +26,14 @@ class BigQueryAdapter(SQLAdapter):
         self.query_job = None
 
     def connect(self):
+        """Connects the adapter.
+
+        This method imports the bigquery dependencies: Therefore, bigquery is
+        not a required the installation unless this adapter is used.
+
+        The connection is stored in self.client.
+
+        """
         super().connect()
         # Import inside method to allow non GCP-users of algocomponents
         # to use library without having to install the google package
@@ -43,15 +52,44 @@ class BigQueryAdapter(SQLAdapter):
         else:
             self.client = bigquery.Client()
 
-    def is_connected(self):
+    def is_connected(self) -> bool:
+        """Checks whether the adapter is connected.
+
+        As long as there is a self.client, the adapter is considered connected.
+
+        Returns:
+            True if the adapter is connected, False otherwise.
+
+        """
         return self.client is not None
 
     def disconnect(self):
+        """Disconnects the adapter.
+
+        This is done by closing the connection and setting self.client to None.
+
+        """
         self.client.close()
         self.client = None
         super().disconnect()
 
-    def _format_table_name(self, table: str):
+    def _format_table_name(self, table: str) -> str:
+        """Performs an adapter-specific formatting of the table.
+
+        Will make any table into the format `gcp-project.database.table`.
+
+            - Backticks are always added
+            - Prepends the gcp-project supplied through config (unless there
+              already is a gcp-project in the table, or if there is no
+              gcp-project in the config given)
+
+        Args:
+            table: The table to format.
+
+        Returns:
+            The provided query, with table names formatted.
+
+        """
         table = table.replace("`", "")
 
         if "gcp_project" not in list(self.adapter_format_variables):
@@ -68,6 +106,15 @@ class BigQueryAdapter(SQLAdapter):
         return f"`{gcp_project}.{table}`"
 
     def table_exists(self, table: str) -> bool:
+        """Checks whether a table exists.
+
+        Args:
+            table: The table to look for.
+
+        Returns:
+            True if the table exists and False if it does not
+
+        """
         from google.api_core.exceptions import NotFound
 
         formatted_table = self._format_table_name(table).replace("`", "")
@@ -78,12 +125,32 @@ class BigQueryAdapter(SQLAdapter):
             return False
 
     def get_table_columns(self, table: str) -> List[str]:
+        """Gets the columns of a table.
+
+        Args:
+            table: The table to look at.
+
+        Returns:
+            A list of the table columns
+
+        """
         formatted_table = self._format_table_name(table).replace("`", "")
         schema = self.client.get_table(formatted_table).schema
         columns_names = [column.name for column in schema]
         return columns_names
 
-    def _run_formatted_query(self, query: str):
+    def _run_formatted_query(self, query: str) -> pd.DataFrame:
+        """Runs a query towards BigQuery.
+
+        Args:
+            query: The query to run.
+
+        Returns:
+            The result of the query as a pandas dataframe. An empty dataframe
+            will be returned if the statement simply manipulates tables like
+            CREATE:ing och DROP:ing tables.
+
+        """
         self.query_job = self.client.query(query)
         self.logger.info(
             "This query will process {} bytes.".format(
@@ -97,13 +164,30 @@ class BigQueryAdapter(SQLAdapter):
 
         return df
 
-    def adapter_specific_filters(self, sql: str):
+    def adapter_specific_filters(self, sql: str) -> str:
+        """Filters to apply to a query when finding tables or CTE:s inside it.
+
+        This filter removes EXTRACT, UNNEST and ML-methods from the sql.
+
+        Returns:
+            The filtered sql.
+
+        """
         sql = self.remove_extract_method_calls_from_sql(sql=sql)
         sql = self.remove_unnest_method_calls_from_sql(sql=sql)
         sql = self.remove_ml_methods_from_sql(sql=sql)
         return sql
 
-    def remove_extract_method_calls_from_sql(self, sql: str):
+    def remove_extract_method_calls_from_sql(self, sql: str) -> str:
+        """Removes EXTRACT method-calls from the sql.
+
+        Args:
+            sql: The sql to remove from.
+
+        Returns:
+            The sql without EXTRACT method-calls.
+
+        """
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
@@ -124,7 +208,16 @@ class BigQueryAdapter(SQLAdapter):
 
         return sql
 
-    def remove_unnest_method_calls_from_sql(self, sql: str):
+    def remove_unnest_method_calls_from_sql(self, sql: str) -> str:
+        """Removes UNNEST method-calls from the sql.
+
+        Args:
+            sql: The sql to remove from.
+
+        Returns:
+            The sql without UNNEST method-calls.
+
+        """
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
@@ -149,7 +242,16 @@ class BigQueryAdapter(SQLAdapter):
 
         return sql
 
-    def remove_ml_methods_from_sql(self, sql: str):
+    def remove_ml_methods_from_sql(self, sql: str) -> str:
+        """Removes ML method-calls from the sql.
+
+        Args:
+            sql: The sql to remove from.
+
+        Returns:
+            The sql without ML method-calls.
+
+        """
         # regex explanation
         match = re.findall(
             # First, at least 1 newline or whitespace
@@ -172,10 +274,27 @@ class BigQueryAdapter(SQLAdapter):
 
         return sql
 
-    def latest_query_as_pandas(self):
+    def latest_query_as_pandas(self) -> pd.DataFrame:
+        """Get the result of the latest query as a pandas dataframe.
+
+        Returns:
+            A pandas dataframe of the latest query_job
+
+        """
         return self.query_job.to_dataframe()
 
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
+        """Creates a table and puts a pandas dataframe in it.
+
+        Args:
+            df: The pandas dataframe to put in a table.
+            table: The table you want to create.
+            overwrite: Whether to overwrite an existing table, defaults to False.
+
+        Raises:
+            ValueError: If the dataframe does not have column names
+
+        """
         if overwrite:
             self.pandas_df_helper_method(df, table, "WRITE_TRUNCATE")
         else:
@@ -187,11 +306,34 @@ class BigQueryAdapter(SQLAdapter):
             self.pandas_df_helper_method(df, table, "WRITE_TRUNCATE")
 
     def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
+        """Inserts a pandas dataframe into a table.
+
+        If the table does not already exist, it will be created.
+
+        Args:
+            df: The pandas dataframe to insert into a table.
+            table: The table where you want to insert it.
+
+        Raises:
+            ValueError: If the dataframe does not have column names
+
+        """
         self.pandas_df_helper_method(df, table, "WRITE_APPEND")
 
     def pandas_df_helper_method(
         self, df: pd.DataFrame, table: str, write_disposition: str
     ):
+        """Helper method for pandas_df_as_table() and pandas_df_helper_method().
+
+        Args:
+            df: The pandas dataframe to insert into a table.
+            table: The table where you want to insert it.
+            write_disposition: BigQuery argument for handling existing tables.
+
+        Raises:
+            ValueError: If the dataframe does not have column names
+
+        """
         job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
         table = self._format_table_name(table).replace("`", "")
 
@@ -205,5 +347,11 @@ class BigQueryAdapter(SQLAdapter):
             raise ValueError("Your dataframe is missing column names") from e
 
     def latest_query_as_csv(self, path: str):
+        """Get the result of the latest query as a csv file.
+
+        Args:
+            path: The path to save the csv file to.
+
+        """
         dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)

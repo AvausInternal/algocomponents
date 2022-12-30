@@ -9,10 +9,16 @@ from algocomponents.tasks import SQLTask
 
 
 class UnionTablesTask(SQLTask):
-    """Performs the UNION ALL operation on all supplied tables
+    """Performs the UNION ALL operation on all supplied tables.
 
     This task first verifies that the tables have the same columns and column
     names, then puts them all in the same table using UNION ALL.
+
+    Args:
+        tables: Which tables to union, written as database.table.
+        task_output_table: The output table for the task.
+        expected_output_table: Where we want to save the expected output.
+
     """
 
     def __init__(
@@ -36,12 +42,22 @@ class UnionTablesTask(SQLTask):
             sql_string=sql_string,
             **kwargs,
         )
-        self.add_to_config("OUTPUT_TABLE", output_table)
+        self.add_to_config("output_table", output_table)
 
     @staticmethod
     def generate_union_query(
         tables: List[str], overwrite_output_table_if_exists: bool = True
     ) -> str:
+        """Generates the query that will union all the tables.
+
+        Args:
+            tables: List of strings of tables to union.
+            overwrite_output_table_if_exists: If existing tables are overwritten.
+
+        Returns:
+            The query that will union all tables.
+
+        """
         query = ""
         for table in tables:
             if query == "":
@@ -50,14 +66,14 @@ class UnionTablesTask(SQLTask):
                 query += f"{os.linesep}UNION ALL" f"{os.linesep}SELECT * FROM {table}"
 
         query = (
-            """CREATE TABLE {OUTPUT_TABLE} AS
+            """CREATE TABLE {output_table} AS
         """
             + query
         )
 
         if overwrite_output_table_if_exists:
             query = (
-                """DROP TABLE IF EXISTS {OUTPUT_TABLE};
+                """DROP TABLE IF EXISTS {output_table};
             """
                 + query
             )
@@ -65,6 +81,12 @@ class UnionTablesTask(SQLTask):
         return query
 
     def startup(self):
+        """Connects the sql_adapter and verifies that the table exists.
+
+        Also runs a check that all the tables that should be union:ed contain
+        the same columns.
+
+        """
         self.sql_adapter.connect()
         columns = []
         for table in self.tables:

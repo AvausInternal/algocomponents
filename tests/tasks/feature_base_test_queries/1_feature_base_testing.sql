@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS {OUTPUT_TABLE};
+DROP TABLE IF EXISTS {output_table};
 
-CREATE TABLE {OUTPUT_TABLE} AS
+CREATE TABLE {output_table} AS
           SELECT 1 AS user_id, 1 AS product_id
 UNION ALL SELECT 1 AS user_id, 2 AS product_id
 UNION ALL SELECT 1 AS user_id, 3 AS product_id

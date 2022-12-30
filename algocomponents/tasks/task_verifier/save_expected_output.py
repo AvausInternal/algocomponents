@@ -1,22 +1,28 @@
 import os
 
 from algocomponents.adapters.custom_exceptions import TableMissingException
-from algocomponents.tasks import AdapterTask, Task
+from algocomponents.tasks import Task
 
 
 class SaveExpectedOutput(Task):
-    """A task to store the output of another task
+    """A task to store the output of another task.
 
     This task takes another task and saves that task's output to a table
     specified by user. After the output is saved, you can use the VerifyOutput
     task to verify that the task's output stays constant over time.
+
+    Args:
+        for_task: Which task we want to save the expected output for.
+        task_output_table: The output table for the task.
+        expected_output_table: Where we want to save the expected output.
+
     """
 
     def __init__(
         self,
-        for_task: AdapterTask,  # task which output will be saved
-        task_output_table: str,  # table where the task saves it's output
-        expected_output_table: str,  # table where the expected output for this task will be saved
+        for_task: Task,
+        task_output_table: str,
+        expected_output_table: str,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -32,6 +38,15 @@ class SaveExpectedOutput(Task):
         }
 
     def run(self):
+        """Saves the output of self.task into an expected_output table.
+
+        This expected_output table should be used by the task VerifyOutput when
+        verifying the output of a task.
+
+        Raises:
+            TableMissingException: If the output table does not exist.
+
+        """
         sql_adapter = self.task.sql_adapter
         sql_adapter.connect()
 

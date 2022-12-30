@@ -1,50 +1,25 @@
-import os
 import re
 import uuid
-from abc import ABC, abstractmethod
-from configparser import ConfigParser
+from abc import abstractmethod
 from typing import Dict, List
 
 import pandas as pd
 
-from algocomponents.utils import LoggieDoggie, merge_configs
+from algocomponents.config_reader import ConfigReader
 
 
-class SQLAdapter(ABC):
+class SQLAdapter(ConfigReader):
     """An abstract adapter used for connecting to a service and running queries.
-
-    SQLAdapter will by default read the global config file. If a config is
-    given, the global config file will still be parsed but the supplied config
-    will take precedence over the global config file.
 
     The purpose of the sql adapter is to generalize how we set up connections to
     different services. There will be one adapter per service.
+
     """
 
     default_max_rows_displayed = 20
 
-    def __init__(
-        self,
-        global_config_dir: str = "config",
-        config: ConfigParser = None,
-        section: str = "DEFAULT",
-    ):
-        self.class_name = type(self).__name__
-
-        self.section = section
-
-        self.config = ConfigParser()
-        self.config.optionxform = str  # Preserve casing in config file
-
-        # First read global config
-        self.config.read(os.path.join(global_config_dir, "config.ini"))
-
-        # Then append or overwrite from config inheritance
-        if config is not None:
-            self.config = merge_configs(
-                merge_this=config, into_this=self.config, overwrite=True
-            )
-
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         if self.class_name in self.config:
             self.adapter_format_variables = self.config[self.class_name]
         else:
@@ -57,35 +32,103 @@ class SQLAdapter(ABC):
         else:
             self.max_rows_displayed = self.default_max_rows_displayed
 
-        # Set a logger for the task
-        self.logger = LoggieDoggie().fetch_logger(
-            logger_name=self.class_name,
-            config=dict(self.config[self.section]),
-        )
-
     @abstractmethod
     def connect(self):
+        """Connects the adapter.
+
+        Non-abstract adapters extend this method using super().connect().
+
+        """
         self.logger.info(f"{self.class_name} establishing connection...")
 
     @abstractmethod
-    def is_connected(self):
+    def is_connected(self) -> bool:
+        """Checks whether the adapter is connected.
+
+        Non-abstract adapters overwrite this method.
+
+        Returns:
+            True if the adapter is connected, False otherwise.
+
+        """
         pass
 
     @abstractmethod
     def disconnect(self):
+        """Checks whether the adapter is connected.
+
+        Non-abstract adapters extend this method using super().disconnect().
+
+        """
         self.logger.info(f"{self.class_name} disconnected.")
 
     @abstractmethod
     def table_exists(self, table: str) -> bool:
+        """Checks whether a table exists.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            table: The table to look for.
+
+        """
         pass
 
     @abstractmethod
     def get_table_columns(self, table: str) -> List[str]:
+        """Gets the columns of a table.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            table: The table to look at.
+
+        Returns:
+            A list with the names of the columns.
+
+        """
         pass
+
+    def table_contains_columns(
+        self, table: str, columns: List[str], identical: bool = False
+    ) -> bool:
+        """Checks whether a table contains a list of columns.
+
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
+
+        Args:
+            table: The table to look inside.
+            columns: What columns to look for.
+            identical: Whether the given columns should be identical to the table columns.
+
+        Returns:
+            True if the tables contains the columns, False otherwise
+
+        """
+        if len(columns) != len(set(columns)):
+            raise ValueError(f"Columns contains duplicate values: {columns}")
+
+        table_columns = self.get_table_columns(table=table)
+        if identical:
+            return sorted(table_columns) == sorted(columns)
+        else:
+            return set(columns).issubset(set(table_columns))
 
     def run_sql_file(
         self, path: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
+        """Parses an SQL file and runs it using the run_sql_string-method().
+
+        Args:
+            path: Path to the SQL file, from project root.
+            format_variables: A dictionary used to .format() the SQL string.
+
+        Return:
+            A list of pandas dataframes, where each pandas dataframe is the
+            result of each semi colon separated query in the sql file.
+
+        """
         with open(path) as f:
             sql_string = f.read()
             return self.run_sql_string(
@@ -96,6 +139,17 @@ class SQLAdapter(ABC):
     def run_sql_string(
         self, sql_string: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
+        """Formats an SQL string and runs it using _format_table_names().
+
+        Args:
+            sql_string: The SQL string to run. Can be several queries ;-separated.
+            format_variables: A dictionary used to .format() the SQL string.
+
+        Return:
+            A list of pandas dataframes, where each pandas dataframe is the
+            result of each semi colon separated query in the sql file.
+
+        """
         if not format_variables:
             format_variables = {}
 
@@ -122,13 +176,46 @@ class SQLAdapter(ABC):
 
     @abstractmethod
     def _run_formatted_query(self, query: str) -> pd.DataFrame:
+        """Runs an SQL query towards whichever service this adapter is connected.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            query: The query to run.
+
+        Returns:
+            The result of the query as a pandas dataframe.
+
+        """
         pass
 
     def _format_query(
         self, query: str, format_variables: Dict[str, str], max_depth: int = 5
-    ):
-        # Format until no change is detected to allow nested templating:
-        # {OUTPUT_TABLE} -> {TMP_DB}.output_table -> tmp.output_table
+    ) -> str:
+        """Recursively .format():s a query given a dict until it does not change.
+
+        A max depth is used, as writing a more general approach to this method
+        involves solving self-referencing problems in the format variables. For
+        example, {"a": "{b}", "b": "{a}"} which will cause "{a}" to be formatted
+        into "{b}", which will format into "{a}", etc. There are solutions, but
+        the added code complexity was deemed to not be worth it.
+
+        Args:
+            query: The string to format.
+            format_variables: A dictionary used to .format() the SQL string.
+            max_depth: Max number of times .format() will be done.
+
+        Returns:
+            The provided query, formatted.
+
+        Raises:
+            RecursionError: When .format():ing more than max_depth times and the
+                query is still changing
+
+        Examples:
+            {output_table} -> {tmp_db}.output_table -> tmp.output_table
+
+        """
         format_variables.update(self.adapter_format_variables)
         previous_query = ""
         depth = 0
@@ -144,7 +231,19 @@ class SQLAdapter(ABC):
                 )
         return query
 
-    def _format_table_names(self, query: str, ignore_ctes: bool = True):
+    def _format_table_names(self, query: str, ignore_ctes: bool = True) -> str:
+        """Run _format_table_name on all tables in a query.
+
+        Uses the method find_table_names() to get all the tables in a query.
+
+        Args:
+            query: The string to format the table names in.
+            ignore_ctes: Whether CTE:s should be ignored, defaults to True.
+
+        Returns:
+            The provided query, with table names formatted.
+
+        """
         tables = self.find_table_names(sql=query, ignore_ctes=ignore_ctes)
         # There is a trick here to prevent replacing a table which exists inside
         # another table, for example:
@@ -178,10 +277,34 @@ class SQLAdapter(ABC):
         return query
 
     @abstractmethod
-    def _format_table_name(self, table: str):
+    def _format_table_name(self, table: str) -> str:
+        """Performs an adapter-specific formatting of the table.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            table: The table to format.
+
+        Returns:
+            The table name, formatted to be adapter specific.
+
+        """
         pass
 
     def find_possible_cte_names(self, sql: str) -> List[str]:
+        """Uses regex to find possible CTE-names in a query.
+
+        This method will always find all CTE:s, but in some queries it mistake
+        things that are not CTE:s for CTE:s and return these as well. It will
+        never return a table name.
+
+        Args:
+            sql: The query to find CTE:s in.
+
+        Returns:
+            A list of all possible cte names.
+
+        """
         sql = self.remove_comments_from_sql(sql)
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
@@ -236,7 +359,17 @@ class SQLAdapter(ABC):
 
         return first_withs + trailing_withs
 
-    def find_table_names(self, sql: str, ignore_ctes: bool = True):
+    def find_table_names(self, sql: str, ignore_ctes: bool = True) -> List[str]:
+        """Uses regex to find all table names in a query.
+
+        Args:
+            sql: The query to find tabla names in.
+            ignore_ctes: Whether CTE:s should be ignored or not, defaults to True.
+
+        Returns:
+            A list of all table names in the sql.
+
+        """
         sql = self.remove_comments_from_sql(sql)
         # Remove newlines from sql
         sql = sql.replace("\n", " ")
@@ -275,10 +408,30 @@ class SQLAdapter(ABC):
 
         return tables
 
-    def adapter_specific_filters(self, sql: str):
+    def adapter_specific_filters(self, sql: str) -> str:
+        """Filters to apply to a query when finding tables or CTE:s inside it.
+
+        Adapters may overwrite this method if they have any filters to apply.
+
+        Args:
+            sql: The query an adapter may remove parts of.
+
+        Returns:
+            The sql ones said parts are removed.
+
+        """
         return sql
 
-    def remove_comments_from_sql(self, sql: str):
+    def remove_comments_from_sql(self, sql: str) -> str:
+        """Remove comments from a query.
+
+        Args:
+            sql: The query to remove comments from.
+
+        Returns:
+            The sql without comments
+
+        """
         lines = sql.split("\n")
         lines_without_comments = []
         for line in lines:
@@ -288,23 +441,84 @@ class SQLAdapter(ABC):
         return sql
 
     @abstractmethod
-    def latest_query_as_pandas(self):
+    def latest_query_as_pandas(self) -> pd.DataFrame:
+        """Get the result of the latest query as a pandas dataframe.
+
+        Non-abstract adapters overwrite this method.
+
+        This method is intended for use in method cascading.
+
+        Returns:
+            The result of the latest query as a pandas dataframe.
+
+        """
         pass
 
     def table_as_pandas_df(self, table: str) -> pd.DataFrame:
+        """Return all rows in a table as a pandas dataframe.
+
+        Adapters may overwrite this method if they have more efficient methods
+        of converting a table into a pandas dataframe.
+
+        Args:
+            table: The table to return as a pandas dataframe.
+
+        Returns:
+            The table as a pandas dataframe.
+
+        """
         return self.run_sql_string(f"SELECT * FROM {table}")[0]
 
     @abstractmethod
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
+        """Creates a table and puts a pandas dataframe in it.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            df: The pandas dataframe to put in a table.
+            table: The table you want to create.
+            overwrite: Whether to overwrite an existing table, defaults to False.
+
+        """
         pass
 
     @abstractmethod
     def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
+        """Inserts a pandas dataframe into a table.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            df: The pandas dataframe to insert into a table.
+            table: The table where you want to insert it.
+
+        """
         pass
 
     @abstractmethod
     def latest_query_as_csv(self, path: str):
+        """Get the result of the latest query as a csv file.
+
+        Non-abstract adapters overwrite this method.
+
+        Args:
+            path: The path to save the csv file to.
+
+        """
         pass
 
     def table_is_empty(self, table: str) -> bool:
+        """Checks whether a table is empty or not.
+
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
+
+        Args:
+            table: The table to check if it is empty or not.
+
+        Returns:
+            True if the table exists, False otherwise.
+
+        """
         return len(self.table_as_pandas_df(table)) == 0

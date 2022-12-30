@@ -1,8 +1,9 @@
-DROP TABLE IF EXISTS {OUTPUT_TABLE};
+DROP TABLE IF EXISTS {output_table};
 
-CREATE TABLE {OUTPUT_TABLE} AS
+CREATE TABLE {output_table} AS
 SELECT
     user_id,
     COUNT(*) AS n_products_bought
-FROM {INPUT_TABLE}
+FROM {input_table}
+GROUP BY user_id
 ;
