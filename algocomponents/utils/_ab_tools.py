@@ -4,6 +4,8 @@ from scipy import stats
 
 from algocomponents.utils import LoggieDoggie
 
+from typing import Tuple
+
 
 class ABTools:
     """A/B testing tools
@@ -152,7 +154,7 @@ class ABTools:
         self.logger.info(f"Minimum sample size of each group is: {min_n}")
         return min_n
 
-    def get_unequal_sample_size(self, N: int, N_adj: int) -> (int, int):
+    def get_unequal_sample_size(self, N: int, N_adj: int) -> Tuple[int, int]:
         """Returns the minimum sample size of the control group when the samples have unequal size.
 
         When the control and target groups are of different sizes, the total
@@ -208,7 +210,7 @@ class ABTools:
         p2: float,
         sig_level: float = _default_significance_level,
         tail: str = _default_tail,
-    ) -> (float, float):
+    ) -> Tuple[float, float]:
         """Tests the null hypothesis against the given alternative for significance:
 
         H0: p1=p2 vs HA: p1!=p2
@@ -285,7 +287,7 @@ class ABTools:
         var2,
         sig_level=_default_significance_level,
         tail=_default_tail,
-    ) -> (float, float):
+    ) -> Tuple[float, float]:
         """Welch's t-test. Unequal variance. Unequal or equal sample size.
 
         We test the null hypothesis against the given alternative:
