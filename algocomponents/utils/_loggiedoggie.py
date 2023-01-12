@@ -57,7 +57,7 @@ class LoggieDoggie:
             config = {}
 
         # Read log_level from config
-        if 'log_level' in config.keys():
+        if "log_level" in config.keys():
             log_level = config["log_level"]
         else:
             log_level = self._default_log_level
