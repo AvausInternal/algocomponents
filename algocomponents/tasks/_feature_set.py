@@ -15,11 +15,7 @@ class FeatureSet(GroupTask):
     - consider what can be lifted out of the class to utils
     - naming conventions
     - What ought to be a private function?
-    - what should be a function? encapsulate logic
-    -- Seperation of concerns
-
-    rename: output primary keys and get all dataset columns to be more aligned with 
-    eachother.
+    - what should be a function? encapsulate logic(Seperation of concerns)
 
     Args:
         GroupTask (_type_): _description_
@@ -56,7 +52,7 @@ class FeatureSet(GroupTask):
             self.task_list.insert(0, feature_base)
             self.input_table = feature_base.output_table
 
-        elif feature_base is None:  # input is a table
+        elif feature_base is None:  # input is a an ordinary table
             self.input_table = input_table
 
         if import_columns.lower() in ["selective", "full"]:
@@ -77,7 +73,7 @@ class FeatureSet(GroupTask):
         self.propagate_config()
         self.propagate_sql_adapter(self.sql_adapter)
 
-    def _format_cols(self, feature_list, prepend, pad) -> str:
+    def _format_query_cols(self, feature_list, prepend, pad) -> str:
         """Helper function for _get_sql_join_query()
         #* lift to util?"""
         output_columns = []
@@ -87,7 +83,7 @@ class FeatureSet(GroupTask):
 
         return output_columns
 
-    def _format_joins(self, feature, feat_no, pad) -> str:
+    def _format_query_joins(self, feature, feat_no, pad) -> str:
         """Helper function for _get_sql_join_query()"""
         join_table = [f"LEFT JOIN {feature.output_table} AS f{feat_no}"]
         join_condition = []
@@ -111,7 +107,7 @@ class FeatureSet(GroupTask):
         if self.feature_base:
             return self.feature_base.output_primary_keys
         else:
-            # infer primary keys we know of
+            # infer the primary keys we know of
             output_primary_keys = [feat.output_primary_keys for feat in self.features]
             return list(set().union(output_primary_keys))
 
@@ -123,11 +119,6 @@ class FeatureSet(GroupTask):
 
         pad = pad_spaces * " "
 
-        # * debugging, remove soon:
-        # self.sql_adapter.connect()
-        # self.import_columns = "full"  # todo: remove
-        # self.where_clause = "product_price > 5"  # todo remove
-
         # build query components
         sql_joined_cols, sql_left_joins = [], []
         # ? do we drop existing output tables?
@@ -135,14 +126,14 @@ class FeatureSet(GroupTask):
         sql_create_line = ["CREATE TABLE {OUTPUT_TABLE} AS"]
         sql_select_line = ["SELECT"]
         base_cols = self._get_import_table_columns()
-        sql_base_cols = self._format_cols(base_cols, "base.", pad)
+        sql_base_cols = self._format_query_cols(base_cols, "base.", pad)
         sql_base_table = [f"FROM {self.input_table} AS base"]
 
-        for n, feat in enumerate(self.features):
-            sql_joined_cols += self._format_cols(
-                feat.output_columns_created, f"f{n}.", pad
+        for n, feature in enumerate(self.features):
+            sql_joined_cols += self._format_query_cols(
+                feature.output_columns_created, f"f{n}.", pad
             )
-            sql_left_joins += self._format_joins(feat, n, pad)
+            sql_left_joins += self._format_query_joins(feature, n, pad)
 
         sql_joined_cols[-1] = sql_joined_cols[-1][:-1]  # remove the last comma
 
@@ -224,17 +215,15 @@ class FeatureSet(GroupTask):
     def startup(self):
         # todo:
         # check legality of joins
-        # make lists and loops
-        # pass
-
-        # def __repr__(self):
-        pass
+        # make lists and loops?
+        pass        
 
     def run(self):
         """
-        Runs like an sqlPipeline, and then verifies the output table.
+        todo: update docstring
+        (..) and then verifies the output table.
         It is verified that the output table exists, and that it contains the
-        columns specified in the FeatureBase.
+        intended columns
 
         """
         if self.features:
