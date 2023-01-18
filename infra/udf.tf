@@ -61,7 +61,7 @@ resource "google_bigquery_routine" "get_unknown_users" {
   WHERE
     (_TABLE_SUFFIX BETWEEN START_SUFFIX
       AND END_SUFFIX)
-  AND ((ID_KEY='user_id' AND user_id IS NULL) OR (up.key=ID_KEY AND up.value.string_value IS NULL))
+  AND ((LOWER(ID_KEY)='user_id' AND user_id IS NULL) OR (up.key=ID_KEY AND up.value.string_value IS NULL))
   EOS
   arguments {
     name      = "ID_KEY"
