@@ -19,6 +19,11 @@ resource "google_bigquery_routine" "get_known_users" {
   routine_id      = "get_known_users"
   routine_type    = "PROCEDURE"
   language        = "SQL"
+  description = <<-EOS
+  ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
+  START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
+  END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
+  EOS
   definition_body = <<-EOS
   SELECT
     *
@@ -51,6 +56,11 @@ resource "google_bigquery_routine" "get_unknown_users" {
   routine_id      = "get_unknown_users"
   routine_type    = "PROCEDURE"
   language        = "SQL"
+    description = <<-EOS
+  ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
+  START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
+  END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
+  EOS
   definition_body = <<-EOS
   SELECT
   *
@@ -83,6 +93,11 @@ resource "google_bigquery_routine" "get_flattened_categorical_data" {
   routine_id      = "get_flattened_categorical_data"
   routine_type    = "PROCEDURE"
   language        = "SQL"
+    description = <<-EOS
+  ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
+  START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
+  END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
+  EOS
   definition_body = <<-EOS
 SELECT
   * EXCEPT(last_record)
@@ -137,6 +152,10 @@ resource "google_bigquery_routine" "get_time_grouped_page_views_per_user" {
   routine_id      = "get_time_grouped_page_views_per_user"
   routine_type    = "PROCEDURE"
   language        = "SQL"
+    description = <<-EOS
+    MODE - used to indicate whether you want daily, weekly or monthly data. Accepted values: 'day', 'week' or 'month'.
+    DAYS - how many days since the current timestamp you want the data to come from
+    EOS
   definition_body = <<-EOS
 SELECT user_id,time_grouping AS time_grouping,COUNT(*) AS page_views FROM
 (
