@@ -2,12 +2,13 @@ from algocomponents.utils._launch_task import launch_task
 from algocomponents.utils._loggiedoggie import LoggieDoggie
 from algocomponents.utils._ab_tools import ABTools
 from algocomponents.utils._tools import config_to_str, merge_configs
+from algocomponents.utils._avaus_visuals import AvausVisuals
 from algocomponents.utils._save_plots import (
     save_boxplot,
     save_histogram,
     save_corr_matrix,
+    save_violinplot
 )
-
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -26,4 +27,6 @@ __all__ = [
     "save_boxplot",
     "save_histogram",
     "save_corr_matrix",
+    "save_violinplot",
+    "AvausVisuals"
 ]

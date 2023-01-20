@@ -3,7 +3,7 @@ import numpy as np
 
 
 from algocomponents.tasks import Task
-from algocomponents.utils import save_boxplot, save_histogram, save_corr_matrix
+from algocomponents.utils import save_boxplot, save_histogram, save_corr_matrix, save_violinplot
 
 
 class VisualizeDataset(Task):
@@ -75,18 +75,18 @@ class VisualizeDataset(Task):
             self.df_numeric.max() - self.df_numeric.min()
         )
 
-        save_boxplot(
-            df=self.df_numeric,
-            output_folder=self.output_folder,
-            interactive_plots=self.interactive_plots,
-            logger=self.logger,
-        )
-        save_boxplot(
-            df=self.df_normalized,
-            output_folder=self.output_folder,
-            file_name="normalized_boxplot",
-            interactive_plots=self.interactive_plots,
-        )
+        # save_boxplot(
+        #     df=self.df_numeric,
+        #     output_folder=self.output_folder,
+        #     interactive_plots=self.interactive_plots,
+        #     logger=self.logger,
+        # )
+        # save_boxplot(
+        #     df=self.df_normalized,
+        #     output_folder=self.output_folder,
+        #     file_name="normalized_boxplot",
+        #     interactive_plots=self.interactive_plots,
+        # )
         save_histogram(
             df=self.input_df,
             output_folder=self.output_folder,
@@ -97,6 +97,21 @@ class VisualizeDataset(Task):
         save_corr_matrix(
             df=self.df_numeric,
             output_folder=self.output_folder,
+            interactive_plots=self.interactive_plots,
+            logger=self.logger,
+        )
+
+        save_violinplot(
+            df=self.df_numeric,
+            output_folder=self.output_folder,
+            interactive_plots=self.interactive_plots,
+            logger=self.logger,
+        )
+
+        save_violinplot(
+            df=self.df_normalized,
+            output_folder=self.output_folder,
+            file_name="normalized_violinplot",
             interactive_plots=self.interactive_plots,
             logger=self.logger,
         )
