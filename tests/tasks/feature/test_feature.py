@@ -50,11 +50,11 @@ class TestFeatureBase(TestCase):
     sql_adapter = LocalSqliteAdapter()
 
     def test_base_case(self):
-        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base", "config")
         connecting_table = "{tmp_db}.feature_base_test"
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
-            sql_folder="feature_base_test_queries",
+            sql_folder="../feature_base/feature_base_test_queries",
             sql_adapter=self.sql_adapter,
             output_table=connecting_table,
         )
@@ -86,11 +86,12 @@ class TestFeatureBase(TestCase):
         feature.sql_adapter.disconnect()
 
     def test_output_column_missing(self):
-        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base", "config")
         connecting_table = "{tmp_db}.feature_base_test"
+
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
-            sql_folder="feature_base_test_queries",
+            sql_folder="../feature_base/feature_base_test_queries",
             sql_adapter=self.sql_adapter,
             output_table=connecting_table,
         )
@@ -108,11 +109,11 @@ class TestFeatureBase(TestCase):
             feature.start()
 
     def test_output_table_missing(self):
-        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base", "config")
         connecting_table = "{tmp_db}.feature_base_test"
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
-            sql_folder="feature_base_test_queries",
+            sql_folder="../feature_base/feature_base_test_queries",
             sql_adapter=self.sql_adapter,
             output_table=connecting_table,
         )
@@ -130,12 +131,12 @@ class TestFeatureBase(TestCase):
             feature.start()
 
     def test_input_column_missing(self):
-        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base", "config")
         connecting_table = "{tmp_db}.feature_base_test"
 
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
-            sql_folder="feature_base_missing_columns_queries",
+            sql_folder="../feature_base/feature_base_missing_columns_queries",
             sql_adapter=self.sql_adapter,
             output_table=connecting_table,
         )
@@ -157,12 +158,12 @@ class TestFeatureBase(TestCase):
             feature.start()
 
     def test_input_table_missing(self):
-        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base", "config")
         connecting_table = "{tmp_db}.feature_base_test"
 
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
-            sql_folder="feature_base_no_output_table_queries",
+            sql_folder="../feature_base/feature_base_no_output_table_queries",
             sql_adapter=self.sql_adapter,
             output_table=connecting_table,
         )
@@ -184,13 +185,13 @@ class TestFeatureBase(TestCase):
     def test_import_subset_of_available_cols(self):
         # Test if features can import only a subset of the available columns
         # cases with features importing equal or larger sets covered above
-        global_config_path = os.path.join("tests", "tasks", "feature_base_config")
+        global_config_path = os.path.join("tests", "tasks", "feature_base", "config")
         connecting_table = "{tmp_db}.feature_base_test"
 
         # ensure an input table exists featurebase
         feature_base = SimpleFeatureBase(
             global_config_dir=global_config_path,
-            sql_folder="feature_base_test_queries",
+            sql_folder="../feature_base/feature_base_test_queries",
             sql_adapter=self.sql_adapter,
             output_table=connecting_table,
         )
@@ -198,7 +199,7 @@ class TestFeatureBase(TestCase):
 
         feature = SingleColumnFeature(
             global_config_dir=global_config_path,
-            sql_folder="feature_base_missing_columns_queries",
+            sql_folder="../feature_base/feature_base_missing_columns_queries",
             sql_adapter=self.sql_adapter,
             input_table=connecting_table,
             output_table="{tmp_db}.feature_test",
