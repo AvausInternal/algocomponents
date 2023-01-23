@@ -100,12 +100,9 @@ resource "google_bigquery_routine" "get_flattened_categorical_data" {
   EOS
   definition_body = <<-EOS
 SELECT
-  * EXCEPT(last_record)
+  *
 FROM (
   SELECT
-    ROW_NUMBER() OVER(PARTITION BY IF (LOWER(ID_KEY)='user_id',user_id, IF (up.key=ID_KEY,up.value.string_value,user_pseudo_id))
-    ORDER BY
-      event_timestamp DESC) AS last_record,
   IF
     ((LOWER(ID_KEY)='user_id'
         AND user_id IS NOT NULL)
@@ -128,9 +125,9 @@ FROM (
     UNNEST(user_properties) AS up
   WHERE
     (_TABLE_SUFFIX BETWEEN START_SUFFIX
-    AND END_SUFFIX) ) cte
-WHERE
-  last_record=1
+    AND END_SUFFIX)
+QUALIFY ROW_NUMBER() OVER(PARTITION BY IF (LOWER(ID_KEY)='user_id',user_id, IF (up.key=ID_KEY,up.value.string_value,user_pseudo_id)) ORDER BY event_timestamp DESC) = 1
+) cte
 EOS
   arguments {
     name      = "ID_KEY"
