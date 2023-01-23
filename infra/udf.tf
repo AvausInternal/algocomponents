@@ -112,7 +112,7 @@ FROM (
     user_id,
     up.key,
     up.value.string_value,
-    event_timestamp,
+    TIMESTAMP_MICROS(event_timestamp) AS event_timestamp,
     stream_id,
     platform,
     geo.*,
