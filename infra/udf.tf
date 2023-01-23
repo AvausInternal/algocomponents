@@ -17,7 +17,7 @@ resource "google_bigquery_routine" "test_routine_terraform" {
 resource "google_bigquery_routine" "get_known_users" {
   dataset_id      = var.transform_dataset
   routine_id      = "get_known_users"
-  routine_type    = "PROCEDURE"
+  routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
   description = <<-EOS
   ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
@@ -54,7 +54,7 @@ resource "google_bigquery_routine" "get_known_users" {
 resource "google_bigquery_routine" "get_unknown_users" {
   dataset_id      = var.transform_dataset
   routine_id      = "get_unknown_users"
-  routine_type    = "PROCEDURE"
+  routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
     description = <<-EOS
   ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
@@ -91,7 +91,7 @@ resource "google_bigquery_routine" "get_unknown_users" {
 resource "google_bigquery_routine" "get_flattened_categorical_data" {
   dataset_id      = var.transform_dataset
   routine_id      = "get_flattened_categorical_data"
-  routine_type    = "PROCEDURE"
+  routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
     description = <<-EOS
   ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
@@ -147,9 +147,10 @@ EOS
 resource "google_bigquery_routine" "get_time_grouped_page_views_per_user" {
   dataset_id      = var.transform_dataset
   routine_id      = "get_time_grouped_page_views_per_user"
-  routine_type    = "PROCEDURE"
+  routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
     description = <<-EOS
+    ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
     MODE - used to indicate whether you want daily, weekly or monthly data. Accepted values: 'day', 'week' or 'month'.
     DAYS - how many days since the current timestamp you want the data to come from
     EOS
