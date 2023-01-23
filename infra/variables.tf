@@ -2,7 +2,7 @@ variable "gcp_project_name" {
   description = "GCP Project Name"
   type        = string
 }
-variable "transform_dataset_id" {
+variable "transform_dataset" {
   description = "Transform dataset ID"
   type        = string
 }
