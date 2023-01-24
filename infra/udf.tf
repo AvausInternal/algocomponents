@@ -19,7 +19,7 @@ resource "google_bigquery_routine" "get_known_users" {
   routine_id      = "get_known_users"
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
-  description = <<-EOS
+  description     = <<-EOS
   ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
   START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
   END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
@@ -56,7 +56,7 @@ resource "google_bigquery_routine" "get_unknown_users" {
   routine_id      = "get_unknown_users"
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
-    description = <<-EOS
+  description     = <<-EOS
   ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
   START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
   END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
@@ -93,7 +93,7 @@ resource "google_bigquery_routine" "get_flattened_categorical_data" {
   routine_id      = "get_flattened_categorical_data"
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
-    description = <<-EOS
+  description     = <<-EOS
   ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
   START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
   END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
@@ -118,7 +118,10 @@ FROM (
     geo.*,
     traffic_source.*,
     privacy_info.*,
-    device.*
+    device.* EXCEPT (web_info),
+    device.web_info.browser AS web_info_browser,
+    device.web_info.browser_version AS web_info_browser_version,
+    device.web_info.hostname AS web_info_hostname,
   FROM
     `${var.ga_project_id}.${var.ga_dataset_id}.events_*`
   LEFT JOIN
@@ -149,7 +152,7 @@ resource "google_bigquery_routine" "get_time_grouped_page_views_per_user" {
   routine_id      = "get_time_grouped_page_views_per_user"
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
-    description = <<-EOS
+  description     = <<-EOS
     ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
     MODE - used to indicate whether you want daily, weekly or monthly data. Accepted values: 'day', 'week' or 'month'.
     DAYS - how many days since the current timestamp you want the data to come from
@@ -195,7 +198,7 @@ ORDER BY
   id,
   MAX(event_timestamp)
 EOS
-    arguments {
+  arguments {
     name      = "ID_KEY"
     data_type = "{\"typeKind\" :  \"STRING\"}"
   }
