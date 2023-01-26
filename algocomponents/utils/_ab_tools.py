@@ -13,18 +13,6 @@ class ABTools:
     ABTools contain a number of methods that are useful for conducting A/B tests
     and report results of A/B tests.
 
-    Methods:
-        get_min_sample_size_binomial():
-            Calculate the minimum sample size to set up an A/B test for a binomial metric.
-        get_min_sample_size_continuous():
-            Calculate the minimum sample size to set up an A/B test for a continuous metric.
-        get_unequal_sample_size():
-            Calculate the minimum sample size of the control group when the samples have unequal size.
-        is_significant_binomial():
-            Calculate if an A/B test with binomial metric was statistically significant (Z-test).
-        is_significant_continuous()
-            Calculate if an A/B test with continuous metric was statistically significant (Welch's t-test).
-
     """
 
     _default_power = 0.8
