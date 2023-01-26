@@ -32,7 +32,7 @@ class ConfigReader(ABC):
 
     Args:
         global_config_dir: Path from project root to global config.ini-file.
-        global_config_dir: Relative path to local config.ini-file.
+        local_config_dir: Relative path to local config.ini-file.
         config: A passed ConfigParser object, which overwrites any files read.
         section: Which section of the ConfigParsers should be read from.
 
