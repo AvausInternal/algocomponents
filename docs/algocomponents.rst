@@ -1,6 +1,5 @@
 algocomponents
 ==============
-
 Subpackages
 -----------
 
@@ -11,8 +10,19 @@ Subpackages
    algocomponents.tasks
    algocomponents.utils
 
-Contents
---------
+Submodules
+----------
+
+algocomponents.config\_reader module
+------------------------------------
+
+.. automodule:: algocomponents.config_reader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
 
 .. automodule:: algocomponents
    :members:
