@@ -39,7 +39,7 @@ class TestDataTransferTask(TestCase):
         assert sql_adapter.table_exists("data_transfer_table_new")
 
     def test_correct_data_output(self):
-        
+
         SQLTask(
             sql_string="DROP TABLE IF EXISTS data_transfer_table_new;",
             sql_adapter=LocalSqliteAdapter(),
