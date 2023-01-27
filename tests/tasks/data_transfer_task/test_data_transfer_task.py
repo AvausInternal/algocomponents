@@ -26,10 +26,28 @@ class TestDataTransferTask(TestCase):
         ).start()
 
         DataTransferTask(
-            sql_string="""SELECT * FROM data_transfer_table """,
             from_adapter=LocalSqliteAdapter(),
             to_adapter=LocalSqliteAdapter(),
             from_table="data_transfer_table",
+            to_table="data_transfer_table_new",
+            overwrite=True,
+        ).start()
+
+        sql_adapter = LocalSqliteAdapter()
+        sql_adapter.connect()
+        assert sql_adapter.table_exists("data_transfer_table_new")
+    
+    def test_new_table_from_query_results_is_created(self):
+
+        SQLTask(
+            sql_string="DROP TABLE IF EXISTS data_transfer_table_new;",
+            sql_adapter=LocalSqliteAdapter(),
+        ).start()
+
+        DataTransferTask(
+            sql_string="""SELECT 1 FROM data_transfer_table """,
+            from_adapter=LocalSqliteAdapter(),
+            to_adapter=LocalSqliteAdapter(),
             to_table="data_transfer_table_new",
             overwrite=True,
         ).start()
@@ -46,7 +64,6 @@ class TestDataTransferTask(TestCase):
         ).start()
 
         DataTransferTask(
-            sql_string="""SELECT * FROM data_transfer_table """,
             from_adapter=LocalSqliteAdapter(),
             to_adapter=LocalSqliteAdapter(),
             from_table="data_transfer_table",
@@ -59,3 +76,4 @@ class TestDataTransferTask(TestCase):
         assert sql_adapter.table_contains_columns(
             "data_transfer_table_new", columns=["adapter", "power_level"]
         )
+        sql_adapter.disconnect()

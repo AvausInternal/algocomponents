@@ -1,15 +1,20 @@
-from algocomponents.tasks import SQLTask
+from algocomponents.tasks import Task,SQLTask
 from algocomponents.adapters import SQLAdapter
 
 
-class DataTransferTask(SQLTask):
-    """Copies the query result from one adapter and saves it to the specified table.
+class DataTransferTask(Task):
+    """DataTransferTask transfers data across adapters.
 
-    The task can be used to copy query results within the same adapter or
-    transfer data across adapters.
+    The task can only either take `from_table` as input or `sql_string/sql_file_path` as input.
 
-    Runs either the sql_string or the sql_file_path; if an sql_string is given, this
-    takes priority.
+    If `from_table` is given as input, the task copies the full table and saves it to
+    the specified table.
+
+    If `sql_string` or `sql_file_path` is given as input, the task copies the query result
+    from one adapter and saves it to the specified table.
+
+    If both `sql_string`and `sql_file_path` is given, sql_string takes priority.
+    
 
     Args:
         from_adapter: The adapter we want to move data from. LocalSqliteAdapter and BigQueryAdaper are supported.
@@ -33,8 +38,13 @@ class DataTransferTask(SQLTask):
         overwrite: bool = False,
         **kwargs,
     ):
-        super().__init__(**kwargs, sql_file_path=sql_file_path, sql_string=sql_string)
+        if from_table is not None and (sql_string or sql_file_path) is not None:
+            raise ValueError("Please give a value for from_table or sql_string/sql_file_path, but not both")
 
+        super().__init__(**kwargs)
+        
+        self.sql_string = sql_string
+        self.sql_file_path = sql_file_path
         self.from_adapter = from_adapter
         self.to_adapter = to_adapter
         self.from_table = from_table
@@ -42,23 +52,42 @@ class DataTransferTask(SQLTask):
         self.overwrite = overwrite
 
     def run(self):
-
+        
         self.logger.info(
-            f"Copying query results from table: {self.from_table}({self.from_adapter.class_name}) to table: {self.to_table}({self.to_adapter.class_name})"
+            f"Copying table: {self.from_table}({self.from_adapter.class_name}) to table: {self.to_table}({self.to_adapter.class_name})"
         )
 
-        # Create pandas df from query
-        dataframe = (
-            SQLTask(
-                sql_string=self.sql_string,
-                sql_file_path=self.sql_file_path,
-                sql_adapter=self.from_adapter,
-            )
-            .start()
-            .as_pandas()
-        )
-        # Create table from pandas df
-        self.to_adapter.connect()
-        self.to_adapter.pandas_df_as_table(
+        if self.from_table is not None:
+        
+            self.from_adapter.connect()
+            dataframe = self.to_adapter.table_as_pandas_df(self.from_table)
+            self.from_adapter.disconnect()
+
+            self.to_adapter.connect()
+            self.to_adapter.pandas_df_as_table(
             df=dataframe, table=self.to_table, overwrite=self.overwrite
-        )
+             )
+            self.to_adapter.disconnect()
+
+        else:
+            
+            self.logger.info(
+            f"Copying query results from table: {self.from_table}({self.from_adapter.class_name}) to table: {self.to_table}({self.to_adapter.class_name})"
+            )
+
+            # Create pandas df from query
+            dataframe = (
+                SQLTask(
+                    sql_string=self.sql_string,
+                    sql_file_path=self.sql_file_path,
+                    sql_adapter=self.from_adapter,
+                )
+                .start()
+                .as_pandas()
+            )
+            # Create table from pandas df
+            self.to_adapter.connect()
+            self.to_adapter.pandas_df_as_table(
+                df=dataframe, table=self.to_table, overwrite=self.overwrite
+            )
+            self.to_adapter.disconnect()     
