@@ -5,7 +5,7 @@ from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     DataMismatchException,
 )
-from algocomponents.tasks import AdapterTask, Task
+from algocomponents.tasks import Task
 
 
 class VerifyOutput(Task):
@@ -25,7 +25,7 @@ class VerifyOutput(Task):
 
     def __init__(
         self,
-        for_task: AdapterTask,
+        for_task: Task,
         task_output_table: str,
         expected_output_table: str,
         **kwargs,

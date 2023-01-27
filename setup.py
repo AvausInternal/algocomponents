@@ -2,12 +2,17 @@ from setuptools import setup
 
 setup(
     name="algocomponents",
-    version="0.8.0",
+    version="0.9.0",
     packages=[
         "algocomponents",
         "algocomponents.tasks",
+        "algocomponents.tasks.check_significance",
+        "algocomponents.tasks.check_significance.sql",
         "algocomponents.tasks.model_evaluator",
         "algocomponents.tasks.model_evaluator.sql",
+        "algocomponents.tasks.stratify_groups",
+        "algocomponents.tasks.stratify_groups.sql",
+        "algocomponents.tasks.stratify_groups.sqlite",
         "algocomponents.tasks.task_verifier",
         "algocomponents.tasks.task_verifier.sql",
         "algocomponents.utils",
@@ -22,6 +27,9 @@ setup(
         "setuptools==63.2.0",
         "db-dtypes",
         "scipy==1.9.1",
+        "numpy==1.23.4",
+        "plotly==5.10.0",
+        "kaleido==0.1.0",
     ],
     package_data={"": ["*.sql"]},
     url="",

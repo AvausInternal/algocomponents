@@ -1,7 +1,13 @@
-def config_to_str(config):
+def config_to_str(config) -> str:
     """Convert a ConfigParser-object to a string.
 
     This is used to log the contents of Tasks configs.
+
+    Args:
+        config: A ConfigParser object.
+
+    Returns:
+        A string representation of the ConfigParser.
 
     """
     config_dict = dict(config)
@@ -32,6 +38,9 @@ def merge_configs(merge_this, into_this, overwrite: bool = False):
         into_this  = {DEFAULT: {"a": 1, "b": 99, "d": 4}}
         overwrite  = True
         result     = {DEFAULT: {"a": 1, "b": 2,  "c": 3, "d": 4}}
+
+    Returns:
+        The ConfigParser object which is the result of the merge.
 
     """
     # Assure DEFAULT is last, adding to this will add to all sections

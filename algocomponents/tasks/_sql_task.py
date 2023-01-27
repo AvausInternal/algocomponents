@@ -1,7 +1,8 @@
-from algocomponents.tasks import AdapterTask
+from algocomponents.tasks import Task
+import pandas as pd
 
 
-class SQLTask(AdapterTask):
+class SQLTask(Task):
     """A task used to run SQL queries with an adapter.
 
     The sql_file_path is the path to the file from the project root.
@@ -45,10 +46,13 @@ class SQLTask(AdapterTask):
                 format_variables=dict(self.config[self.section]),
             )
 
-    def as_pandas(self):
+    def as_pandas(self) -> pd.DataFrame:
         """Returns the result as a pandas dataframe.
 
         This method is intended for method cascading: task.start().as_pandas().
+
+        Returns:
+            The result of the task as a pandas dataframe.
 
         """
         return self.sql_adapter.latest_query_as_pandas()

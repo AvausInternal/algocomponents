@@ -8,7 +8,7 @@ from algocomponents.adapters.custom_exceptions import (
 from algocomponents.tasks import SQLTask
 
 
-class UnionTablesTask(SQLTask):
+class UnionTables(SQLTask):
     """Performs the UNION ALL operation on all supplied tables.
 
     This task first verifies that the tables have the same columns and column
@@ -16,8 +16,8 @@ class UnionTablesTask(SQLTask):
 
     Args:
         tables: Which tables to union, written as database.table.
-        task_output_table: The output table for the task.
-        expected_output_table: Where we want to save the expected output.
+        output_table: Where to put the union:ed tables.
+        overwrite_output_table_if_exists: Whether to overwrite the output table or not.
 
     """
 
@@ -53,6 +53,9 @@ class UnionTablesTask(SQLTask):
         Args:
             tables: List of strings of tables to union.
             overwrite_output_table_if_exists: If existing tables are overwritten.
+
+        Returns:
+            The query that will union all tables.
 
         """
         query = ""

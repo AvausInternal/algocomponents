@@ -43,10 +43,13 @@ class LocalSqliteAdapter(SQLAdapter):
         self.cursor = self.connection.cursor()
         self.logger.info(sqlite3.version)
 
-    def is_connected(self):
+    def is_connected(self) -> bool:
         """Checks whether the adapter is connected.
 
         Checks the existence and connection of self.cursor.
+
+        Returns:
+            True if the adapter is connected, False otherwise.
 
         """
         if self.cursor is None:
@@ -66,11 +69,14 @@ class LocalSqliteAdapter(SQLAdapter):
         self.connection.close()
         super().disconnect()
 
-    def _format_table_name(self, table: str):
+    def _format_table_name(self, table: str) -> str:
         """Performs an adapter-specific formatting of the table.
 
         Removes backticks and replaces any .'s with _'s. This is to keep all
         local databases in one file for simplicity and for .gitignore.
+
+        Returns:
+            The formatted table name.
 
         """
         return table.replace("`", "").replace(".", "_")
@@ -81,11 +87,17 @@ class LocalSqliteAdapter(SQLAdapter):
         Args:
             table: The table to look for.
 
+        Returns:
+            True if the table exists, false otherwise.
+
         """
+        # This is technically not required, run_sql_string formats table names.
         formatted_table = self._format_table_name(table)
-        tables = self.cursor.execute(
+        # However, to skip it, the regex to find table names has to be updated
+        # to find them in the below query, which is considered too fringe.
+        tables = self.run_sql_string(
             f"SELECT name FROM sqlite_master WHERE type='table' AND name='{formatted_table}'"
-        ).fetchall()
+        )[0]
         return len(tables) > 0
 
     def get_table_columns(self, table: str) -> List[str]:
@@ -94,15 +106,14 @@ class LocalSqliteAdapter(SQLAdapter):
         Args:
             table: The table to look at.
 
-        """
-        formatted_table = self._format_table_name(table)
-        description = self.cursor.execute(
-            f"SELECT * FROM {formatted_table}"
-        ).description
-        columns_names = [column[0] for column in description]
-        return columns_names
+        Returns:
+            A list of strings containing the names of the columns in the table.
 
-    def _run_formatted_query(self, query: str):
+        """
+        df = self.table_as_pandas_df(table)
+        return list(df.columns)
+
+    def _run_formatted_query(self, query: str) -> pd.DataFrame:
         """Runs a query towards SQLite.
 
         The changes will persist if commit_queries was set to True when this
@@ -110,6 +121,11 @@ class LocalSqliteAdapter(SQLAdapter):
 
         Args:
             query: The query to run.
+
+        Returns:
+            The result of the query as a pandas dataframe. An empty dataframe
+            will be returned if the statement simply manipulates tables like
+            CREATE:ing och DROP:ing tables.
 
         """
         query_job = self.cursor.execute(query)
@@ -133,8 +149,13 @@ class LocalSqliteAdapter(SQLAdapter):
 
         return df
 
-    def latest_query_as_pandas(self):
-        """Get the result of the latest query as a pandas dataframe."""
+    def latest_query_as_pandas(self) -> pd.DataFrame:
+        """Get the result of the latest query as a pandas dataframe.
+
+        Returns:
+            A pandas dataframe of the latest query run.
+
+        """
         return pd.DataFrame.from_records(
             data=self.rows,
             columns=self.columns,

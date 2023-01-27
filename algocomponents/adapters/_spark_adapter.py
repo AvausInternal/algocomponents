@@ -32,10 +32,13 @@ class SparkAdapter(SQLAdapter):
 
         self.spark = SparkSession.builder.getOrCreate()
 
-    def is_connected(self):
+    def is_connected(self) -> bool:
         """Checks whether the adapter is connected.
 
         As long as self.spark is not None, the adapter is considered connected.
+
+        Returns:
+            True if self.spark is not None, False otherwise
 
         """
         return self.spark is not None
@@ -50,13 +53,16 @@ class SparkAdapter(SQLAdapter):
         self.spark = None
         super().disconnect()
 
-    def _format_table_name(self, table: str):
+    def _format_table_name(self, table: str) -> str:
         """Performs an adapter-specific formatting of the table.
 
         For this adapter, this method does not change the table in any way.
 
         Args:
             table: The table to format.
+
+        Returns:
+            The formatted table (no change for this adapter).
 
         """
         return table
@@ -67,9 +73,13 @@ class SparkAdapter(SQLAdapter):
         Args:
             table: The table to look for.
 
+        Returns:
+            True if the table exists, false otherwise.
+
         """
+        table = self._format_table_name(table=table)
         database, table = table.split(".")
-        sql_tables = self.spark.sql(f"SHOW TABLES in `{database}`").filter(
+        sql_tables = self.run_sql_string(f"SHOW TABLES in `{database}`")[0].filter(
             f"tableName = '{table}'"
         )
         return sql_tables.count() > 0
@@ -80,6 +90,9 @@ class SparkAdapter(SQLAdapter):
         Args:
             table: The table to look at.
 
+        Returns:
+            A list of strings containing the names of the columns in the table.
+
         """
         database, table = table.split(".")
         columns = self.spark.catalog.listColumns(tableName=table, dbName=database)
@@ -89,8 +102,14 @@ class SparkAdapter(SQLAdapter):
     def _run_formatted_query(self, query: str):
         """Runs a query towards BigQuery.
 
+        The return-statement is not type hinted to a spark dataframe as that
+        would require importing the library.
+
         Args:
             query: The query to run.
+
+        Returns:
+            A spark dataframe of the result.
 
         """
         self.sdf = self.spark.sql(query)

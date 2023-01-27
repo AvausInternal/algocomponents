@@ -2,6 +2,8 @@ import importlib
 import inspect
 import os
 
+from typing import List, Dict
+
 
 def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwargs):
     """Find a task by file name and start it with it's .start()-method.
@@ -71,12 +73,15 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
     task.start()
 
 
-def _find_modules(ignored_files, ignored_dirs):
+def _find_modules(ignored_files, ignored_dirs) -> Dict[str, str]:
     """Find all python modules (files) in the repository.
 
     Args:
         ignored_files: Files to not consider when searching for python modules.
         ignored_dirs: Directories to not look inside when searching.
+
+    Returns:
+        A dict where module_name is the key and module_path is the value.
 
     """
 
@@ -114,11 +119,14 @@ def _find_modules(ignored_files, ignored_dirs):
     return modules_found
 
 
-def _get_classes_in_module(module):
+def _get_classes_in_module(module) -> List[any]:
     """Finds all classes declared in a module, aka a .py-file.
 
     Args:
         module: The module to search for classes in.
+
+    Returns:
+        All the classes defined in a module.
 
     """
     classes = []
@@ -148,7 +156,11 @@ def _get_classes_in_module(module):
 def _get_adapter(adapter_type: str):
     """Given an adapter_type (str), return an instantiated adapter.
 
-    adapter_type: The string used to map to an sql_adapter-class.
+    Args:
+        adapter_type: The string used to map to an sql_adapter-class.
+
+    Returns:
+        The adapter class for the corresponding string.
 
     """
     if adapter_type is None:

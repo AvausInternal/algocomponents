@@ -7,7 +7,7 @@ from algocomponents.adapters import (
     SparkAdapter,
     DatabricksAdapter,
 )
-from algocomponents.tasks import Task, GroupTask, SQLTask, SQLPipeline, AdapterTask
+from algocomponents.tasks import Task, GroupTask, SQLTask, SQLPipeline
 
 
 class ThatThatLoggersInitCorrectly(TestCase):
@@ -17,10 +17,6 @@ class ThatThatLoggersInitCorrectly(TestCase):
     # Tasks
     def test_that_task_gets_correct_logger(self):
         task = Task()
-        self.verify_logger(task.logger)
-
-    def test_that_adapter_task_gets_correct_logger(self):
-        task = AdapterTask()
         self.verify_logger(task.logger)
 
     def test_that_group_task_gets_correct_logger(self):
