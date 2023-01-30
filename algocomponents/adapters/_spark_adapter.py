@@ -161,3 +161,14 @@ class SparkAdapter(SQLAdapter):
 
         """
         raise NotImplementedError()
+
+    def count_rows_in_table(self, table: str) -> int:
+        """Count the number of rows in a table.
+
+        Raises NotImplementedError()
+
+        Args:
+            table name.
+
+        """
+        raise NotImplementedError()

@@ -1,4 +1,5 @@
 from unittest import TestCase
+import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import SQLTask
@@ -36,3 +37,16 @@ class TestLocalSqliteAdapterTableMethods(TestCase):
             "tmp_dream_table"
         ) == ["a_dream", "within_a_dream"]
         self.create_table_task.sql_adapter.disconnect()
+
+    def test_count_rows_in_table(self):
+        self.create_table_task.start()
+        self.create_table_task.sql_adapter.connect()
+        with pytest.raises(Exception) as e_info:
+            self.create_table_task.sql_adapter.count_rows_in_table(
+                "does_not_exist_table"
+            ) == 1
+
+        assert (
+            self.create_table_task.sql_adapter.count_rows_in_table("tmp_dream_table")
+            == 1
+        )

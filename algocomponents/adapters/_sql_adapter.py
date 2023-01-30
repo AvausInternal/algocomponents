@@ -522,3 +522,16 @@ class SQLAdapter(ConfigReader):
 
         """
         return len(self.table_as_pandas_df(table)) == 0
+
+    @abstractmethod
+    def count_rows_in_table(self, table: str) -> int:
+        """Count the number of rows in a table.
+
+        Args:
+            table: The table to count number of rows.
+
+        Returns:
+            The number of rows as a int.
+
+        """
+        pass
