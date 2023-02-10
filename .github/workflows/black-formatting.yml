@@ -16,8 +16,8 @@ jobs:
         run: pip install black
       - name: Run black --check .
         run: |
-          black --check .
           black --version
+          black --check .
       - name: If needed, commit black changes to the pull request
         if: failure()
         run: |
