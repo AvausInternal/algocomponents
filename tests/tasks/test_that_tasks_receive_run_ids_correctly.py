@@ -14,7 +14,9 @@ class TestGroupTaskShorthand(TestCase):
 
     def test_that_run_ids_propagate(self):
         task = Task()
-        group_task = GroupTask(task_list=[task],)
+        group_task = GroupTask(
+            task_list=[task],
+        )
         assert group_task.run_id is None
 
         group_task.start()

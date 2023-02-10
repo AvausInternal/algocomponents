@@ -17,7 +17,8 @@ class BigQueryAdapter(SQLAdapter):
     """
 
     def __init__(
-        self, **kwargs,
+        self,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.client = None
@@ -44,7 +45,8 @@ class BigQueryAdapter(SQLAdapter):
 
             key_path = self.config[self.section]["serv_acc_key_path"]
             credentials = service_account.Credentials.from_service_account_file(
-                key_path, scopes=["https://www.googleapis.com/auth/cloud-platform"],
+                key_path,
+                scopes=["https://www.googleapis.com/auth/cloud-platform"],
             )
             self.client = bigquery.Client(credentials=credentials)
         else:

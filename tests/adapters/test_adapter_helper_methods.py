@@ -6,7 +6,6 @@ from algocomponents.tasks import SQLTask
 
 
 class TestAdapterHelperMethods(TestCase):
-
     sql_adapter = LocalSqliteAdapter(
         global_config_dir=os.path.join("tests", "adapters", "config"),
     )
@@ -66,7 +65,9 @@ class TestAdapterHelperMethods(TestCase):
         )
         assert (
             self.sql_adapter.table_contains_columns(
-                table=table, columns=self.columns, identical=True,
+                table=table,
+                columns=self.columns,
+                identical=True,
             )
             is True
         )

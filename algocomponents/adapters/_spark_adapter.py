@@ -11,7 +11,8 @@ class SparkAdapter(SQLAdapter):
     """
 
     def __init__(
-        self, **kwargs,
+        self,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.spark = None

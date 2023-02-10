@@ -21,7 +21,6 @@ class SimpleFeatureBase(FeatureBase):
 
 
 class TestFeatureBase(TestCase):
-
     sql_adapter = LocalSqliteAdapter()
 
     def test_base_case(self):

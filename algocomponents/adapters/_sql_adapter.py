@@ -132,7 +132,8 @@ class SQLAdapter(ConfigReader):
         with open(path) as f:
             sql_string = f.read()
             return self.run_sql_string(
-                sql_string=sql_string, format_variables=format_variables,
+                sql_string=sql_string,
+                format_variables=format_variables,
             )
 
     def run_sql_string(

@@ -42,7 +42,9 @@ class Feature(FeatureBase, ABC):
         pass
 
     def __init__(
-        self, input_table: str, **kwargs,
+        self,
+        input_table: str,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.input_table = input_table.format(**self.config[self.section])

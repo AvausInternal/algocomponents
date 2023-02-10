@@ -5,7 +5,6 @@ from algocomponents.adapters import LocalSqliteAdapter, BigQueryAdapter
 
 
 class TestAdapterFindTableNames(TestCase):
-
     sql_adapter = LocalSqliteAdapter()
     big_query_adapter = BigQueryAdapter()
 
@@ -124,8 +123,8 @@ class TestAdapterFindTableNames(TestCase):
     def test_finding_tables_without_finding_parameters_in_big_query_method_bad_formatting(
         self,
     ):
-        query_with_big_query_extract_method_bad_formatting = self.sql_query_format_scrambler(
-            self.query_with_big_query_extract_method
+        query_with_big_query_extract_method_bad_formatting = (
+            self.sql_query_format_scrambler(self.query_with_big_query_extract_method)
         )
 
         table_names = self.big_query_adapter.find_table_names(
@@ -171,8 +170,8 @@ class TestAdapterFindTableNames(TestCase):
         assert sorted(table_names) == self.advanced_tables_with_gcp_project
 
     def test_finding_multiple_tables_with_gcp_project_bad_formatting(self):
-        advanced_query_with_gcp_project_poor_formatting = self.sql_query_format_scrambler(
-            self.advanced_query_with_gcp_project
+        advanced_query_with_gcp_project_poor_formatting = (
+            self.sql_query_format_scrambler(self.advanced_query_with_gcp_project)
         )
         table_names = self.sql_adapter.find_table_names(
             sql=advanced_query_with_gcp_project_poor_formatting

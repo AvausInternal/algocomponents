@@ -36,7 +36,11 @@ class LoggieDoggie:
     _default_log_level = "INFO"
     _default_log_to_file = True
 
-    def fetch_logger(self, logger_name: str, config: Dict = None,) -> logging.Logger:
+    def fetch_logger(
+        self,
+        logger_name: str,
+        config: Dict = None,
+    ) -> logging.Logger:
         """Fetch a logger by logger name, or create one if one did not exist.
 
         Args:

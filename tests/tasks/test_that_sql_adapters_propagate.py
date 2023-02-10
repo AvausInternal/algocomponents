@@ -5,7 +5,6 @@ from algocomponents.tasks import GroupTask, Task
 
 
 class TestThatSQLAdaptersPropagate(TestCase):
-
     sql_adapter = LocalSqliteAdapter()
 
     def test_that_a_task_has_the_adapter_given_to_it(self):

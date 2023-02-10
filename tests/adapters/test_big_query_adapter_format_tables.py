@@ -6,7 +6,6 @@ from algocomponents.adapters import BigQueryAdapter, SQLAdapter
 
 
 class TestBigQueryAdapterFormatTables(TestCase):
-
     gcp_project = "avaus-academy"
     config = ConfigParser()
     config.set(section="DEFAULT", option="gcp_project", value=gcp_project)

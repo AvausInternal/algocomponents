@@ -22,7 +22,9 @@ class LocalSqliteAdapter(SQLAdapter):
     db_file = "local_sqlite.db"
 
     def __init__(
-        self, commit_queries: bool = True, **kwargs,
+        self,
+        commit_queries: bool = True,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.commit_queries = commit_queries
@@ -132,7 +134,10 @@ class LocalSqliteAdapter(SQLAdapter):
             self.columns = [column[0] for column in query_job.description]
 
         if self.rows:
-            df = pd.DataFrame.from_records(data=self.rows, columns=self.columns,)
+            df = pd.DataFrame.from_records(
+                data=self.rows,
+                columns=self.columns,
+            )
         else:
             df = pd.DataFrame()
 
@@ -151,7 +156,10 @@ class LocalSqliteAdapter(SQLAdapter):
             A pandas dataframe of the latest query run.
 
         """
-        return pd.DataFrame.from_records(data=self.rows, columns=self.columns,)
+        return pd.DataFrame.from_records(
+            data=self.rows,
+            columns=self.columns,
+        )
 
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
         """Creates a table and puts a pandas dataframe in it.

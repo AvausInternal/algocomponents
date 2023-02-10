@@ -6,7 +6,6 @@ from algocomponents.adapters import LocalSqliteAdapter
 
 
 class TestSQLAdapterFormattedVariables(TestCase):
-
     sql_adapter = LocalSqliteAdapter()
     format_variables = {
         "TMP_DB": "tmp",

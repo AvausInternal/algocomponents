@@ -4,7 +4,6 @@ from algocomponents.adapters import LocalSqliteAdapter
 
 
 class TestLocalSqliteAdapterFormatTables(TestCase):
-
     local_sqlite_adapter = LocalSqliteAdapter()
 
     simple_query = """CREATE TABLE tmp"""

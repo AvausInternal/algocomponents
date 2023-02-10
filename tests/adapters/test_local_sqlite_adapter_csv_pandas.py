@@ -11,7 +11,6 @@ from algocomponents.tasks import SQLTask
 
 
 class TestLocalSqliteAdapterCSVPandas(TestCase):
-
     sqlite_adapter = LocalSqliteAdapter()
 
     pandas_query = """SELECT 
@@ -68,7 +67,8 @@ class TestLocalSqliteAdapterCSVPandas(TestCase):
 
     def test_create_csv_file(self):
         SQLTask(
-            sql_string=self.csv_query, sql_adapter=self.sqlite_adapter,
+            sql_string=self.csv_query,
+            sql_adapter=self.sqlite_adapter,
         ).start().to_csv(path=self.csv_file_path)
         assert os.path.exists(self.csv_file_path)
         assert os.path.isfile(self.csv_file_path)
