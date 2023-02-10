@@ -66,9 +66,7 @@ class TestAdapterHelperMethods(TestCase):
         )
         assert (
             self.sql_adapter.table_contains_columns(
-                table=table,
-                columns=self.columns,
-                identical=True,
+                table=table, columns=self.columns, identical=True,
             )
             is True
         )

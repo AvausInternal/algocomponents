@@ -73,8 +73,7 @@ class ConfigReader(ABC):
 
         # Set a logger for the task
         self.logger = LoggieDoggie().fetch_logger(
-            logger_name=self.class_name,
-            config=dict(self.config[self.section]),
+            logger_name=self.class_name, config=dict(self.config[self.section]),
         )
 
     def add_to_config(self, key, value):

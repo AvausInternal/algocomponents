@@ -42,9 +42,7 @@ class FeatureBase(SQLPipeline, ABC):
         pass
 
     def __init__(
-        self,
-        output_table: str,
-        **kwargs,
+        self, output_table: str, **kwargs,
     ):
         super().__init__(**kwargs)
         self.output_table = output_table.format(**self.config[self.section])

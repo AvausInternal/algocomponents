@@ -15,10 +15,5 @@ class TestGroupTaskListPriority(TestCase):
         assert len(group_task.task_list) == 1
 
     def test_that_task_list_can_be_overwritten(self):
-        group_task = GroupTaskWithTaskList(
-            task_list=[
-                Task(),
-                Task(),
-            ]
-        )
+        group_task = GroupTaskWithTaskList(task_list=[Task(), Task(),])
         assert len(group_task.task_list) == 2

@@ -18,10 +18,7 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
 
     ignored_files = ["__init__.py"]
     ignored_dirs = ["venv", ".git", "algocomponents"]
-    all_modules = _find_modules(
-        ignored_files=ignored_files,
-        ignored_dirs=ignored_dirs,
-    )
+    all_modules = _find_modules(ignored_files=ignored_files, ignored_dirs=ignored_dirs,)
 
     if task_file_name not in all_modules.keys():
         module_list = ""

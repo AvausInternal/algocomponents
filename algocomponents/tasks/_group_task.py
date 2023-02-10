@@ -24,9 +24,7 @@ class GroupTask(Task):
     """
 
     def __init__(
-        self,
-        task_list: List[Task] = None,
-        **kwargs,
+        self, task_list: List[Task] = None, **kwargs,
     ):
         super().__init__(**kwargs)
         if task_list:

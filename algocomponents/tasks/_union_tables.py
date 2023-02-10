@@ -39,8 +39,7 @@ class UnionTables(SQLTask):
         )
 
         super().__init__(
-            sql_string=sql_string,
-            **kwargs,
+            sql_string=sql_string, **kwargs,
         )
         self.add_to_config("output_table", output_table)
 

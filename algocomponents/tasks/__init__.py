@@ -7,9 +7,7 @@ from algocomponents.tasks._feature import Feature
 from algocomponents.tasks._union_tables import UnionTables
 from algocomponents.tasks.model_evaluator.model_evaluator import ModelEvaluator
 from algocomponents.tasks._visualize_dataset import VisualizeDataset
-from algocomponents.tasks.check_significance.check_significance import (
-    CheckSignificance,
-)
+from algocomponents.tasks.check_significance.check_significance import CheckSignificance
 
 """Allows classes to live in separate files while keeping imports short
 

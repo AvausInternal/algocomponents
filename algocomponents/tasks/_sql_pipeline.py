@@ -24,10 +24,7 @@ class SQLPipeline(GroupTask, ABC):
     sql_file_pattern = "[0-9]+_"  # Numeric followed by underscore
 
     def __init__(
-        self,
-        sql_folder: str = "sql",
-        sql_folder_relative_path: bool = True,
-        **kwargs,
+        self, sql_folder: str = "sql", sql_folder_relative_path: bool = True, **kwargs,
     ):
         super().__init__(**kwargs)
 

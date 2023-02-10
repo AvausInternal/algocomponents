@@ -14,10 +14,7 @@ class SQLTask(Task):
     """
 
     def __init__(
-        self,
-        sql_file_path: str = None,
-        sql_string: str = None,
-        **kwargs,
+        self, sql_file_path: str = None, sql_string: str = None, **kwargs,
     ):
         super().__init__(**kwargs)
 

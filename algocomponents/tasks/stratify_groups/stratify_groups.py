@@ -42,9 +42,7 @@ class StratifyGroups(SQLPipeline):
             sql_folder = "sql"
 
         super().__init__(
-            sql_adapter=sql_adapter,
-            sql_folder=sql_folder,
-            **kwargs,
+            sql_adapter=sql_adapter, sql_folder=sql_folder, **kwargs,
         )
 
         self.input_table = input_table

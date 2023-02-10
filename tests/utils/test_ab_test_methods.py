@@ -90,8 +90,8 @@ class TestAbTestMethods(TestCase):
         ab_tools = ABTools()
         n1 = 9
         n2 = 8
-        var1 = 56**2
-        var2 = 112**2
+        var1 = 56 ** 2
+        var2 = 112 ** 2
         df = (var1 / n1 + var2 / n2) ** 2 / (
             (var1 / n1) ** 2 / (n1 - 1) + (var2 / n2) ** 2 / (n2 - 1)
         )
@@ -112,8 +112,8 @@ class TestAbTestMethods(TestCase):
         ab_tools = ABTools()
         n1 = 100
         n2 = 100
-        var1 = 56**2
-        var2 = 112**2
+        var1 = 56 ** 2
+        var2 = 112 ** 2
         df = (var1 / n1 + var2 / n2) ** 2 / (
             (var1 / n1) ** 2 / (n1 - 1) + (var2 / n2) ** 2 / (n2 - 1)
         )
