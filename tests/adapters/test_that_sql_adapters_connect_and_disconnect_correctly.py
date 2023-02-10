@@ -5,7 +5,6 @@ from algocomponents.tasks import Task, GroupTask
 
 
 class TestThatSQLAdaptersConnectAndDisconnectCorrectly(TestCase):
-
     sql_adapter = LocalSqliteAdapter()
 
     def test_that_an_adapter_task_works_with_none_adapter(self):

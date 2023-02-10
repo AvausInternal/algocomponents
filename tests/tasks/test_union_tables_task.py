@@ -10,7 +10,6 @@ from algocomponents.tasks import UnionTables, SQLTask
 
 
 class TestUnionTables(TestCase):
-
     sql_adapter = LocalSqliteAdapter()
 
     def test_empty_table_list(self):

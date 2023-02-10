@@ -7,7 +7,6 @@ from algocomponents.utils._ab_tools import ABTools
 
 
 class TestAbTestMethods(TestCase):
-
     p1 = 0.05
     p2 = 0.01
     power = 0.8

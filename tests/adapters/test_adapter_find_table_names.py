@@ -5,7 +5,6 @@ from algocomponents.adapters import LocalSqliteAdapter, BigQueryAdapter
 
 
 class TestAdapterFindTableNames(TestCase):
-
     sql_adapter = LocalSqliteAdapter()
     big_query_adapter = BigQueryAdapter()
 

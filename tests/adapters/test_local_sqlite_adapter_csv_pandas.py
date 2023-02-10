@@ -11,7 +11,6 @@ from algocomponents.tasks import SQLTask
 
 
 class TestLocalSqliteAdapterCSVPandas(TestCase):
-
     sqlite_adapter = LocalSqliteAdapter()
 
     pandas_query = """SELECT 
