@@ -12,9 +12,10 @@ class FeatureSet(GroupTask):
     """_summary_
     will propogate adapter and config to child tasks.
     #todo:
-    - consider what can be lifted out of the class to utils
     - naming conventions
-    - What ought to be a private function?
+    - What ought to be a private method?
+    - What can be static methods?
+    - Make more descriptive Exceptions
     - what should be a function? encapsulate logic(Seperation of concerns)
 
     Args:
@@ -29,8 +30,9 @@ class FeatureSet(GroupTask):
         feature_base: FeatureBase = None,
         import_columns: str = "selective",
         where_clause: str = None,  #
-        drop_intermediate: bool = False,  # todo: implement
-        target_label: bool = False,  # todo: implement
+        drop_intermediate: bool = False,
+        verify: bool = True,
+        target_label: bool = False,  # todo: not implemented 
         **kwargs,
     ):
 
@@ -41,6 +43,7 @@ class FeatureSet(GroupTask):
         self.where_clause = where_clause
         self.drop_intermediate = drop_intermediate
         self.target_label = target_label
+        self.verify = verify
 
         if input_table is None and feature_base is None:
             raise ValueError("Provide either an input_table or feature_base")
@@ -63,6 +66,7 @@ class FeatureSet(GroupTask):
             )
 
         # todo: replace with a shallow add_to_config() call here?
+        # add to config for parent class, without propogation.
         self.output_table = output_table.format(**self.config[self.section])
         self.config[self.section]["OUTPUT_TABLE"] = str(self.output_table)
 
@@ -156,7 +160,7 @@ class FeatureSet(GroupTask):
 
     def _get_sql_drop_query(self, table_names: list) -> str:
         """given a list of table names, generate the sql to drop all the tables
-        #* NOTE: this can be lifted to utils class. Useful outside this scope.
+        #* NOTE: this may be lifted to utils class. Useful outside this scope.
 
         Args:
             table_names (list): list of table names to drop
@@ -213,18 +217,21 @@ class FeatureSet(GroupTask):
         return tables
 
     def startup(self):
-        # todo:
-        # check legality of joins
-        # make lists and loops?
-        pass        
+        if self.verify:
+            self.sql_adapter.connect()
+            input_table_columns = self.sql_adapter.get_table_columns(self.input_table)
+            required_columns = self._get_import_table_columns()
+            if not sorted(input_table_columns) == sorted(required_columns):
+                raise DataMismatchException(
+                    f"Input table does not contain columns specified.\n"
+                    f"Input table: {self.input_table}\n"
+                    f"Has columns: {input_table_columns}\n"
+                    f"but should contain columns: {required_columns}\n"
+                )
 
     def run(self):
         """
         todo: update docstring
-        (..) and then verifies the output table.
-        It is verified that the output table exists, and that it contains the
-        intended columns
-
         """
         if self.features:
             join_tables_task = SQLTask(
@@ -234,7 +241,6 @@ class FeatureSet(GroupTask):
             )
             self.task_list.append(join_tables_task)
 
-        # ? should this be here or in init?
         if self.drop_intermediate:
             drop_tables_task = SQLTask(
                 sql_adapter=self.sql_adapter,
@@ -247,30 +253,58 @@ class FeatureSet(GroupTask):
         super().run()
 
     def shutdown(self):
-        """clean up after run
-        #* some can be lifted to utils
-        # todo:
-        # check if rows are unchanged:
-        # check that tables are dropped?
+        """_summary_
 
         Raises:
             TableMissingException: _description_
             DataMismatchException: _description_
+            DataMismatchException: _description_
+            DataMismatchException: _description_
         """
-        # check for existance of output table
-        if not self.sql_adapter.table_exists(self.output_table):
-            raise TableMissingException(
-                f"Output table has not been created: {self.output_table}"
-            )
+        if self.verify:
+            # check for existance of output table
+            if not self.sql_adapter.table_exists(self.output_table):
+                raise TableMissingException(
+                    f"Output table has not been created: {self.output_table}"
+                )
 
-        generated_columns = self._get_all_dataset_columns()
-        actual_columns = self.sql_adapter.get_table_columns(self.output_table)
+            generated_columns = self._get_all_dataset_columns()
+            actual_columns = self.sql_adapter.get_table_columns(self.output_table)
 
-        # check that output table has the right columns
-        if not sorted(generated_columns) == sorted(actual_columns):
-            raise DataMismatchException(
-                f"Output table does not contain columns specified.\n"
-                f"Output table: {self.output_table}\n"
-                f"Has columns: {actual_columns}\n"
-                f"but should contain columns: {generated_columns}\n"
+            # check that output table has the right columns
+            if not sorted(generated_columns) == sorted(actual_columns):
+                raise DataMismatchException(
+                    f"Output table does not contain columns specified.\n"
+                    f"Output table: {self.output_table}\n"
+                    f"Has columns: {actual_columns}\n"
+                    f"but should contain columns: {generated_columns}\n"
+                )
+
+            # check dataset leave no of rows unchanged:
+            # todo: Replace with adapter methods.
+            input_table_row_count = int(
+                self.sql_adapter.run_sql_string(
+                    f"SELECT count(*) as row_count FROM {self.input_table}"
+                )[0]["row_count"].iloc[0]
             )
+            output_table_row_count = int(
+                self.sql_adapter.run_sql_string(
+                    f"SELECT count(*) as row_count FROM {self.output_table}"
+                )[0]["row_count"].iloc[0]
+            )
+            if input_table_row_count != output_table_row_count:
+                # todo: make more descriptive error exceptions
+                raise DataMismatchException(
+                    f"Dataset operation resulted in a change in rows\n"
+                    f"Input table has {input_table_row_count} rows\n"
+                    f"Output table has {output_table_row_count} rows\n"
+                )
+
+            # check intermediary tables are dropped
+            if self.drop_intermediate:
+                dropped_tables = self._get_intermediate_table_names()
+                for table in dropped_tables:
+                    if self.sql_adapter.table_exists(table):
+                        raise DataMismatchException(
+                            f"Drop intermidate tables failed, table {table} exists \n"
+                        )
