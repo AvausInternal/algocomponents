@@ -6,7 +6,6 @@ from algocomponents.tasks import SQLTask
 
 
 class TestAdapterHelperMethods(TestCase):
-
     sql_adapter = LocalSqliteAdapter(
         global_config_dir=os.path.join("tests", "adapters", "config"),
     )

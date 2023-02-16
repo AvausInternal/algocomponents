@@ -88,7 +88,6 @@ def _find_modules(ignored_files, ignored_dirs) -> Dict[str, str]:
     modules_found = {}
     current_dir = os.getcwd()
     for root, _, files in os.walk(current_dir):
-
         # root/path/project/path
         relative_path = root[len(current_dir) + 1 :]
         # project/path
