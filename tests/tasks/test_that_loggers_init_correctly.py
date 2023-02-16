@@ -11,7 +11,6 @@ from algocomponents.tasks import Task, GroupTask, SQLTask, SQLPipeline
 
 
 class ThatThatLoggersInitCorrectly(TestCase):
-
     root_logger = logging.getLogger()
 
     # Tasks

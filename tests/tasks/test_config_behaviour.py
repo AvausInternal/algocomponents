@@ -15,7 +15,6 @@ class EmptyGroupTask(GroupTask):
 
 
 class TestConfigBehaviour(TestCase):
-
     test_config_global_dir = os.path.join("tests", "tasks", "dummy_global_config")
     test_config_local_dir = "dummy_local_config"
 

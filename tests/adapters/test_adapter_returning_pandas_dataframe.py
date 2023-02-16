@@ -15,7 +15,6 @@ class EmptyTask(Task):
 
 
 class TestAdapterReturningPandasDataframe(TestCase):
-
     sql_adapter = LocalSqliteAdapter()
 
     def test_that_list_of_pandas_dataframe_is_returned(self):

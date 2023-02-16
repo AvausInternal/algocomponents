@@ -5,7 +5,6 @@ from algocomponents.tasks import SQLTask
 
 
 class TestLocalSqliteAdapterTableMethods(TestCase):
-
     sqlite_adapter = LocalSqliteAdapter()
 
     create_table_query = """DROP TABLE IF EXISTS tmp_dream_table;
