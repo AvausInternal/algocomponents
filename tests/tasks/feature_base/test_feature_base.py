@@ -25,7 +25,7 @@ class TestFeatureBase(TestCase):
 
     def test_base_case(self):
         feature_base = SimpleFeatureBase(
-            global_config_dir=os.path.join("tests", "tasks", "feature_base_config"),
+            global_config_dir=os.path.join("tests", "tasks", "feature_base", "config"),
             sql_folder="feature_base_test_queries",
             sql_adapter=self.sql_adapter,
             output_table="{tmp_db}.feature_base_test",
@@ -48,7 +48,9 @@ class TestFeatureBase(TestCase):
     def test_lacking_output_table(self):
         with pytest.raises(TableMissingException):
             feature_base = SimpleFeatureBase(
-                global_config_dir=os.path.join("tests", "tasks", "feature_base_config"),
+                global_config_dir=os.path.join(
+                    "tests", "tasks", "feature_base", "config"
+                ),
                 sql_folder="feature_base_no_output_table_queries",
                 sql_adapter=self.sql_adapter,
                 output_table="{tmp_db}.feature_base_test",
@@ -58,7 +60,9 @@ class TestFeatureBase(TestCase):
     def test_lacking_columns_in_output_table(self):
         with pytest.raises(DataMismatchException):
             feature_base = SimpleFeatureBase(
-                global_config_dir=os.path.join("tests", "tasks", "feature_base_config"),
+                global_config_dir=os.path.join(
+                    "tests", "tasks", "feature_base", "config"
+                ),
                 sql_folder="feature_base_missing_columns_queries",
                 sql_adapter=self.sql_adapter,
                 output_table="{tmp_db}.feature_base_test",

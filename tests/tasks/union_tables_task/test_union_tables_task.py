@@ -19,13 +19,10 @@ class TestUnionTables(TestCase):
             )
 
     def test_unioning_tables(self):
-        module = sys.modules[self.__class__.__module__]
-        sql_folder = os.path.join(
-            os.path.dirname(module.__file__),
-            "test_union_tables_task_sql",
-        )
         SQLTask(
-            sql_file_path=os.path.join(sql_folder, "setup.sql"),
+            sql_file_path=os.path.join(
+                "tests", "tasks", "union_tables_task", "setup_queries", "setup.sql"
+            ),
             sql_adapter=self.sql_adapter,
         ).start()
         union_tables_task = UnionTables(
@@ -44,13 +41,10 @@ class TestUnionTables(TestCase):
         self.sql_adapter.disconnect()
 
     def test_unioning_non_matching_tables(self):
-        module = sys.modules[self.__class__.__module__]
-        sql_folder = os.path.join(
-            os.path.dirname(module.__file__),
-            "test_union_tables_task_sql",
-        )
         SQLTask(
-            sql_file_path=os.path.join(sql_folder, "setup.sql"),
+            sql_file_path=os.path.join(
+                "tests", "tasks", "union_tables_task", "setup_queries", "setup.sql"
+            ),
             sql_adapter=self.sql_adapter,
         ).start()
         union_tables_task = UnionTables(
