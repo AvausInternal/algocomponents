@@ -26,3 +26,13 @@ class TestSqlPipeline(TestCase):
                 sql_adapter=LocalSqliteAdapter(),
                 sql_folder="bad_sql",
             )
+
+    def test_non_sql_files(self):
+        pipeline = EmptySQLPipeline(
+            sql_adapter=LocalSqliteAdapter(),
+            sql_folder="other_files_also",
+        )
+
+        result = pipeline.start()
+
+        assert result is not None

@@ -65,6 +65,7 @@ class SQLPipeline(GroupTask, ABC):
             return []
 
         sql_files = os.listdir(self.sql_folder)
+        sql_files = [file for file in sql_files if file.split(".")[-1] == "sql"]
         regex_pattern = re.compile(self.sql_file_pattern)
 
         for sql_file in sql_files:
