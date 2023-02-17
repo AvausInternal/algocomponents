@@ -19,7 +19,6 @@ jobs:
           pip install pandas
           pip install scipy
           pip install plotly
-          pip install kaleido
       - name: Test with pytest
         run: |
           pytest
