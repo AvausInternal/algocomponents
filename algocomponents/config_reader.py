@@ -52,7 +52,7 @@ class ConfigReader(ABC):
         self.section = section or self._default_section
 
         module = sys.modules[self.__class__.__module__]
-        if isinstance(module, ModuleType):
+        if hasattr(module, "__file__"):
             self.classpath = os.path.dirname(module.__file__)
         else:
             self.classpath = ""
