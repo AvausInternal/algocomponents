@@ -219,17 +219,24 @@ resource "google_bigquery_routine" "get_event_counts_and_time_grouped_per_user" 
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
   description     = <<-EOS
+  Returns the number of occurrences, total and average time of specified event within a specified time frame,
+  grouped by user.
+
   ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
   START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
   END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
-  EVENT - GA event name that has engagement time properties (e.g. "user_engagement", "scroll")
+  EVENT - GA event name that has time properties: engagement_time_msec parameter
+              (e.g. "scroll", "first_open", "page_view", "screen_view","app_exception", "user_engagement";
+              more details: https://support.google.com/analytics/answer/9234069?hl=en&ref_topic=13367566# )
+
+  e.g. SELECT * FROM `data-factory-286109.transform.get_event_counts_and_time_grouped_per_user`("user_id", "20221201",  "20221231", "scroll");
   EOS
   definition_body = <<-EOS
 SELECT
     id,
     COUNT(*) AS event_count,
     SUM(eng_time_msec) AS time_total_msec,
-    AVG(eng_time_msec) AS time_avg_msec
+    ROUND(AVG(eng_time_msec),0) AS time_avg_msec
   FROM (
     SELECT
       CASE
@@ -280,10 +287,18 @@ resource "google_bigquery_routine" "get_event_counts_grouped_per_user" {
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
   description     = <<-EOS
+  Returns the number of occurrences of specified event within a specified time frame, grouped by user.
+
   ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
   START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
   END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
-  EVENT - GA event name (e.g. "page_view", "session_start", "purchase")
+  EVENT - GA event name (e.g. "page_view", "session_start", "purchase", "video_start";
+              more details and list of all automatically collected events:
+                  https://support.google.com/analytics/answer/9234069?hl=en&ref_topic=13367566
+              recommended events - note: these events are optional and might differ for each project:
+                  https://support.google.com/analytics/answer/9267735?hl=en )
+
+  e.g. SELECT * FROM `data-factory-286109.transform.get_event_counts_grouped_per_user`("user_id", "20221201",  "20221231", "page_view");
   EOS
   definition_body = <<-EOS
 SELECT
