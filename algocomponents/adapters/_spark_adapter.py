@@ -1,6 +1,7 @@
 from typing import List
 
 from algocomponents.adapters import SQLAdapter
+from algocomponents.adapters.custom_exceptions import TableMissingException
 
 
 class SparkAdapter(SQLAdapter):
@@ -163,12 +164,19 @@ class SparkAdapter(SQLAdapter):
         raise NotImplementedError()
 
     def count_rows_in_table(self, table: str) -> int:
-        """Count the number of rows in a table.
-
-        Raises NotImplementedError()
+        """Count the number of rows in a table
 
         Args:
-            table name.
+            table (str): The table to count number of rows
 
+        Raises:
+            TableMissingException: if table does not exist
+
+        Returns:
+            int: number of rows in table
         """
-        raise NotImplementedError()
+        if not self.table_exists(table):
+            raise TableMissingException(f"Table {table} does not exist.")
+        else:
+            row_count_query = f"SELECT count(*) as row_count FROM {table}"
+            return int(self.run_sql_string(row_count_query)[0].first()[0])
