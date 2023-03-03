@@ -1,38 +1,45 @@
+"""Support for gradual typing as defined by PEP 484"""
 from typing import List
 
-from algocomponents.adapters import SQLAdapter
 from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     DataMismatchException,
 )
-from algocomponents.tasks import FeatureBase, GroupTask, SQLTask
+from algocomponents.tasks import FeatureBase, GroupTask, SQLTask, Feature
 
 
 class FeatureSet(GroupTask):
-    """_summary_
-    will propogate adapter and config to child tasks.
-    #todo:
-    - naming conventions
-    - What ought to be a private method?
-    - What can be static methods?
-    - Make more descriptive Exceptions
-    - what should be a function? encapsulate logic(Seperation of concerns)
+    """
+    A Dataset constructs a dataset table out of an input base table and a set
+    of featuresets. It does this by running all the features and followed by
+    an SQL join query to create the desired output table.
 
     Args:
-        GroupTask (_type_): _description_
+        output_table: Where the resulting table is saved
+        features: list of the features that make up the dataset
+        input_table: the basis on which to join feature columns
+        feature_base: a featurebase can take the place of an input_table
+        import_columns: either 'selective' or 'full':
+            'full': output_table  will include all the columns in the input
+            'selective': output_table will include the primary keys of the input
+        where_clause: Injects a where-clause inside the main join query
+        drop_intermediate: drop the intermediate tables created
+        verify: run lightweight checks on the integrity of the operations
+        target_label: assume the last column in the dataset is a target_label
+
     """
 
     def __init__(
         self,
         output_table: str,
-        features: list,
+        features: List[Feature],
         input_table: str = None,
         feature_base: FeatureBase = None,
         import_columns: str = "selective",
-        where_clause: str = None,  #
+        where_clause: str = None,  # may be removed
         drop_intermediate: bool = False,
         verify: bool = True,
-        target_label: bool = False,  # todo: not implemented 
+        target_label: bool = False,
         **kwargs,
     ):
 
@@ -49,14 +56,14 @@ class FeatureSet(GroupTask):
             raise ValueError("Provide either an input_table or feature_base")
 
         elif input_table is not None and feature_base is not None:
-            raise ValueError("Provide either an input_table or feature_base, not both")
+            raise ValueError("Provide either an input_table or feature_base")
 
-        elif input_table is None:  # input is a featurebase
+        elif input_table is None:  # implies input is a featurebase
             self.task_list.insert(0, feature_base)
             self.input_table = feature_base.output_table
 
-        elif feature_base is None:  # input is a an ordinary table
-            self.input_table = input_table
+        elif feature_base is None:  # implies input is a an ordinary table
+            self.input_table = input_table.format(**self.config[self.section])
 
         if import_columns.lower() in ["selective", "full"]:
             self.import_columns = import_columns.lower()
@@ -64,31 +71,59 @@ class FeatureSet(GroupTask):
             raise ValueError(
                 f"import_columns must be 'selective' or 'full', not {import_columns}"
             )
+        if features is None:
+            raise ValueError("Provide at least one feature in features")
 
-        # todo: replace with a shallow add_to_config() call here?
-        # add to config for parent class, without propogation.
-        self.output_table = output_table.format(**self.config[self.section])
-        self.config[self.section]["OUTPUT_TABLE"] = str(self.output_table)
+        if target_label:
+            raise NotImplementedError(
+                "Target labels will be supported in future releases"
+            )
 
         for feature_task in self.features:
-            self.task_list.append(feature_task)
+            if isinstance(feature_task, Feature):  # refactor after renaming
+                self.task_list.append(feature_task)
 
-        # propagate to children
+        # propagate config to tasks in task list
         self.propagate_config()
         self.propagate_sql_adapter(self.sql_adapter)
 
-    def _format_query_cols(self, feature_list, prepend, pad) -> str:
-        """Helper function for _get_sql_join_query()
-        #* lift to util?"""
-        output_columns = []
+        # add to config without propogation to tasks in tasklist
+        # todo: replace with a shallow add_to_config() call here?
+        self.output_table = output_table.format(**self.config[self.section])
+        self.config[self.section]["OUTPUT_TABLE"] = str(self.output_table)
 
-        for feature_col in feature_list:
+    def primary_keys(self) -> List[str]:
+        """The primary keys of the dataset output table.
+        If the input is a featurebase, the primary keys are equal to
+        the input's primary keys. Otherwise, the keys are the set-union
+        of all the supplied feature primary keys.
+        """
+
+        if self.feature_base:
+            return self.feature_base.output_primary_keys
+        else:
+            # infer the primary keys we know of
+            primary_keys = [feat.output_primary_keys for feat in self.features]
+            return list(set().union(primary_keys))
+
+    def _format_query_cols(
+        self, features: List[Feature], prepend: str, pad: str
+    ) -> str:
+        """Helper function for _get_sql_join_query()"""
+
+        output_columns = []
+        for feature_col in features:
             output_columns.append(f"{pad}{prepend}{feature_col},")
 
         return output_columns
 
-    def _format_query_joins(self, feature, feat_no, pad) -> str:
-        """Helper function for _get_sql_join_query()"""
+    def _format_query_joins(self, feature: Feature, feat_no: int, pad: str) -> str:
+        """Helper function for _get_sql_join_query()
+
+        Limitations:
+            - feature primary keys are always joined on a column of the same
+            name in the input table.
+        """
         join_table = [f"LEFT JOIN {feature.output_table} AS f{feat_no}"]
         join_condition = []
 
@@ -101,32 +136,24 @@ class FeatureSet(GroupTask):
 
         return join_table + join_condition
 
-    def output_primary_keys(self) -> List[str]:
-        """The primary keys of the dataset output table.
-        If the input is a featurebase, the primary keys are equal to
-        the input's primary keys. Otherwise, the keys are the set-union
-        of all feature's primary keys.
+    def _get_sql_join_query(
+        self, where_clause: str = None, pad_spaces: int = 2, drop_existing: bool = True
+    ) -> str:
+        """_summary_
+
+        Args:
+            where_clause (_type_, optional): _description_. Defaults to None.
+            pad_spaces (int, optional): _description_. Defaults to 2.
+            drop_existing (bool, optional): _description_. Defaults to True.
+
+        Returns:
+            str: SQL-ready query
         """
-
-        if self.feature_base:
-            return self.feature_base.output_primary_keys
-        else:
-            # infer the primary keys we know of
-            output_primary_keys = [feat.output_primary_keys for feat in self.features]
-            return list(set().union(output_primary_keys))
-
-    def _get_sql_join_query(self, pad_spaces=2) -> str:
-        """Here we construct the full join script with helper functions"""
-        # todo: what happens if no features? Raise error in init?
-        # todo: raise error if nothing to join on, only base columns survive.
-        # todo: catch multiple primary keys
 
         pad = pad_spaces * " "
 
-        # build query components
+        # build and format query components
         sql_joined_cols, sql_left_joins = [], []
-        # ? do we drop existing output tables?
-        sql_drop_line = ["DROP TABLE IF EXISTS {OUTPUT_TABLE};"]
         sql_create_line = ["CREATE TABLE {OUTPUT_TABLE} AS"]
         sql_select_line = ["SELECT"]
         base_cols = self._get_import_table_columns()
@@ -139,10 +166,10 @@ class FeatureSet(GroupTask):
             )
             sql_left_joins += self._format_query_joins(feature, n, pad)
 
-        sql_joined_cols[-1] = sql_joined_cols[-1][:-1]  # remove the last comma
+        # remove the last comma in query
+        sql_joined_cols[-1] = sql_joined_cols[-1][:-1]
 
         sql_full_query = [
-            sql_drop_line,  # ? create or replace this table?
             sql_create_line,
             sql_select_line,
             sql_base_cols,
@@ -151,16 +178,18 @@ class FeatureSet(GroupTask):
             sql_left_joins,
         ]
 
-        if self.where_clause:
+        if drop_existing:
+            sql_full_query.insert(0, ["DROP TABLE IF EXISTS {OUTPUT_TABLE};"])
+
+        if where_clause:
             sql_full_query.append([f"WHERE\n{pad}{self.where_clause}"])
 
         final_query = "".join(["\n".join(i) + "\n" for i in sql_full_query])
 
         return final_query
 
-    def _get_sql_drop_query(self, table_names: list) -> str:
-        """given a list of table names, generate the sql to drop all the tables
-        #* NOTE: this may be lifted to utils class. Useful outside this scope.
+    def _get_sql_drop_query(self, table_names: List[str]) -> str:
+        """given a list of table_names, generate the sql to drop all the tables
 
         Args:
             table_names (list): list of table names to drop
@@ -175,15 +204,18 @@ class FeatureSet(GroupTask):
         return "".join([i + ";\n" for i in query])
 
     def _get_import_table_columns(self) -> List[str]:
-        """gets the input base table columns depending
-        if self.import_columns is 'full' or 'selective'
-        """
-        if self.import_columns == "selective":
-            # get only the primary keys
-            return self.output_primary_keys()
+        """Returns a list of the input table column names. Depending on self.import_columns,
+        will return either: the entire list of columns, or the primary keys of the table.
 
+        Returns:
+            List[str]: Input column names
+        """
+
+        if self.import_columns == "selective":
+            return self.primary_keys()
+
+        # get all the available columns
         elif self.import_columns == "full":
-            # get all the available columns
             if self.feature_base:
                 cols = (
                     self.feature_base.output_primary_keys
@@ -191,7 +223,7 @@ class FeatureSet(GroupTask):
                 )
                 return list(set().union(cols))
             else:
-                self.sql_adapter.connect()  # ? might be unnecessary
+                self.sql_adapter.connect()  # might not be necessary
                 return self.sql_adapter.get_table_columns(self.input_table)
 
     def _get_all_dataset_columns(self) -> List[str]:
@@ -217,26 +249,33 @@ class FeatureSet(GroupTask):
         return tables
 
     def startup(self):
+        """
+        If verify is true, run startup tasks that verify the integrity of the opterations.
+        """
+
         if self.verify:
+            # verify required columns are a subset of the input table columns
             self.sql_adapter.connect()
-            input_table_columns = self.sql_adapter.get_table_columns(self.input_table)
-            required_columns = self._get_import_table_columns()
-            if not sorted(input_table_columns) == sorted(required_columns):
+            input_table_columns = set(
+                self.sql_adapter.get_table_columns(self.input_table)
+            )
+            required_columns = set(self._get_import_table_columns())
+
+            if not set(required_columns).issubset(input_table_columns):
                 raise DataMismatchException(
-                    f"Input table does not contain columns specified.\n"
-                    f"Input table: {self.input_table}\n"
-                    f"Has columns: {input_table_columns}\n"
-                    f"but should contain columns: {required_columns}\n"
+                    f"Input table does not contain the necessary columns\n"
+                    f"Input table {self.input_table}\n is missing:"
+                    f"{required_columns.difference(input_table_columns)}\n"
                 )
 
     def run(self):
         """
-        todo: update docstring
+        Appends necessary SQL tasks to the task list before running
         """
         if self.features:
             join_tables_task = SQLTask(
                 sql_adapter=self.sql_adapter,
-                sql_string=self._get_sql_join_query(),
+                sql_string=self._get_sql_join_query(where_clause=self.where_clause),
                 config=self.config,
             )
             self.task_list.append(join_tables_task)
@@ -253,13 +292,8 @@ class FeatureSet(GroupTask):
         super().run()
 
     def shutdown(self):
-        """_summary_
-
-        Raises:
-            TableMissingException: _description_
-            DataMismatchException: _description_
-            DataMismatchException: _description_
-            DataMismatchException: _description_
+        """
+        If verify is true, run shutdown tasks that verify the integrity of the opterations.
         """
         if self.verify:
             # check for existance of output table
@@ -280,8 +314,8 @@ class FeatureSet(GroupTask):
                     f"but should contain columns: {generated_columns}\n"
                 )
 
-            # check dataset leave no of rows unchanged:
-            # todo: Replace with adapter methods.
+            # check dataset leaves no. of rows unchanged:
+            # todo: Replace with adapter method for row counting
             input_table_row_count = int(
                 self.sql_adapter.run_sql_string(
                     f"SELECT count(*) as row_count FROM {self.input_table}"
@@ -293,17 +327,15 @@ class FeatureSet(GroupTask):
                 )[0]["row_count"].iloc[0]
             )
             if input_table_row_count != output_table_row_count:
-                # todo: make more descriptive error exceptions
                 raise DataMismatchException(
-                    f"Dataset operation resulted in a change in rows\n"
+                    f"Dataset run operation resulted in a change in rows\n"
                     f"Input table has {input_table_row_count} rows\n"
                     f"Output table has {output_table_row_count} rows\n"
                 )
 
             # check intermediary tables are dropped
             if self.drop_intermediate:
-                dropped_tables = self._get_intermediate_table_names()
-                for table in dropped_tables:
+                for table in self._get_intermediate_table_names():
                     if self.sql_adapter.table_exists(table):
                         raise DataMismatchException(
                             f"Drop intermidate tables failed, table {table} exists \n"
