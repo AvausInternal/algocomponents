@@ -50,22 +50,24 @@ class GroupTask(Task):
             task.parent = self
             task.start()
 
-    def add_to_config(self, key, value):
-        """Recursively add values to config for the current section.
+    def add_to_config(self, key, value, recursive=True):
+        """Add values to config for the current section.
 
-        This will also call add_to_config for all tasks in the task_list. As
-        those tasks will either inherit from GroupTasks or Tasks, everything in
-        the task tree below this task will get these values added.
+        If recursive, this will also call add_to_config for all tasks
+        in the task_list. As those tasks will either inherit from GroupTasks
+        or Tasks, everything in the task tree below this task will get these
+        values added.
 
         Args:
             key: Which key to add or update.
             value: What value to give the key.
-
+            recursive: Recursively add key config, for all tasks in the tasklist
         """
         self.config[self.section][key] = str(value)
 
-        for task in self.task_list:
-            task.add_to_config(key, value)
+        if recursive:
+            for task in self.task_list:
+                task.add_to_config(key, value)
 
     def set_sql_adapter(self, sql_adapter):
         """Set the SQLAdapter for this GroupTask and all tasks in it's task list.
