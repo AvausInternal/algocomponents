@@ -212,3 +212,136 @@ EOS
   }
   project = var.gcp_project_name
 }
+
+resource "google_bigquery_routine" "get_event_counts_and_time_grouped_per_user" {
+  dataset_id      = var.transform_dataset
+  routine_id      = "get_event_counts_and_time_grouped_per_user"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  description     = <<-EOS
+  Returns the number of occurrences, total and average time of specified event within a specified time frame,
+  grouped by user.
+
+  ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
+  START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
+  END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
+  EVENT - GA event name that has time properties: engagement_time_msec parameter
+              (e.g. "scroll", "first_open", "page_view", "screen_view","app_exception", "user_engagement";
+              more details: https://support.google.com/analytics/answer/9234069?hl=en&ref_topic=13367566# )
+
+  e.g. SELECT * FROM `data-factory-286109.transform.get_event_counts_and_time_grouped_per_user`("user_id", "20221201",  "20221231", "scroll");
+  EOS
+  definition_body = <<-EOS
+SELECT
+    id,
+    COUNT(*) AS event_count,
+    SUM(eng_time_msec) AS time_total_msec,
+    ROUND(AVG(eng_time_msec),0) AS time_avg_msec
+  FROM (
+    SELECT
+      CASE
+        WHEN LOWER(ID_KEY)='user_id' THEN user_id
+        WHEN LOWER(up.key)=LOWER(ID_KEY) THEN up.value.string_value
+      ELSE
+      user_pseudo_id
+    END
+      AS id,
+      ep.value.int_value AS eng_time_msec,
+    FROM
+      `${var.ga_project_id}.${var.ga_dataset_id}.events_*`
+    LEFT JOIN
+      UNNEST(user_properties) AS up,
+      UNNEST(event_params) AS ep
+    WHERE
+      event_name = EVENT
+      AND ep.key = "engagement_time_msec"
+      AND (_TABLE_SUFFIX BETWEEN START_SUFFIX
+        AND END_SUFFIX) )
+  WHERE
+    id IS NOT NULL
+  GROUP BY
+    id
+EOS
+  arguments {
+    name      = "ID_KEY"
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  arguments {
+    name      = "START_SUFFIX" # in the format: YYYYMMDD
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  arguments {
+    name      = "END_SUFFIX" # in the format: YYYYMMDD
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  arguments {
+    name      = "EVENT"
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  project = var.gcp_project_name
+}
+
+resource "google_bigquery_routine" "get_event_counts_grouped_per_user" {
+  dataset_id      = var.transform_dataset
+  routine_id      = "get_event_counts_grouped_per_user"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  description     = <<-EOS
+  Returns the number of occurrences of specified event within a specified time frame, grouped by user.
+
+  ID KEY - a string with the name of the column which is a unique identifier in your table (e.g. "user_id")
+  START_SUFFIX - the beginning of the period you want to get (in the format "YYYYMMDD", e.g. "20221201")
+  END_SUFFIX - the end of the period you want to get (in the format "YYYYMMDD", e.g. "20221231")
+  EVENT - GA event name (e.g. "page_view", "session_start", "purchase", "video_start";
+              more details and list of all automatically collected events:
+                  https://support.google.com/analytics/answer/9234069?hl=en&ref_topic=13367566
+              recommended events - note: these events are optional and might differ for each project:
+                  https://support.google.com/analytics/answer/9267735?hl=en )
+
+  e.g. SELECT * FROM `data-factory-286109.transform.get_event_counts_grouped_per_user`("user_id", "20221201",  "20221231", "page_view");
+  EOS
+  definition_body = <<-EOS
+SELECT
+    id,
+    COUNT(*) AS event_count
+  FROM (
+    SELECT
+      CASE
+        WHEN LOWER(ID_KEY)='user_id' THEN user_id
+        WHEN LOWER(up.key)=LOWER(ID_KEY) THEN up.value.string_value
+      ELSE
+      user_pseudo_id
+    END
+      AS id,
+      event_timestamp
+    FROM
+      `${var.ga_project_id}.${var.ga_dataset_id}.events_*`
+    LEFT JOIN
+      UNNEST(user_properties) AS up
+    WHERE
+      event_name = EVENT
+      AND (_TABLE_SUFFIX BETWEEN START_SUFFIX
+        AND END_SUFFIX) )
+  WHERE
+    id IS NOT NULL
+  GROUP BY
+    id
+EOS
+  arguments {
+    name      = "ID_KEY"
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  arguments {
+    name      = "START_SUFFIX" # in the format: YYYYMMDD
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  arguments {
+    name      = "END_SUFFIX" # in the format: YYYYMMDD
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  arguments {
+    name      = "EVENT"
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  project = var.gcp_project_name
+}
