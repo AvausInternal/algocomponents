@@ -4,7 +4,10 @@ from typing import List
 import pandas as pd
 
 from algocomponents.adapters import SQLAdapter
-from algocomponents.adapters.custom_exceptions import TableAlreadyExistsException
+from algocomponents.adapters.custom_exceptions import (
+    TableAlreadyExistsException,
+    TableMissingException,
+)
 
 
 class LocalSqliteAdapter(SQLAdapter):
@@ -202,3 +205,20 @@ class LocalSqliteAdapter(SQLAdapter):
         """
         dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)
+
+    def count_rows_in_table(self, table: str) -> int:
+        """Count the number of rows in a table.
+
+        Args:
+            table: The table to count number of rows.
+
+        Returns:
+            The number of rows as a int.
+
+        """
+        if not self.table_exists(table):
+            raise TableMissingException(f"Table {table} does not exist.")
+        else:
+            return self.run_sql_string(f"SELECT count(*) as row_count FROM {table}")[0][
+                "row_count"
+            ].iloc[0]

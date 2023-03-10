@@ -49,6 +49,9 @@ class CustomAdapter(SQLAdapter):
     def latest_query_as_csv(self, path: str):
         pass
 
+    def count_rows_in_table(self, table: str):
+        pass
+
 
 class TestThatLoggersReactToConfigCorrectly(TestCase):
     global_config_dir = os.path.join("tests", "adapters", "logging_test_config")
