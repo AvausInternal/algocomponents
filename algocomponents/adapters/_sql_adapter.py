@@ -74,11 +74,11 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
-    @abstractmethod
     def get_table_columns(self, table: str) -> List[str]:
         """Gets the columns of a table.
 
-        Non-abstract adapters overwrite this method.
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
 
         Args:
             table: The table to look at.
@@ -87,7 +87,9 @@ class SQLAdapter(ConfigReader):
             A list with the names of the columns.
 
         """
-        pass
+        df = self.run_sql_string(sql_string=f"SELECT * FROM {table} LIMIT 1")[0]
+        # The .values part was added since converting an array to a list is way faster than doing it on an Index
+        return df.columns.values.tolist()
 
     def table_contains_columns(
         self, table: str, columns: List[str], identical: bool = False
@@ -523,9 +525,11 @@ class SQLAdapter(ConfigReader):
         """
         return len(self.table_as_pandas_df(table)) == 0
 
-    @abstractmethod
     def count_rows_in_table(self, table: str) -> int:
         """Count the number of rows in a table.
+
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
 
         Args:
             table: The table to count number of rows.
@@ -534,4 +538,5 @@ class SQLAdapter(ConfigReader):
             The number of rows as a int.
 
         """
-        pass
+        df = self.run_sql_string(sql_string=f"SELECT * FROM {table}")[0]
+        return len(df)
