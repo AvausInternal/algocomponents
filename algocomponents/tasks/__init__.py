@@ -11,6 +11,7 @@ from algocomponents.tasks._avaus_visuals import AvausVisuals
 from algocomponents.tasks.check_significance.check_significance import (
     CheckSignificance,
 )
+from algocomponents.tasks._predict import Predict
 from algocomponents.tasks.model_trainers.model_trainer import ModelTrainer
 from algocomponents.tasks.model_trainers.linear_regression_classifier_trainer import (
     LinearRegressionClassifierTrainer,
@@ -42,6 +43,7 @@ __all__ = [
     "VisualizeDataset",
     "AvausVisuals",
     "CheckSignificance",
+    "Predict",
     "ModelTrainer",
     "LinearRegressionClassifierTrainer",
     "RandomForestClassifierTrainer",
