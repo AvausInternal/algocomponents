@@ -104,6 +104,8 @@ class AvausVisuals:
         if show:
             plt.show()
         if file_name and output_folder:
+            if not os.path.isdir(output_folder):
+                os.makedirs(output_folder)
             plt.savefig(os.path.join(output_folder, file_name))
         elif file_name:
             plt.savefig(file_name)
