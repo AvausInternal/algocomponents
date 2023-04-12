@@ -22,6 +22,9 @@ from algocomponents.tasks.model_trainers.random_forest_classifier_trainer import
 from algocomponents.tasks.model_trainers.gradient_boosting_classifier_trainer import (
     GradientBoostingClassifierTrainer,
 )
+from algocomponents.tasks._visualize_features import (
+    VisualizeFeatures,
+)
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -48,4 +51,5 @@ __all__ = [
     "LinearRegressionClassifierTrainer",
     "RandomForestClassifierTrainer",
     "GradientBoostingClassifierTrainer",
+    "VisualizeFeatures",
 ]
