@@ -24,7 +24,7 @@ class ModelTrainer(Task):
         output_path: str,
         model_type: str,
         model_reference: BaseEstimator,  # Any scikit learn model
-        one_hot_encoded_columns: List[str] = None,
+        categorical_columns: List[str] = None,
         excluded_columns: List[str] = None,
         overwrite_existing_model: bool = False,
         **kwargs
@@ -35,7 +35,7 @@ class ModelTrainer(Task):
         self.output_path = output_path
         self.model_type = model_type
         self.model_reference = model_reference
-        self.one_hot_encoded_columns = one_hot_encoded_columns or []
+        self.categorical_columns = categorical_columns or []
         self.excluded_columns = excluded_columns or []
         self.overwrite_existing_model = overwrite_existing_model
 
@@ -49,7 +49,7 @@ class ModelTrainer(Task):
         df = df.drop(columns=self.excluded_columns)
 
         preprocessor = ColumnTransformer(
-            transformers=[("cat", OneHotEncoder(), self.one_hot_encoded_columns)],
+            transformers=[("cat", OneHotEncoder(), self.categorical_columns)],
             remainder="passthrough",
         )
         model = Pipeline(
