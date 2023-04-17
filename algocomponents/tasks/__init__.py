@@ -11,6 +11,17 @@ from algocomponents.tasks._avaus_visuals import AvausVisuals
 from algocomponents.tasks.check_significance.check_significance import (
     CheckSignificance,
 )
+from algocomponents.tasks._predict import Predict
+from algocomponents.tasks.model_trainers.model_trainer import ModelTrainer
+from algocomponents.tasks.model_trainers.linear_regression_classifier_trainer import (
+    LinearRegressionClassifierTrainer,
+)
+from algocomponents.tasks.model_trainers.random_forest_classifier_trainer import (
+    RandomForestClassifierTrainer,
+)
+from algocomponents.tasks.model_trainers.gradient_boosting_classifier_trainer import (
+    GradientBoostingClassifierTrainer,
+)
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -32,4 +43,9 @@ __all__ = [
     "VisualizeDataset",
     "AvausVisuals",
     "CheckSignificance",
+    "Predict",
+    "ModelTrainer",
+    "LinearRegressionClassifierTrainer",
+    "RandomForestClassifierTrainer",
+    "GradientBoostingClassifierTrainer",
 ]
