@@ -19,6 +19,7 @@ class Predict(Task):
             when making predictions
         model_path: Path to folder with model files.
         output_prediction_table: Full path to where output should be stored.
+        output_prediction_column: Column where the model score will be appended.
         excluded_columns: Columns to not use when predicting (for example primary keys)
         overwrite_output_table: If False, the task will raise a TableAlreadyExists
             exception if the output table already exists. Otherwise it is overwritten.
@@ -31,6 +32,7 @@ class Predict(Task):
         target_label_column: str,
         model_path: str,
         output_prediction_table: str,
+        output_prediction_column: str = "score",
         excluded_columns: List[str] = None,
         overwrite_output_table: bool = False,
         **kwargs,
@@ -40,6 +42,7 @@ class Predict(Task):
         self.target_label_column = target_label_column
         self.model_path = model_path
         self.output_prediction_table = output_prediction_table
+        self.output_prediction_column = output_prediction_column
         self.excluded_columns = excluded_columns or []
         self.overwrite_output_table = overwrite_output_table
         self.metadata = {}
@@ -64,7 +67,7 @@ class Predict(Task):
             x = preprocessor.transform(x)
 
         y_pred = model.predict(x)
-        df["score"] = y_pred
+        df[self.output_prediction_column] = y_pred
 
         self.sql_adapter.pandas_df_as_table(
             df=df,
