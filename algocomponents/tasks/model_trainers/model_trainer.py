@@ -13,6 +13,24 @@ from algocomponents.tasks import Task
 
 
 class ModelTrainer(Task):
+    """Trains a model using scikit learn and pickles it to file.
+
+    This is a base class that can be used on it's own, but the classes that
+    inherit from this are much easier to use.
+
+    Args:
+        dataset_table: Full path to table where data to train model is.
+        target_label_column: Name of target label column.
+        output_path: Path to folder where model files will be saved.
+        model_type: Passed to scikit-learn, custom name of model such as "classifier".
+        model_reference: An Instantiated() object of the class used to train models.
+        categorical_columns: Which columns to one_hot_encode. Can have any data type.
+        excluded_columns: Columns to not use when training (for example primary keys)
+        overwrite_existing_model: If True, anything at the file destination will be
+            deleted before saving the model.
+
+    """
+
     model_file = "model.joblib"
     preprocessor_file = "preprocessor.joblib"
     metadata_file = "meta.json"
