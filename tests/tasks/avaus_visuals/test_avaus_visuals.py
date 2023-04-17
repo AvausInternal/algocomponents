@@ -44,3 +44,18 @@ class TestAvausVisuals(TestCase):
         output_file = os.path.join(self.output_path, "test_saving_a_countplot.png")
         assert os.path.isfile(output_file)
         os.remove(output_file)
+
+    def test_saving_to_missing_directory(self):
+        deep_path = os.path.join(self.output_path, "new_directory")
+        self.plotter.countplot(
+            df=self.df_to_plot,
+            x_col="x",
+            y_col="y",
+            show=False,
+            file_name="test_saving_in_new_dir",
+            output_folder=deep_path,
+        )
+        output_file = os.path.join(deep_path, "test_saving_in_new_dir.png")
+        assert os.path.isfile(output_file)
+        os.remove(output_file)
+        os.removedirs(deep_path)
