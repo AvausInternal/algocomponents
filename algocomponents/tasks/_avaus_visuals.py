@@ -109,3 +109,5 @@ class AvausVisuals:
             plt.savefig(os.path.join(output_folder, file_name))
         elif file_name:
             plt.savefig(file_name)
+
+        plt.close()
