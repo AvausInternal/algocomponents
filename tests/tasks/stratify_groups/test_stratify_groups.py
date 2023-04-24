@@ -135,6 +135,7 @@ class TestStratifyGroups(TestCase):
         self.mock_input_table(mock_table=self.stratify_input_table)
         output_table = "{tmp_db}.stratified_output"
 
+        self.sql_adapter.connect()
         input_df = self.sql_adapter.table_as_pandas_df(self.stratify_input_table)
         n_groups = input_df.shape[0] + 1
 
@@ -148,8 +149,6 @@ class TestStratifyGroups(TestCase):
                 "tests", "tasks", "stratify_groups", "config"
             ),
         ).start()
-
-        self.sql_adapter.connect()
 
         output_df = self.sql_adapter.table_as_pandas_df(output_table)
         assert output_df.shape[0] == input_df.shape[0]

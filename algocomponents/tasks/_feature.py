@@ -58,9 +58,6 @@ class Feature(FeatureBase, ABC):
 
         """
         super().startup()
-        if not self.sql_adapter.is_connected():
-            self.sql_adapter.connect()
-
         if not self.sql_adapter.table_exists(self.input_table):
             raise TableMissingException(
                 f"Input table does not exist: {self.input_table}"

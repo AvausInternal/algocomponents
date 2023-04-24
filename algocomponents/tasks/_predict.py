@@ -55,7 +55,6 @@ class Predict(Task):
         model_path = os.path.join(self.model_path, self.metadata["model_file"])
         model = joblib.load(filename=model_path)
 
-        self.sql_adapter.connect()
         df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
         x = df.drop(columns=self.excluded_columns + [self.target_label_column])
 

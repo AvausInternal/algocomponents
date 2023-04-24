@@ -69,8 +69,9 @@ class LocalSqliteAdapter(SQLAdapter):
         This is done by closing the connections.
 
         """
-        self.connection.close()
-        super().disconnect()
+        if self.is_connected():
+            self.connection.close()
+            super().disconnect()
 
     def _format_table_name(self, table: str) -> str:
         """Performs an adapter-specific formatting of the table.
