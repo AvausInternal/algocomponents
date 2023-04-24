@@ -54,8 +54,6 @@ class CheckSignificance(Task):
         }
 
     def run(self):
-        self.sql_adapter.connect()
-
         # check that the input table exists
         if not self.sql_adapter.table_exists(self.input_table):
             self.sql_adapter.disconnect()

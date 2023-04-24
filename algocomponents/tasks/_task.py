@@ -25,6 +25,7 @@ class Task(ConfigReader):
         self.task_name = self.class_name
         self.run_id = None
         self.parent = None
+        self.i_started_the_adapter = False
 
         if sql_adapter:
             self.sql_adapter = sql_adapter
@@ -68,7 +69,9 @@ class Task(ConfigReader):
 
     def startup(self):
         """What the task needs to do before executing it's main functionality"""
-        pass
+        if self.sql_adapter and not self.sql_adapter.is_connected():
+            self.i_started_the_adapter = True
+            self.sql_adapter.connect()
 
     def run(self):
         """The tasks main functionality"""
@@ -96,13 +99,8 @@ class Task(ConfigReader):
         task-tree have their own adapters.
 
         """
-        if self.sql_adapter is not None and self.sql_adapter.is_connected():
-            if not self.parent:
-                self.sql_adapter.disconnect()
-            elif not hasattr(self.parent, "sql_adapter"):
-                self.sql_adapter.disconnect()
-            elif self.sql_adapter != self.parent.sql_adapter:
-                self.sql_adapter.disconnect()
+        if self.i_started_the_adapter:
+            self.sql_adapter.disconnect()
 
     def set_sql_adapter(self, sql_adapter):
         """Set the SQLAdapter for this Task

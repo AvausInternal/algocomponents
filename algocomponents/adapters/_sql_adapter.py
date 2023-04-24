@@ -163,9 +163,6 @@ class SQLAdapter(ConfigReader):
             if not query:
                 continue
 
-            if not self.is_connected():
-                self.connect()
-
             query = self._format_query(query=query, format_variables=format_variables)
             query = self._format_table_names(query=query)
             self.logger.info(f"Executing the following query: \n{query}")

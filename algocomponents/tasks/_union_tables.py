@@ -87,7 +87,7 @@ class UnionTables(SQLTask):
         the same columns.
 
         """
-        self.sql_adapter.connect()
+        super().startup()
         columns = []
         for table in self.tables:
             if not self.sql_adapter.table_exists(table):
