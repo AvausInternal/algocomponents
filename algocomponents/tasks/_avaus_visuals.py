@@ -84,7 +84,10 @@ class AvausVisuals:
         file_name: str = None,
         output_folder: str = None,
     ):
-        sns.boxplot(x=x_col, y=y_col, data=df, palette=self.primary_colors.values())
+        if x_col and y_col:
+            sns.boxplot(x=x_col, y=y_col, data=df, palette=self.primary_colors.values())
+        else:
+            sns.boxplot(data=df, palette=self.primary_colors.values())
         self.visualize(
             title=title,
             legend=legend,
