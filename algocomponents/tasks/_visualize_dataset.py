@@ -2,8 +2,7 @@ from typing import List
 
 import pandas as pd
 
-from algocomponents.tasks import Task
-from algocomponents.utils import save_boxplot, save_histogram, save_corr_matrix
+from algocomponents.tasks import Task, AvausVisuals
 
 
 class VisualizeDataset(Task):
@@ -90,37 +89,57 @@ class VisualizeDataset(Task):
 
         if self.find_feature_columns:
             numerics = ["int16", "int32", "int64", "float16", "float32", "float64"]
-        else:
-            numerics = self.continuous_features
+            self.continuous_features = list(
+                self.input_df.select_dtypes(include=numerics).columns
+            )
+            self.categorical_features = list(
+                self.input_df.select_dtypes(exclude=numerics).columns
+            )
 
-        self.df_numeric = self.input_df.select_dtypes(include=numerics)
+        self.continuous_features = [
+            col for col in self.continuous_features if col not in self.excluded_columns
+        ]
+        self.categorical_features = [
+            col for col in self.categorical_features if col not in self.excluded_columns
+        ]
+
+        df_cont = self.input_df[self.continuous_features]
+
         # dataframe with only numerical features and normalized values
-        self.df_normalized = (self.df_numeric - self.df_numeric.min()) / (
-            self.df_numeric.max() - self.df_numeric.min()
+        df_cont_normalized = (df_cont - df_cont.min()) / (df_cont.max() - df_cont.min())
+
+        plotter = AvausVisuals()
+        plotter.boxplot(
+            df=df_cont,
+            legend=False,
+            title="Continuous features",
+            show=False,
+            output_folder=self.output_folder,
+            file_name="continuous_features",
+        )
+        plotter.boxplot(
+            df=df_cont_normalized,
+            legend=False,
+            title="Continuous features normalized",
+            show=False,
+            output_folder=self.output_folder,
+            file_name="continuous_features_normalized",
+        )
+        plotter.heatmap(
+            df=df_cont,
+            title="Correlation matrix",
+            show=False,
+            output_folder=self.output_folder,
+            file_name="correlation_matrix",
         )
 
-        save_boxplot(
-            df=self.df_numeric,
-            output_folder=self.output_folder,
-            interactive_plots=self.interactive_plots,
-            logger=self.logger,
-        )
-        save_boxplot(
-            df=self.df_normalized,
-            output_folder=self.output_folder,
-            file_name="normalized_boxplot",
-            interactive_plots=self.interactive_plots,
-        )
-        save_histogram(
-            df=self.input_df,
-            output_folder=self.output_folder,
-            interactive_plots=self.interactive_plots,
-            logger=self.logger,
-        )
-
-        save_corr_matrix(
-            df=self.df_numeric,
-            output_folder=self.output_folder,
-            interactive_plots=self.interactive_plots,
-            logger=self.logger,
-        )
+        for column in self.categorical_features:
+            plotter.histplot(
+                df=self.input_df,
+                x_col=column,
+                legend=False,
+                title=f"Categorical feature {column}",
+                show=False,
+                output_folder=self.output_folder,
+                file_name=f"categorical_feature_{column.lower()}",
+            )
