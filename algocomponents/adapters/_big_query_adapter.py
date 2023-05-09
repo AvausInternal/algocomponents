@@ -162,8 +162,8 @@ class BigQueryAdapter(SQLAdapter):
         )
         df = self.query_job.to_dataframe()
 
-        self.logger.info("Result")
-        self.logger.info(f"\n{df.head(self.max_rows_displayed)}")
+        self.logger.info("Result\n"
+                         f"{df.head(self.max_rows_displayed)}")
 
         return df
 

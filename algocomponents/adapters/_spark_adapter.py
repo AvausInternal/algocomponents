@@ -114,8 +114,8 @@ class SparkAdapter(SQLAdapter):
 
         """
         self.sdf = self.spark.sql(query)
-        self.logger.info("Result: ")
-        self.logger.info(self.sdf.show(self.max_rows_displayed))
+        self.logger.info("Result:\n"
+                         f"{self.sdf.show(self.max_rows_displayed)}")
 
         return self.sdf
 

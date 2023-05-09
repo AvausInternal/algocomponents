@@ -145,8 +145,8 @@ class LocalSqliteAdapter(SQLAdapter):
         else:
             df = pd.DataFrame()
 
-        self.logger.info("Result")
-        self.logger.info(f"\n{df.head(self.max_rows_displayed)}")
+        self.logger.info("Result\n"
+                         f"{df.head(self.max_rows_displayed)}")
 
         if self.commit_queries:
             self.connection.commit()
