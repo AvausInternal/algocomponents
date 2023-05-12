@@ -5,8 +5,6 @@ from algocomponents.tasks._sql_pipeline import SQLPipeline
 from algocomponents.tasks._feature_base import FeatureBase
 from algocomponents.tasks._feature import Feature
 from algocomponents.tasks._union_tables import UnionTables
-from algocomponents.tasks._feature_set import FeatureSet
-from algocomponents.tasks._union_tables_task import UnionTablesTask
 from algocomponents.tasks._dataset import Dataset
 from algocomponents.tasks.model_evaluator.model_evaluator import ModelEvaluator
 from algocomponents.tasks._avaus_visuals import AvausVisuals
