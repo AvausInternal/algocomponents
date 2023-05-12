@@ -257,23 +257,25 @@ class Dataset(GroupTask):
         """
         super().startup()
 
-        # verify required columns are a subset of the input table columns
         if self.verify:
             if self.sql_adapter is None:
                 raise ValueError("sql_adapter must be provided if verify is true")
 
-            self.sql_adapter.connect()
-            input_table_columns = set(
-                self.sql_adapter.get_table_columns(self.input_table)
-            )
-            required_columns = set(self._get_import_table_columns())
-
-            if not set(required_columns).issubset(input_table_columns):
-                raise DataMismatchException(
-                    f"Input table does not contain the necessary columns\n"
-                    f"Input table {self.input_table}\n is missing:"
-                    f"{required_columns.difference(input_table_columns)}\n"
+            if not self.feature_base:
+                # if the input is a feature base no input table exists during startup()
+                self.sql_adapter.connect()
+                input_table_columns = set(
+                    self.sql_adapter.get_table_columns(self.input_table)
                 )
+                required_columns = set(self._get_import_table_columns())
+
+                # verify required columns are a subset of the input table columns
+                if not set(required_columns).issubset(input_table_columns):
+                    raise DataMismatchException(
+                        f"Input table does not contain the necessary columns\n"
+                        f"Input table {self.input_table}\n is missing:"
+                        f"{required_columns.difference(input_table_columns)}\n"
+                    )
 
     def run(self):
         """
