@@ -30,7 +30,6 @@ setup(
         "scipy==1.9.1",
         "numpy==1.23.4",
         "plotly==5.10.0",
-        "kaleido==0.1.0",
         "matplotlib==3.6.2",
         "seaborn==0.12.0",
         "scikit-learn==1.1.2",

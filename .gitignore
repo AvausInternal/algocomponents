@@ -148,3 +148,4 @@ local_sqlite.db
 
 # Ignore test plots
 tests/avaus_visuals_examples/plots
+tests/visualize_dataset_examples/plots
