@@ -138,7 +138,7 @@ class TestDatasetFeaures(TestCase):
 
     # globals
     sql_adapter = LocalSqliteAdapter()
-    base_table = "{tmp_db}.feature_base_test1"
+    base_table = "{tmp_db}.feature_base_test"
 
     global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
     work_dir_path = os.path.join("tests", "tasks", "dataset")
