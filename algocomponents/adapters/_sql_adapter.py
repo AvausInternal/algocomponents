@@ -497,3 +497,9 @@ class SQLAdapter(ConfigReader):
         """
         df = self.run_sql_string(sql_string=f"SELECT * FROM {table}")[0]
         return len(df)
+
+    def get_hash_sql_method(self, column: str):
+        return f"HASH({column})"
+
+    def get_random_sql_method(self, seed: int = None):
+        return f"RANDOM({seed})" if seed else "RANDOM()"

@@ -223,3 +223,6 @@ class LocalSqliteAdapter(SQLAdapter):
             return self.run_sql_string(f"SELECT count(*) as row_count FROM {table}")[0][
                 "row_count"
             ].iloc[0]
+
+    def get_hash_sql_method(self, column):
+        return f"{column}"
