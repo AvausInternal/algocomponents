@@ -1,8 +1,8 @@
 from algocomponents.tasks import SQLPipeline
 
 
-class ModelEvaluator(SQLPipeline):
-    """A task to evaluate models.
+class EvaluatePrediction(SQLPipeline):
+    """A task to evaluate a prediction done by a model.
 
     The task takes an input table with a prediction column and a target label
     column. The task calculates different evaluation metrics such as: true
