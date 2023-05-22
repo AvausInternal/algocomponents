@@ -5,6 +5,7 @@ from typing import List
 import joblib
 
 from algocomponents.tasks import Task
+from algocomponents.utils import predict_with_model
 
 
 class Predict(Task):
@@ -52,21 +53,15 @@ class Predict(Task):
         self.metadata = self._load_and_validate_metadata()
 
     def run(self):
-        model_path = os.path.join(self.model_path, self.metadata["model_file"])
-        model = joblib.load(filename=model_path)
-
         df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
         x = df.drop(columns=self.excluded_columns + [self.target_label_column])
 
-        if "preprocessor_path" in self.metadata:
-            pre_processor_path = os.path.join(
-                self.model_path, self.metadata["preprocessor_path"]
-            )
-            preprocessor = joblib.load(filename=pre_processor_path)
-            x = preprocessor.transform(x)
-
-        y_pred = model.predict(x)
-        df[self.output_prediction_column] = y_pred
+        df = predict_with_model(
+            model_path=self.model_path,
+            metadata=self.metadata,
+            df=x,
+            prediction_column=self.output_prediction_column,
+        )
 
         self.sql_adapter.pandas_df_as_table(
             df=df,
