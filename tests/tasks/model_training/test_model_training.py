@@ -5,7 +5,7 @@ from unittest import TestCase
 import pandas as pd
 
 from algocomponents.adapters import LocalSqliteAdapter
-from algocomponents.tasks import Predict, LinearRegressionClassifierTrainer
+from algocomponents.tasks import Predict, LinearRegressionTrainer
 
 
 class TestModelTraining(TestCase):
@@ -32,7 +32,7 @@ class TestModelTraining(TestCase):
 
     def test_training_and_predicting(self):
         self.create_dataset_table(dataset_table=self.double_input_table)
-        training_pipeline = LinearRegressionClassifierTrainer(
+        training_pipeline = LinearRegressionTrainer(
             sql_adapter=self.sql_adapter,
             dataset_table=self.double_input_table,
             target_label_column=self.target_label_column,

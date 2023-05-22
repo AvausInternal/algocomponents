@@ -15,8 +15,8 @@ from algocomponents.tasks.check_significance.check_significance import (
 )
 from algocomponents.tasks._predict import Predict
 from algocomponents.tasks.model_trainers.model_trainer import ModelTrainer
-from algocomponents.tasks.model_trainers.linear_regression_classifier_trainer import (
-    LinearRegressionClassifierTrainer,
+from algocomponents.tasks.model_trainers.linear_regression_trainer import (
+    LinearRegressionTrainer,
 )
 from algocomponents.tasks.model_trainers.random_forest_classifier_trainer import (
     RandomForestClassifierTrainer,
@@ -50,7 +50,7 @@ __all__ = [
     "CheckSignificance",
     "Predict",
     "ModelTrainer",
-    "LinearRegressionClassifierTrainer",
+    "LinearRegressionTrainer",
     "RandomForestClassifierTrainer",
     "GradientBoostingClassifierTrainer",
     "VisualizeFeatures",

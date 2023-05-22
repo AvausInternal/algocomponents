@@ -5,8 +5,8 @@ from sklearn.linear_model import LinearRegression
 from algocomponents.tasks import ModelTrainer
 
 
-class LinearRegressionClassifierTrainer(ModelTrainer):
-    """Trains a model using LinearRegression() from scikit-learn.
+class LinearRegressionTrainer(ModelTrainer):
+    """Trains a regression-model using LinearRegression() from scikit-learn.
 
     Inherits from ModelTrainer which does all the work. This class is just a way
     to call it with the correct arguments to train with this specific model.
@@ -39,7 +39,7 @@ class LinearRegressionClassifierTrainer(ModelTrainer):
             categorical_columns=categorical_columns,
             excluded_columns=excluded_columns,
             overwrite_existing_model=overwrite_existing_model,
-            model_type="classifier",
+            model_type="regressor",
             model_reference=LinearRegression(),
             **kwargs,
         )
