@@ -28,6 +28,7 @@ class AvausVisuals:
         "GRAVEL": "#EDEDEF",
         "WOOD": "#DEC8C0",
     }
+    lineplot_color = sns.set_palette(sns.color_palette([primary_colors["PINE"]]))
     heatmap_palette = sns.light_palette(
         primary_colors["BLUEBERRY"], input="rgb", as_cmap=True
     )
@@ -36,6 +37,29 @@ class AvausVisuals:
 
     def __init__(self):
         sns.set_style("whitegrid", {"axes.grid": False})
+
+    def lineplot(
+        self,
+        df: pd.DataFrame,
+        x_col: str = None,
+        y_col: str = None,
+        title: str = None,
+        legend: bool = False,
+        dashes: bool = False,
+        show: bool = True,
+        file_name: str = None,
+        output_folder: str = None,
+    ):
+        sns.lineplot(
+            data=df, x=x_col, y=y_col, palette=self.lineplot_color, dashes=dashes
+        )
+        self.visualize(
+            title=title,
+            legend=legend,
+            show=show,
+            file_name=file_name,
+            output_folder=output_folder,
+        )
 
     def histplot(
         self,
