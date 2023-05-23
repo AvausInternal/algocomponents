@@ -27,6 +27,7 @@ from algocomponents.tasks.model_trainers.gradient_boosting_classifier_trainer im
 from algocomponents.tasks._visualize_features import (
     VisualizeFeatures,
 )
+from algocomponents.tasks._data_transfer_task import DataTransferTask
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -54,4 +55,5 @@ __all__ = [
     "RandomForestClassifierTrainer",
     "GradientBoostingClassifierTrainer",
     "VisualizeFeatures",
+    "DataTransferTask",
 ]
