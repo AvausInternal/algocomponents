@@ -19,6 +19,19 @@ class TestAvausVisuals(TestCase):
     )
     plotter = AvausVisuals()
 
+    def test_saving_a_lineplot(self):
+        self.plotter.boxplot(
+            df=self.df_to_plot,
+            x_col="x",
+            y_col="y",
+            show=False,
+            file_name="test_saving_a_lineplot",
+            output_folder=self.output_path,
+        )
+        output_file = os.path.join(self.output_path, "test_saving_a_lineplot.png")
+        assert os.path.isfile(output_file)
+        os.remove(output_file)
+
     def test_saving_a_boxplot(self):
         self.plotter.boxplot(
             df=self.df_to_plot,

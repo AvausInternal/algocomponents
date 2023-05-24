@@ -13,6 +13,7 @@ import pandas as pd
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import (
     VisualizeFeatures,
+    AvausVisuals,
 )
 
 output_folder = os.path.join("tests", "avaus_visuals_examples", "plots")
@@ -38,3 +39,11 @@ VisualizeFeatures(
     output_folder=output_folder,
 ).start()
 sql_adapter.disconnect()
+AvausVisuals().lineplot(
+    df=input_table_df,
+    x_col="cont_1",
+    y_col="cont_2",
+    file_name="lineplot",
+    show=False,
+    output_folder=output_folder,
+)
