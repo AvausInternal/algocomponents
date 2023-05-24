@@ -1,3 +1,7 @@
+from typing import Dict
+import pandas as pd
+
+
 def config_to_str(config) -> str:
     """Convert a ConfigParser-object to a string.
 
@@ -54,3 +58,22 @@ def merge_configs(merge_this, into_this, overwrite: bool = False):
             into_this[section][key] = value
 
     return into_this
+
+
+def predict_with_model(
+    model_path: str, metadata: Dict, df: pd.DataFrame, prediction_column: str = "score"
+) -> pd.DataFrame:
+    import os
+    import joblib
+
+    model_path = os.path.join(model_path, metadata["model_file"])
+    model = joblib.load(filename=model_path)
+
+    if "preprocessor_path" in metadata:
+        pre_processor_path = os.path.join(model_path, metadata["preprocessor_path"])
+        preprocessor = joblib.load(filename=pre_processor_path)
+        df = preprocessor.transform(df)
+
+    df[prediction_column] = model.predict(df)
+
+    return df
