@@ -16,7 +16,9 @@ from algocomponents.tasks import (
 class TestModelEvaluator(TestCase):
     dataset_table = "test_model_evaluator_dataset"
     target_label_column = "y"
-    model_path = os.path.join("tests", "tasks", "model_evaluator", "model")
+    self_path = os.path.join("tests", "tasks", "model_evaluator")
+    model_path = os.path.join(self_path, "model")
+    plot_path = os.path.join(self_path, "plots")
     output_table = "model_score_output"
 
     sql_adapter = LocalSqliteAdapter()
@@ -121,3 +123,22 @@ class TestModelEvaluator(TestCase):
                 model_path=self.model_path,
                 model_type="classification",
             )
+
+    def test_drawing_plots(self):
+        self.create_classification_model()
+
+        self.sql_adapter.connect()
+
+        dataset_df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
+        model_evaluator = ModelEvaluator(
+            sql_adapter=self.sql_adapter,
+            dataset_df=dataset_df,
+            target_label_column=self.target_label_column,
+            model_path=self.model_path,
+            model_type="classification",
+            plot_folder=self.plot_path,
+        )
+        model_evaluator.start()
+
+        self.sql_adapter.disconnect()
+        shutil.rmtree(self.plot_path)
