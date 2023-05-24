@@ -18,6 +18,7 @@ from sklearn.metrics import (
     mean_absolute_error,
     mean_squared_error,
     precision_recall_curve,
+    roc_auc_score,
 )
 
 
@@ -101,6 +102,7 @@ class ModelEvaluator(Task):
 
         if self.plot_folder and self.model_type == "classification":
             precision, recall, thresholds = precision_recall_curve(y_test, y_pred)
+            auc_score = roc_auc_score(y_test, y_pred)
             df = pd.DataFrame(zip(precision, recall), columns=["Precision", "Recall"])
 
             visualizer = AvausVisuals()
@@ -108,7 +110,7 @@ class ModelEvaluator(Task):
                 df=df,
                 x_col="Recall",
                 y_col="Precision",
-                title="Precision/Recall curve",
+                title=f"AUC Score: {auc_score}",
                 file_name="precision_recall_curve",
                 output_folder=self.plot_folder,
                 show=False,
