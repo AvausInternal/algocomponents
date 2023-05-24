@@ -16,6 +16,9 @@ class SynthesizeTable(SQLTask):
         hash_columns: The columns to hash when synthesizing. This is done on all
             columns that contain sensitive values.
         output_table: Where to put the synthesized data
+        row_number_columns: Which columns to replace with an incremental index.
+            Usually this is done to primary keys, as their actual numbers are of
+            no value and it's just relevant that there is something to join on.
         overwrite: Whether to overwrite an existing table, defaults to False.
         max_distinct_values: Max number of distinct values to take per column
         max_rows: Max number of rows to output in total
@@ -25,6 +28,7 @@ class SynthesizeTable(SQLTask):
         self,
         input_table: str,
         output_table: str,
+        row_number_columns: List[str] = None,
         overwrite: bool = False,
         max_rows: int = 100,
         max_distinct_values: int = 20,
@@ -35,6 +39,7 @@ class SynthesizeTable(SQLTask):
 
         self.input_table = input_table
         self.output_table = output_table
+        self.row_number_columns = row_number_columns or []
         self.overwrite = overwrite
         self.max_rows = max_rows
         self.max_distinct_values = max_distinct_values
@@ -70,7 +75,12 @@ class SynthesizeTable(SQLTask):
         query += "WITH"
         ctes = []
         for table_column in table_columns:
-            if table_column in self.hash_columns:
+            if table_column in self.row_number_columns:
+                ctes.append(f"{table_column}")
+                query += f" {table_column} AS ({os.linesep}"
+                query += f"    SELECT{os.linesep}"
+                query += f"        ROW_NUMBER() OVER() AS {table_column}{os.linesep}"
+            elif table_column in self.hash_columns:
                 ctes.append(f"{table_column}_hashed_values")
                 query += f" {table_column}_hashed_values AS ({os.linesep}"
                 query += f"    SELECT DISTINCT{os.linesep}"

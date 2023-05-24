@@ -30,7 +30,26 @@ class TestUtils(TestCase):
         )
         query = task.get_synthesization_query()
 
+        assert "ROW_NUMBER" not in query
         assert len(query) > 0
+        adapter.disconnect()
+
+    def test_replace_column_with_row_number(self):
+        adapter = LocalSqliteAdapter()
+        adapter.connect()
+        adapter.run_sql_file(self.setup_sql_path)
+
+        task = SynthesizeTable(
+            input_table=self.input_table,
+            row_number_columns=["b"],
+            hash_columns=["c"],
+            output_table=self.output_table,
+            overwrite=True,
+            sql_adapter=adapter,
+        )
+        query = task.get_synthesization_query()
+
+        assert "ROW_NUMBER" in query
         adapter.disconnect()
 
     def test_run_synthesization_task(self):
