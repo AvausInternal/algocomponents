@@ -6,7 +6,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from algocomponents.tasks import Task
+from algocomponents.tasks import Task, AvausVisuals
 from algocomponents.utils import predict_with_model
 
 from sklearn.metrics import (
@@ -17,6 +17,8 @@ from sklearn.metrics import (
     r2_score,
     mean_absolute_error,
     mean_squared_error,
+    precision_recall_curve,
+    roc_auc_score,
 )
 
 
@@ -34,6 +36,7 @@ class ModelEvaluator(Task):
         model_type: What type of model es evaluated: classification or regression
         prediction_column: In what column to store the predicted values
         excluded_columns: Columns to not use when predicting (for example primary keys)
+        plot_folder: Where to put plots. If no value is sent, plots are not created.
 
     """
 
@@ -44,6 +47,7 @@ class ModelEvaluator(Task):
         model_path: str,
         model_type: str,
         prediction_column: str = "score",
+        plot_folder: str = None,
         excluded_columns: List[str] = None,
         **kwargs,
     ):
@@ -62,6 +66,7 @@ class ModelEvaluator(Task):
         self.excluded_columns = excluded_columns or []
         self.model_type = model_type
         self.prediction_column = prediction_column
+        self.plot_folder = plot_folder
         self.metadata = {}
 
     def startup(self):
@@ -94,6 +99,22 @@ class ModelEvaluator(Task):
             self.logger.info("F1:        %.3f" % f1_score(y_test, y_pred))
             self.logger.info("Precision: %.3f" % precision_score(y_test, y_pred))
             self.logger.info("Recall:    %.3f" % recall_score(y_test, y_pred))
+
+        if self.plot_folder and self.model_type == "classification":
+            precision, recall, thresholds = precision_recall_curve(y_test, y_pred)
+            auc_score = roc_auc_score(y_test, y_pred)
+            df = pd.DataFrame(zip(precision, recall), columns=["Precision", "Recall"])
+
+            visualizer = AvausVisuals()
+            visualizer.lineplot(
+                df=df,
+                x_col="Recall",
+                y_col="Precision",
+                title=f"AUC Score: {auc_score}",
+                file_name="precision_recall_curve",
+                output_folder=self.plot_folder,
+                show=False,
+            )
 
     def _load_and_validate_metadata(self):
         metadata_path = os.path.join(self.model_path, "meta.json")
