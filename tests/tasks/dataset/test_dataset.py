@@ -63,7 +63,7 @@ class SimpleFaultyFeature(Feature):
 
 
 class _(TestCase):
-    """Tests concerning the initialisation of the class without start() method calls"""
+    """temp code, will be deleted later."""
 
     # globals
     sql_adapter = LocalSqliteAdapter()
@@ -161,6 +161,7 @@ class TestDatasetFeaures(TestCase):
     def test_featurebase_pk_missing(self):
         # a feature primary key not in the featurebase primary key list
         with pytest.raises(DataMismatchException):
+
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
                 feature_base=self.feature_base,
@@ -169,6 +170,7 @@ class TestDatasetFeaures(TestCase):
                 sql_adapter=self.sql_adapter,
             )
             dataset.start()
+            #! this currently fails because featurebase output table does not exist
 
     def test_feature_pk_missing(self):
         # primary key from features not found in input table
