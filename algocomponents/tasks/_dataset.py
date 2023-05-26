@@ -105,8 +105,11 @@ class Dataset(GroupTask):
             return self.feature_base.output_primary_keys
         else:
             # infer the primary keys we know of
-            primary_keys = [feat.output_primary_keys for feat in self.features]
-            return list(set().union(primary_keys))
+            primary_keys = []
+            for feat in self.features:
+                primary_keys += feat.output_primary_keys
+
+            return list(set(primary_keys))
 
     def _format_query_cols(
         self, features: List[Feature], prepend: str, pad: str
