@@ -20,10 +20,11 @@ class Predict(Task):
             when making predictions
         model_path: Path to folder with model files.
         output_prediction_table: Full path to where output should be stored.
+        output_prediction_csv: File path to a csv file of the output.
         output_prediction_column: Column where the model score will be appended.
         excluded_columns: Columns to not use when predicting (for example primary keys)
-        overwrite_output_table: If False, the task will raise a TableAlreadyExists
-            exception if the output table already exists. Otherwise it is overwritten.
+        overwrite_output: If True, the current output will be overwritten,
+            regardless of whether it is a table or a csv.
 
     """
 
@@ -32,20 +33,26 @@ class Predict(Task):
         dataset_table: str,
         target_label_column: str,
         model_path: str,
-        output_prediction_table: str,
+        output_prediction_table: str = None,
+        output_prediction_csv: str = None,
         output_prediction_column: str = "score",
         excluded_columns: List[str] = None,
-        overwrite_output_table: bool = False,
+        overwrite_output: bool = False,
         **kwargs,
     ):
+        assert output_prediction_table or output_prediction_csv, (
+            "Must supply either a output_prediction_table or an"
+            "output_prediction_csv, got neither."
+        )
         super().__init__(**kwargs)
         self.dataset_table = dataset_table
         self.target_label_column = target_label_column
         self.model_path = model_path
         self.output_prediction_table = output_prediction_table
+        self.output_prediction_csv = output_prediction_csv
         self.output_prediction_column = output_prediction_column
         self.excluded_columns = excluded_columns or []
-        self.overwrite_output_table = overwrite_output_table
+        self.overwrite_output = overwrite_output
         self.metadata = {}
 
     def startup(self):
@@ -63,11 +70,16 @@ class Predict(Task):
             prediction_column=self.output_prediction_column,
         )
 
-        self.sql_adapter.pandas_df_as_table(
-            df=df,
-            table=self.output_prediction_table,
-            overwrite=self.overwrite_output_table,
-        )
+        if self.output_prediction_csv:
+            if self.overwrite_output and os.path.exists(self.output_prediction_csv):
+                os.remove(self.output_prediction_csv)
+            df.to_csv(self.output_prediction_csv)
+        if self.output_prediction_table:
+            self.sql_adapter.pandas_df_as_table(
+                df=df,
+                table=self.output_prediction_table,
+                overwrite=self.overwrite_output,
+            )
         self.sql_adapter.disconnect()
 
     def _load_and_validate_metadata(self):
