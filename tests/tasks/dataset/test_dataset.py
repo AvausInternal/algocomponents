@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from unittest import TestCase
 
 import pytest
@@ -171,6 +172,10 @@ class TestDatasetOutcomes(TestCase):
 
     #todo:
         - test drop intermediate
+        - test total rows changed (throws DataMismatchException)
+        - test column outputs wrong (should throw DataMismatchException)
+        - test if it runs with and without verify
+
 
     """
 
@@ -185,20 +190,28 @@ class TestDatasetOutcomes(TestCase):
         "{tmp_db}.feature_base_table"  # For clarity, but exists also in config
     )
 
-    # instantiate feature
+    # instantiate a simple feature
     feature_one = SimpleFeatureOne(
         global_config_dir=global_config_path,
         sql_folder="simple_feature_one_queries",
-        input_table=base_output_table,  #! Fix this
+        input_table=base_output_table,
         output_table="{tmp_db}.feature_one_output",
     )
 
-    # instantiate feature
+    # instantiate a simple feature
     feature_two = SimpleFeatureTwo(
         global_config_dir=global_config_path,
         sql_folder="simple_feature_two_queries",
-        input_table=pre_existing_table,  #! Fix this
+        input_table=pre_existing_table,
         output_table="{tmp_db}.feature_two_output",
+    )
+
+    # instantiate feature with duplicate primary keys
+    explosive_feature = SimpleFeatureOne(
+        global_config_dir=global_config_path,
+        sql_folder="simple_feature_one_queries",  # todo: make faulty query here
+        input_table=base_output_table,
+        output_table="{tmp_db}.feature_one_output",
     )
 
     def test_prexisting_tables_exist(self):
@@ -226,7 +239,12 @@ class TestDatasetOutcomes(TestCase):
             ["product_id", "product_price", "product_weight"]
         )
 
-    def test_something(self):
+    def test_for_explosive_join(self):
+        # total rows must remain unchanged between input and output
+
+        # with pytest.raises(DataMismatchException):
+        # pass
+
         dataset = Dataset(
             output_table="{tmp_db}.test_output",
             features=[
@@ -245,9 +263,3 @@ class TestDatasetOutcomes(TestCase):
         )
 
         dataset.start()
-
-    def test_something(self):
-        pass
-
-    def test_something(self):
-        pass
