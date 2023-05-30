@@ -52,13 +52,16 @@ class TestModelTraining(TestCase):
             os.path.join(self.model_path, training_pipeline.preprocessor_file)
         )
 
+        output_csv = os.path.join(self.model_path, self.output_table + ".csv")
+
         Predict(
             sql_adapter=self.sql_adapter,
             dataset_table=self.double_input_table,
             target_label_column=self.target_label_column,
             model_path=self.model_path,
             output_prediction_table=self.output_table,
-            overwrite_output_table=True,
+            output_prediction_csv=output_csv,
+            overwrite_output=True,
         ).start()
 
         self.sql_adapter.connect()
@@ -68,6 +71,8 @@ class TestModelTraining(TestCase):
             columns=["score"],
         )
         assert self.sql_adapter.count_rows_in_table(table=self.output_table) > 0
+
+        assert os.path.isfile(output_csv)
 
         self.sql_adapter.run_sql_string(f"DROP TABLE {self.output_table}")
         shutil.rmtree(self.model_path)
