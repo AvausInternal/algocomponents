@@ -42,7 +42,6 @@ class Dataset(GroupTask):
         target_label: bool = False,
         **kwargs,
     ):
-
         super().__init__(**kwargs)
         self.feature_base = feature_base
         self.input_table = input_table
@@ -203,6 +202,7 @@ class Dataset(GroupTask):
         Returns:
             str: SQL ready string
         """
+        table_names = list(set(table_names))
         query = []
         for table in table_names:
             query.append(f"DROP TABLE IF EXISTS {table}")
@@ -279,6 +279,10 @@ class Dataset(GroupTask):
                         f"Input table {self.input_table}\n is missing:"
                         f"{required_columns.difference(input_table_columns)}\n"
                     )
+            # done here because input tables can be dropped if they are made by a featurebase
+            self._input_table_rows = self.sql_adapter.count_rows_in_table(
+                self.input_table
+            )
 
     def run(self):
         """
@@ -327,12 +331,12 @@ class Dataset(GroupTask):
                 )
 
             # check dataset leaves no. of rows unchanged:
-            input_table_rows = self.sql_adapter.count_rows_in_table(self.input_table)
+            # input_table_rows = self.sql_adapter.count_rows_in_table(self.input_table)
             output_table_row = self.sql_adapter.count_rows_in_table(self.output_table)
-            if input_table_rows != output_table_row:
+            if self._input_table_rows != output_table_row:
                 raise DataMismatchException(
                     f"Dataset run operation resulted in a change in rows\n"
-                    f"Input table has {input_table_rows} rows\n"
+                    f"Input table has {self._input_table_rows} rows\n"
                     f"Output table has {output_table_row} rows\n"
                 )
 

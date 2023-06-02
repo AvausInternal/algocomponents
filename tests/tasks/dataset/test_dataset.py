@@ -69,7 +69,12 @@ class IncorrectPrimaryKeyFeature(Feature):
 
 
 class TestDatasetinit(TestCase):
-    """Tests concerning the initialisation of the class without start() method calls"""
+    """Tests concerning the initialisation of the class without start() method calls
+    todo:
+        - selective/vs full input
+        - Features with empty lists: columns and primary_keys
+        - catch verify and no sql adapter.
+    """
 
     def test_init_featurelist(self):
         # feature list given wrong data type
@@ -117,6 +122,7 @@ class TestDatasetFeatures(TestCase):
         #! a dataset with featurebase and output, but no features leads to confusing output table checks.
         # if features have output_columns_created = [] code crashes?
         - full or selective choice
+        - test_input_table_missing_columns
     """
 
     # globals
@@ -124,7 +130,25 @@ class TestDatasetFeatures(TestCase):
     global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
     work_dir_path = os.path.join("tests", "tasks", "dataset")
     base_output_table = "{tmp_db}.feature_base_table"
+    pre_existing_table = (
+        "{tmp_db}.pre_existing_table"  # For clarity, but exists also in config
+    )
 
+    # instantiate a simple feature
+    feature_one = SimpleFeatureOne(
+        global_config_dir=global_config_path,
+        sql_folder="simple_feature_one_queries",
+        input_table=base_output_table,
+        output_table="{tmp_db}.feature_one_output",
+    )
+
+    # instantiate a simple feature
+    feature_two = SimpleFeatureTwo(
+        global_config_dir=global_config_path,
+        sql_folder="simple_feature_two_queries",
+        input_table=pre_existing_table,
+        output_table="{tmp_db}.feature_two_output",
+    )
     feature_base = SimpleFeatureBase(
         global_config_dir=global_config_path,
         sql_folder=os.path.join("make_feature_base_queries"),
@@ -166,15 +190,34 @@ class TestDatasetFeatures(TestCase):
             )
             dataset.start()
 
+    def test_input_table_missing_columns(self):
+        """input table missing columns raises DataMismatchException
+        preexisting table lacks the input columns needed by features
+        """
+        with pytest.raises(DataMismatchException):
+            dataset = Dataset(
+                output_table="{tmp_db}.test_output",
+                features=[self.feature_one, self.feature_two],
+                # feature_base=self.feature_base,
+                # input_table="{tmp_db}.feature_base_table",
+                input_table="{tmp_db}.pre_existing_table",
+                import_columns="selective",
+                global_config_dir=self.global_config_path,
+                sql_adapter=self.sql_adapter,
+                verify=True,
+            )
+            dataset.start()
+
 
 class TestDatasetOutcomes(TestCase):
     """A range of tests focusing on the output of the dataset
 
     #todo:
-        - test drop intermediate
-        - test total rows changed (throws DataMismatchException)
-        - test column outputs wrong (should throw DataMismatchException)
         - test if it runs with and without verify
+        - full or selective
+        - put featurebases in this class as input (safer)
+        - [ ] Verify = True, drop_intermediate=True, featurebase:
+        results in dropping the input table before the shutdown verify tasks can be run
 
 
     """
@@ -209,9 +252,16 @@ class TestDatasetOutcomes(TestCase):
     # instantiate feature with duplicate primary keys
     explosive_feature = SimpleFeatureOne(
         global_config_dir=global_config_path,
-        sql_folder="simple_feature_one_queries",  # todo: make faulty query here
+        sql_folder="explosive_feature_queries",
         input_table=base_output_table,
         output_table="{tmp_db}.feature_one_output",
+    )
+
+    feature_base = SimpleFeatureBase(
+        global_config_dir=global_config_path,
+        sql_folder=os.path.join("make_feature_base_queries"),
+        sql_adapter=sql_adapter,  # needed if run seperately from Dataset
+        output_table=base_output_table,
     )
 
     def test_prexisting_tables_exist(self):
@@ -239,11 +289,48 @@ class TestDatasetOutcomes(TestCase):
             ["product_id", "product_price", "product_weight"]
         )
 
-    def test_for_explosive_join(self):
+    def test_changed_rowcount(self):
         # total rows must remain unchanged between input and output
+        # this will only throw DataMismatchException if verify is true.
 
-        # with pytest.raises(DataMismatchException):
-        # pass
+        with pytest.raises(DataMismatchException):
+            dataset = Dataset(
+                output_table="{tmp_db}.test_output",
+                features=[self.explosive_feature],
+                # input_table=base_output_table,
+                input_table="{tmp_db}.feature_base_table",
+                feature_base=None,  # feature_base,
+                import_columns="full",
+                where_clause=None,
+                drop_intermediate=False,
+                target_label=False,
+                global_config_dir=self.global_config_path,
+                sql_adapter=self.sql_adapter,
+                verify=True,
+            )
+            dataset.start()
+
+    def test_unchanged_columns(self):
+        """repeating feature_one will result in spurious columns
+        which should throw an exception
+        """
+
+        with pytest.raises(DataMismatchException):
+            self.feature_base.start()  # ensure output exists
+            dataset = Dataset(
+                output_table="{tmp_db}.test_output",
+                features=[self.feature_one, self.feature_one],
+                input_table="{tmp_db}.feature_base_table",
+                feature_base=None,
+                import_columns="full",
+                global_config_dir=self.global_config_path,
+                sql_adapter=self.sql_adapter,
+                verify=True,
+            )
+            dataset.start()
+
+    def test_drop_intermediate_tables(self):
+        # delete intermidate tables that features create if drop_intermediate
 
         dataset = Dataset(
             output_table="{tmp_db}.test_output",
@@ -251,15 +338,43 @@ class TestDatasetOutcomes(TestCase):
                 self.feature_one,
                 self.feature_two,
             ],
-            # input_table=base_output_table,
             input_table="{tmp_db}.feature_base_table",
-            feature_base=None,  # feature_base,
-            import_columns="full",
-            where_clause=None,
-            drop_intermediate=False,
-            target_label=False,
+            drop_intermediate=False,  # vital to test
             global_config_dir=self.global_config_path,
             sql_adapter=self.sql_adapter,
         )
-
         dataset.start()
+        dataset.sql_adapter.connect()
+
+        # Tables exist after a normal run
+        intermediate_tables = dataset._get_intermediate_table_names()
+        for table in intermediate_tables:
+            assert dataset.sql_adapter.table_exists(table)
+
+        # Tables deleted
+        dataset.drop_intermediate = True
+        dataset.start()
+        dataset.sql_adapter.connect()
+        for table in intermediate_tables:
+            assert not dataset.sql_adapter.table_exists(table)
+
+    def test_selective_full(self):
+        """r"""
+
+        dataset = Dataset(
+            output_table="{tmp_db}.test_output",
+            features=[self.feature_one, self.feature_two],
+            feature_base=self.feature_base,
+            # input_table="{tmp_db}.feature_base_table",
+            import_columns="selective",
+            global_config_dir=self.global_config_path,
+            sql_adapter=self.sql_adapter,
+            drop_intermediate=False,
+            verify=True,
+        )
+        dataset.start()
+        dataset.sql_adapter.connect()
+        formatted_name = "{tmp_db}.test_output".format(
+            **dataset.config[dataset.section]
+        )
+        # todo: print to see change in output columns first
