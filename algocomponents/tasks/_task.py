@@ -102,6 +102,21 @@ class Task(ConfigReader):
         if self.i_started_the_adapter:
             self.sql_adapter.disconnect()
 
+    def set_section(self, section):
+        """Set the section for this Task
+
+        This is implemented as a method in order for GroupTasks to recursively
+        set_section in a task-tree.
+
+        Args:
+            section: The section to set.
+        Raises:
+            ValueError: If the section is not in the config
+
+        """
+        self.verify_section_is_in_config(section)
+        self.section = section
+
     def set_sql_adapter(self, sql_adapter):
         """Set the SQLAdapter for this Task
 
