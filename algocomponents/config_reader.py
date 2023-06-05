@@ -71,6 +71,9 @@ class ConfigReader(ABC):
                 merge_this=config, into_this=self.config, overwrite=True
             )
 
+        # Raise ValueError if section is not in config
+        self.verify_section_is_in_config(self.section)
+
         # Set a logger for the task
         self.logger = LoggieDoggie().fetch_logger(
             logger_name=self.class_name,
@@ -86,3 +89,16 @@ class ConfigReader(ABC):
 
         """
         self.config[self.section][key] = str(value)
+
+    def verify_section_is_in_config(self, section):
+        """Verifies that the section exists in the config for this class
+
+        Raises:
+            ValueError: If the section is not in the config
+        """
+        available_sections = self.config.sections() + [self._default_section]
+        if section not in available_sections:
+            raise ValueError(
+                f"Section {section} not found in config. "
+                f"These are the available sections: {available_sections}"
+            )
