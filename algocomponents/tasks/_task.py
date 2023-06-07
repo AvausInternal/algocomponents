@@ -35,15 +35,15 @@ class Task(ConfigReader):
     def start(self):
         """Starts the task
 
-        This is the method to use when starting a task. This method will call
-        the three following methods in order:
+        This is the method to use when starting a task. This method will init
+        the logger, time the task, and call the three following methods:
 
             startup()
             run()
             shutdown()
 
-        The above methods are the methods other tasks overwrite with their own
-        functionality. For a Task, all of these three methods are blank.
+        The above methods are the methods other tasks will use to implement
+        their respective functionality.
 
         """
         run_start = datetime.now()
