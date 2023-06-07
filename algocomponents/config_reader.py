@@ -71,12 +71,6 @@ class ConfigReader(ABC):
                 merge_this=config, into_this=self.config, overwrite=True
             )
 
-        # Set a logger for the task
-        self.logger = LoggieDoggie().fetch_logger(
-            logger_name=self.class_name,
-            config=dict(self.config[self.section]),
-        )
-
     def add_to_config(self, key, value):
         """Add values to config for the current section
 

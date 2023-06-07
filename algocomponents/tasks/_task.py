@@ -3,7 +3,7 @@ from datetime import datetime
 
 from algocomponents.adapters import SQLAdapter
 from algocomponents.config_reader import ConfigReader
-from algocomponents.utils import config_to_str
+from algocomponents.utils import config_to_str, LoggieDoggie
 
 
 class Task(ConfigReader):
@@ -26,6 +26,7 @@ class Task(ConfigReader):
         self.run_id = None
         self.parent = None
         self.i_started_the_adapter = False
+        self.logger = None
 
         if sql_adapter:
             self.sql_adapter = sql_adapter
@@ -53,6 +54,7 @@ class Task(ConfigReader):
         else:
             self.run_id = str(uuid.uuid1())
 
+        self._init_logger()
         self.logger.info(
             f"Starting task {self.task_name} " f"with section {self.section}"
         )
@@ -113,3 +115,9 @@ class Task(ConfigReader):
 
         """
         self.sql_adapter = sql_adapter
+
+    def _init_logger(self):
+        self.logger = LoggieDoggie().fetch_logger(
+            logger_name=self.class_name,
+            config=dict(self.config[self.section]),
+        )
