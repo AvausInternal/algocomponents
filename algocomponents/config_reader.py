@@ -75,6 +75,9 @@ class ConfigReader(ABC):
         self.verify_section_is_in_config(self.section)
 
         # Set a logger for the task
+        # As soon as this __init__() finishes, Tasks and Adapters want to be
+        # able to use self.logger as part of their own __init__(), so this has
+        # to happen here.
         self.logger = LoggieDoggie().fetch_logger(
             logger_name=self.class_name,
             config=dict(self.config[self.section]),
@@ -102,3 +105,18 @@ class ConfigReader(ABC):
                 f"Section {section} not found in config. "
                 f"These are the available sections: {available_sections}"
             )
+
+    def update_logger(self):
+        """Update the logger with new config settings.
+
+        Currently, this is code duplication, because the fetch_logger() method
+        itself handles returning the same logger if it is called with the same
+        settings. However, having this as a separate piece of code is necessary,
+        and it is likely that this will eventually not be code duplication as
+        the use cases "Setting up logging" and "Updating logging" are different.
+
+        """
+        self.logger = LoggieDoggie().fetch_logger(
+            logger_name=self.class_name,
+            config=dict(self.config[self.section]),
+        )
