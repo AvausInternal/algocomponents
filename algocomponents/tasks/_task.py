@@ -78,25 +78,13 @@ class Task(ConfigReader):
         pass
 
     def shutdown(self):
-        """Disconnects the sql_adapter, if no other task will use it.
+        """What the task should do after having executed it's main functionality
 
-        We will try to disconnect if we have an adapter and it is connected.
-
-        We disconnect if either of these are true:
-            - There is no parent.
-            - The parent does not have an sql_adapter.
-            - The parent does not have the same sql_adapter.
-
-        In other words: Disconnect unless we share the adapter with our parent.
-
-        The most common scenario is that one sql_adapter is used throughout a
-        GroupTask: It passes it's sql_adapter to all it's children. Since that
-        GroupTasks shutdown() is the last method to run, and it is the only task
-        that does not have a parent, the last thing that happens is that the
-        sql_adapter is disconnected.
-
-        However, more complicated setups are supported, where as parts of a
-        task-tree have their own adapters.
+        If this adapter connected the adapter, it should also disconnect it.
+        This rule is all-encompassing for handling connecting and disconnecting
+        adapters in trees: GroupTasks connect their adapters before passing them
+        to their child tasks, so being the task that connects the adapter is the
+        same as being the root task in a task tree.
 
         """
         if self.i_connected_the_adapter:
