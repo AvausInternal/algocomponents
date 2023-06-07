@@ -48,11 +48,6 @@ class Task(ConfigReader):
         """
         run_start = datetime.now()
 
-        if self.parent:
-            self.run_id = self.parent.run_id
-        else:
-            self.run_id = str(uuid.uuid1())
-
         self.logger.info(
             f"Starting task {self.task_name} " f"with section {self.section}"
         )
@@ -69,6 +64,11 @@ class Task(ConfigReader):
 
     def startup(self):
         """What the task needs to do before executing it's main functionality"""
+        if self.parent:
+            self.run_id = self.parent.run_id
+        else:
+            self.run_id = str(uuid.uuid1())
+
         if self.sql_adapter and not self.sql_adapter.is_connected():
             self.i_started_the_adapter = True
             self.sql_adapter.connect()
