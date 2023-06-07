@@ -25,7 +25,7 @@ class Task(ConfigReader):
         self.task_name = self.class_name
         self.run_id = None
         self.parent = None
-        self.i_started_the_adapter = False
+        self.i_connected_the_adapter = False
 
         if sql_adapter:
             self.sql_adapter = sql_adapter
@@ -70,7 +70,7 @@ class Task(ConfigReader):
             self.run_id = str(uuid.uuid1())
 
         if self.sql_adapter and not self.sql_adapter.is_connected():
-            self.i_started_the_adapter = True
+            self.i_connected_the_adapter = True
             self.sql_adapter.connect()
 
     def run(self):
@@ -99,7 +99,7 @@ class Task(ConfigReader):
         task-tree have their own adapters.
 
         """
-        if self.i_started_the_adapter:
+        if self.i_connected_the_adapter:
             self.sql_adapter.disconnect()
 
     def set_section(self, section):
