@@ -49,7 +49,17 @@ class ConfigReader(ABC):
     ):
         self.class_name = type(self).__name__
 
-        self.section = section or self._default_section
+        # This is needed because there must always be a section in order to use
+        # a ConfigParser, but there must also be a distinction between
+        # explicitly setting the section to "DEFAULT" and passing None.
+        # section_is_set is used to determine if the section can be overwritten,
+        # i.e. whether the ConfigReader has "Strong opinions" on its section.
+        if section:
+            self.section_is_set = True
+            self.section = section
+        else:
+            self.section_is_set = False
+            self.section = self._default_section
 
         module = sys.modules[self.__class__.__module__]
         if hasattr(module, "__file__"):
