@@ -193,8 +193,8 @@ class BigQueryAdapter(SQLAdapter):
         """
         # regex explanation
         match = re.findall(
-            # First, at least 1 newline or whitespace
-            r"\s+"
+            # First, at least 1 newline, whitespace or open parenthesis
+            r"[\s(]+"
             # The extract keyword, followed by some or no whitespace characters
             r"(?:extract)\s*"
             # Everything from open paranthesis to close paranthesis
