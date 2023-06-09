@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 import pandas as pd
 
 
@@ -77,3 +77,11 @@ def predict_with_model(
     df[prediction_column] = model.predict(df)
 
     return df
+
+
+def shuffle_columns(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+    new_df = df.copy()  # Create a copy of the original DataFrame
+    for column in columns:
+        shuffled_values = df[column].sample(frac=1).reset_index(drop=True)
+        new_df[column] = shuffled_values
+    return new_df
