@@ -38,6 +38,29 @@ class AvausVisuals:
     def __init__(self):
         sns.set_style("whitegrid", {"axes.grid": False})
 
+    def barplot(
+        self,
+        df: pd.DataFrame,
+        x_cols: str = None,
+        title: str = None,
+        legend: bool = False,
+        mono_color: bool = True,
+        show: bool = True,
+        file_name: str = None,
+        output_folder: str = None,
+    ):
+        print(df.head(5))
+        values = df.values.flatten()
+        sns.barplot(x=x_cols, y=values)
+
+        self.visualize(
+            title=title,
+            legend=legend,
+            show=show,
+            file_name=file_name,
+            output_folder=output_folder
+        )
+
     def lineplot(
         self,
         df: pd.DataFrame,
