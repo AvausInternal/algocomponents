@@ -1,14 +1,10 @@
 import json
 import os
+from typing import Dict
 from typing import List
 
-import joblib
 import numpy as np
 import pandas as pd
-
-from algocomponents.tasks import Task, AvausVisuals
-from algocomponents.utils import predict_with_model
-
 from sklearn.metrics import (
     precision_score,
     recall_score,
@@ -20,6 +16,10 @@ from sklearn.metrics import (
     precision_recall_curve,
     roc_auc_score,
 )
+
+from algocomponents.tasks import Task, AvausVisuals
+from algocomponents.utils import predict_with_model
+from algocomponents.utils._tools import shuffle_columns
 
 
 class ModelEvaluator(Task):
@@ -112,6 +112,37 @@ class ModelEvaluator(Task):
                 y_col="Precision",
                 title=f"AUC Score: {auc_score}",
                 file_name="precision_recall_curve",
+                output_folder=self.plot_folder,
+                show=False,
+            )
+
+            shuffled_df = shuffle_columns(
+                df=x,
+                columns=x.columns,
+            )
+
+            auc_changes_df = pd.DataFrame()
+
+            for feature_column in x.columns:
+                x_permutation = x.drop(feature_column, axis=1)
+                x_permutation[feature_column] = shuffled_df[feature_column]
+
+                new_predict_df = predict_with_model(
+                    model_path=self.model_path,
+                    metadata=self.metadata,
+                    df=x_permutation,
+                    prediction_column=self.prediction_column,
+                )
+
+                new_y_pred = new_predict_df[self.prediction_column]
+                new_auc_score = roc_auc_score(y_test, new_y_pred)
+
+                auc_changes_df[feature_column] = [auc_score - new_auc_score]
+
+            visualizer.barplot(
+                df=auc_changes_df,
+                x_cols=auc_changes_df.columns,
+                file_name="feature_importances",
                 output_folder=self.plot_folder,
                 show=False,
             )
