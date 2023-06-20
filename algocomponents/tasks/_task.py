@@ -25,7 +25,7 @@ class Task(ConfigReader):
         self.task_name = self.class_name
         self.run_id = None
         self.parent = None
-        self.i_started_the_adapter = False
+        self.i_connected_the_adapter = False
 
         if sql_adapter:
             self.sql_adapter = sql_adapter
@@ -35,27 +35,20 @@ class Task(ConfigReader):
     def start(self):
         """Starts the task
 
-        This is the method to use when starting a task. This method will call
-        the three following methods in order:
+        This is the method to use when starting a task. This method will init
+        the logger, time the task, and call the three following methods:
 
             startup()
             run()
             shutdown()
 
-        The above methods are the methods other tasks overwrite with their own
-        functionality. For a Task, all of these three methods are blank.
+        The above methods are the methods other tasks will use to implement
+        their respective functionality.
 
         """
         run_start = datetime.now()
 
-        if self.parent:
-            self.run_id = self.parent.run_id
-        else:
-            self.run_id = str(uuid.uuid1())
-
-        self.logger.info(
-            f"Starting task {self.task_name} " f"with section {self.section}"
-        )
+        self.logger.info(f"Starting task {self.task_name} with section {self.section}")
         self.logger.debug(config_to_str(self.config))
 
         self.startup()
@@ -69,8 +62,13 @@ class Task(ConfigReader):
 
     def startup(self):
         """What the task needs to do before executing it's main functionality"""
+        if self.parent:
+            self.run_id = self.parent.run_id
+        else:
+            self.run_id = str(uuid.uuid1())
+
         if self.sql_adapter and not self.sql_adapter.is_connected():
-            self.i_started_the_adapter = True
+            self.i_connected_the_adapter = True
             self.sql_adapter.connect()
 
     def run(self):
@@ -78,28 +76,16 @@ class Task(ConfigReader):
         pass
 
     def shutdown(self):
-        """Disconnects the sql_adapter, if no other task will use it.
+        """What the task should do after having executed it's main functionality
 
-        We will try to disconnect if we have an adapter and it is connected.
-
-        We disconnect if either of these are true:
-            - There is no parent.
-            - The parent does not have an sql_adapter.
-            - The parent does not have the same sql_adapter.
-
-        In other words: Disconnect unless we share the adapter with our parent.
-
-        The most common scenario is that one sql_adapter is used throughout a
-        GroupTask: It passes it's sql_adapter to all it's children. Since that
-        GroupTasks shutdown() is the last method to run, and it is the only task
-        that does not have a parent, the last thing that happens is that the
-        sql_adapter is disconnected.
-
-        However, more complicated setups are supported, where as parts of a
-        task-tree have their own adapters.
+        If this adapter connected the adapter, it should also disconnect it.
+        This rule is all-encompassing for handling connecting and disconnecting
+        adapters in trees: GroupTasks connect their adapters before passing them
+        to their child tasks, so being the task that connects the adapter is the
+        same as being the root task in a task tree.
 
         """
-        if self.i_started_the_adapter:
+        if self.i_connected_the_adapter:
             self.sql_adapter.disconnect()
 
     def set_section(self, section):
