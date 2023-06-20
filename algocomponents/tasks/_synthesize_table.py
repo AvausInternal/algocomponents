@@ -1,9 +1,7 @@
 import os
-
-from algocomponents.tasks import Task, SQLTask
-import pandas as pd
-
 from typing import List
+
+from algocomponents.tasks import SQLTask
 
 
 class SynthesizeTable(SQLTask):
@@ -20,7 +18,7 @@ class SynthesizeTable(SQLTask):
             Usually this is done to primary keys, as their actual numbers are of
             no value and it's just relevant that there is something to join on.
         overwrite: Whether to overwrite an existing table, defaults to False.
-        max_distinct_values: Max number of distinct values to take per column
+        max_values_per_column: Max number of distinct values to take per column
         max_rows: Max number of rows to output in total
     """
 
@@ -31,7 +29,7 @@ class SynthesizeTable(SQLTask):
         row_number_columns: List[str] = None,
         overwrite: bool = False,
         max_rows: int = 100,
-        max_distinct_values: int = 20,
+        max_values_per_column: int = 20,
         hash_columns: List[str] = None,
         **kwargs,
     ):
@@ -42,7 +40,7 @@ class SynthesizeTable(SQLTask):
         self.row_number_columns = row_number_columns or []
         self.overwrite = overwrite
         self.max_rows = max_rows
-        self.max_distinct_values = max_distinct_values
+        self.max_values_per_column = max_values_per_column
         self.hash_columns = hash_columns or []
 
     def run(self):
@@ -94,7 +92,7 @@ class SynthesizeTable(SQLTask):
             query += (
                 f"    ORDER BY {self.sql_adapter.get_random_sql_method()}{os.linesep}"
             )
-            query += f"    LIMIT {self.max_distinct_values}{os.linesep}"
+            query += f"    LIMIT {self.max_values_per_column}{os.linesep}"
             query += f"),"
 
         query = query[:-1] + os.linesep

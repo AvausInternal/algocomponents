@@ -5,7 +5,7 @@ from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import SynthesizeTable
 
 
-class TestUtils(TestCase):
+class TestSynthesizeTable(TestCase):
     setup_sql_path = os.path.join(
         "tests",
         "tasks",
@@ -139,7 +139,7 @@ class TestUtils(TestCase):
             output_table=self.output_table,
             overwrite=True,
             sql_adapter=adapter,
-            max_distinct_values=1,
+            max_values_per_column=1,
         ).start()
 
         # With only 1 value from each column, only 1 row is possible
@@ -151,7 +151,7 @@ class TestUtils(TestCase):
             output_table=self.output_table,
             overwrite=True,
             sql_adapter=adapter,
-            max_distinct_values=2,
+            max_values_per_column=2,
         ).start()
 
         # Everything is cross joined, and there are three calues
@@ -163,7 +163,7 @@ class TestUtils(TestCase):
             output_table=self.output_table,
             overwrite=True,
             sql_adapter=adapter,
-            max_distinct_values=2,
+            max_values_per_column=2,
             max_rows=5,
         ).start()
 
