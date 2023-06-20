@@ -163,7 +163,9 @@ class SQLAdapter(ConfigReader):
             if not query:
                 continue
 
-            query = self._format_query(query=query, format_variables=format_variables)
+            query = self.format_string(
+                string=query, additional_format_variables=format_variables
+            )
             query = self._format_table_names(query=query)
             self.logger.info(f"Executing the following query: \n{query}")
 
@@ -187,48 +189,6 @@ class SQLAdapter(ConfigReader):
 
         """
         pass
-
-    def _format_query(
-        self, query: str, format_variables: Dict[str, str], max_depth: int = 5
-    ) -> str:
-        """Recursively .format():s a query given a dict until it does not change.
-
-        A max depth is used, as writing a more general approach to this method
-        involves solving self-referencing problems in the format variables. For
-        example, {"a": "{b}", "b": "{a}"} which will cause "{a}" to be formatted
-        into "{b}", which will format into "{a}", etc. There are solutions, but
-        the added code complexity was deemed to not be worth it.
-
-        Args:
-            query: The string to format.
-            format_variables: A dictionary used to .format() the SQL string.
-            max_depth: Max number of times .format() will be done.
-
-        Returns:
-            The provided query, formatted.
-
-        Raises:
-            RecursionError: When .format():ing more than max_depth times and the
-                query is still changing
-
-        Examples:
-            {output_table} -> {tmp_db}.output_table -> tmp.output_table
-
-        """
-        format_variables.update(self.adapter_format_variables)
-        previous_query = ""
-        depth = 0
-        while query != previous_query:
-            previous_query = query
-            query = query.format(**format_variables)
-            depth += 1
-            if depth > max_depth:
-                raise RecursionError(
-                    f"Reached max reformatting depth of {max_depth} with:\n"
-                    f"query:\n{query}\n"
-                    f"previous_query:\n{previous_query}"
-                )
-        return query
 
     def _format_table_names(self, query: str, ignore_ctes: bool = True) -> str:
         """Run _format_table_name on all tables in a query.
