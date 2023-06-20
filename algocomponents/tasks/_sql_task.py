@@ -35,16 +35,12 @@ class SQLTask(Task):
         given, the text inside it is parsed and then run using run_sql_string().
 
         """
-        if self.sql_string:
-            self.sql_adapter.run_sql_string(
-                sql_string=self.sql_string,
-                format_variables=dict(self.config[self.section]),
-            )
-        elif self.sql_file_path:
-            self.sql_adapter.run_sql_file(
-                path=self.sql_file_path,
-                format_variables=dict(self.config[self.section]),
-            )
+        if self.sql_file_path:
+            with open(self.sql_file_path) as f:
+                self.sql_string = f.read()
+
+        formatted_sql = self.format_with_config(string=self.sql_string)
+        self.sql_adapter.run_sql_string(sql_string=formatted_sql)
 
     def as_pandas(self) -> pd.DataFrame:
         """Returns the result as a pandas dataframe.

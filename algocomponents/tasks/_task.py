@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Dict
 
 from algocomponents.adapters import SQLAdapter
 from algocomponents.config_reader import ConfigReader
@@ -113,3 +114,46 @@ class Task(ConfigReader):
 
         """
         self.sql_adapter = sql_adapter
+
+    def format_with_config(self, string: str, max_depth: int = 5) -> str:
+        """Calls .format() on a string with the config of this task.
+
+        To support multiple layers of templated variables, format is called
+        multiple times until the string no longer changes. A max depth is used
+        to prevent infinite recursion, for example caused by the config:
+
+        {"a": "{b}", "b": "{a}"}
+
+        Which would format "{a}" into "{b}", which formats into "{a}", etc.
+
+        There are more general solutions without a max_depth variable, but the
+        added code complexity for these solutions was deemed to not be worth it.
+
+        Args:
+            string: The string to format.
+            max_depth: Max number of times .format() will be done.
+
+        Returns:
+            The provided string, formatted.
+
+        Raises:
+            RecursionError: When .format():ing more than max_depth times and the
+                string is still changing
+
+        Examples:
+            {output_table} -> {tmp_db}.output_table -> tmp.output_table
+
+        """
+        previous_string = ""
+        depth = 0
+        while string != previous_string:
+            previous_string = string
+            string = string.format(**self.config[self.section])
+            depth += 1
+            if depth > max_depth:
+                raise RecursionError(
+                    f"Reached max reformatting depth of {max_depth} with:\n"
+                    f"string:\n{string}\n"
+                    f"previous_string:\n{previous_string}"
+                )
+        return string
