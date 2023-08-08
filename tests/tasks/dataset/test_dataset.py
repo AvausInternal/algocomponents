@@ -1,6 +1,4 @@
 import os
-import pandas as pd
-from unittest import TestCase
 
 import pytest
 
@@ -68,148 +66,45 @@ class IncorrectPrimaryKeyFeature(Feature):
     output_columns_created = []
 
 
-class TestDatasetinit(TestCase):
-    """Tests concerning the initialisation of the class without start() method calls
+# changing scope to 'function' fixtures will run for each methodcall seperately.
+@pytest.fixture(scope="class", name="prepared_table")
+def prepare_existing_table():
+    """
     todo:
-        - selective/vs full input
-        - Features with empty lists: columns and primary_keys
-        - catch verify and no sql adapter.
+        - remove assert?
+        - yield the whole pipeline or just the name?
     """
 
-    def test_init_featurelist(self):
-        # feature list given wrong data type
-        with pytest.raises(ValueError):
-            Dataset(
-                input_table="fake_input_table",
-                output_table="fake_output_table",
-                features=["wrong_feature_datatype"],
-            )
-
-    def test_init_double_inputs(self):
-        # input and feature base are both given
-        with pytest.raises(ValueError):
-            Dataset(
-                input_table="fake_input_table",
-                feature_base="fake_input_featurebase",
-                output_table="fake_output_table",
-                features=[],
-            )
-
-    def test_init_no_inputs(self):
-        # neither featurebase or input are given
-        with pytest.raises(ValueError):
-            Dataset(
-                output_table="fake_output_table",
-                features=[],
-            )
-
-    def test_init_verify(self):
-        # When both verify is true we need an sql adapter
-        with pytest.raises(ValueError):
-            Dataset(
-                input_table="fake_input_table",
-                output_table="fake_output_table",
-                features=[],
-                verify=True,
-                sql_adapter=None,
-            ).startup()
-
-
-class TestDatasetFeatures(TestCase):
-    """Tests concerning the features and feature miss-matches
-
-    # todo:
-        #! a dataset with featurebase and output, but no features leads to confusing output table checks.
-        # if features have output_columns_created = [] code crashes?
-        - full or selective choice
-        - test_input_table_missing_columns
-    """
-
-    # globals
+    # setup:
     sql_adapter = LocalSqliteAdapter()
     global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
-    work_dir_path = os.path.join("tests", "tasks", "dataset")
-    base_output_table = "{tmp_db}.feature_base_table"
-    pre_existing_table = (
-        "{tmp_db}.pre_existing_table"  # For clarity, but exists also in config
-    )
+    dir_path = os.path.join("tests", "tasks", "dataset", "preparation_queries")
 
-    # instantiate a simple feature
-    feature_one = SimpleFeatureOne(
+    pipeline = SQLPipeline(
         global_config_dir=global_config_path,
-        sql_folder="simple_feature_one_queries",
-        input_table=base_output_table,
-        output_table="{tmp_db}.feature_one_output",
-    )
-
-    # instantiate a simple feature
-    feature_two = SimpleFeatureTwo(
-        global_config_dir=global_config_path,
-        sql_folder="simple_feature_two_queries",
-        input_table=pre_existing_table,
-        output_table="{tmp_db}.feature_two_output",
-    )
-    feature_base = SimpleFeatureBase(
-        global_config_dir=global_config_path,
-        sql_folder=os.path.join("make_feature_base_queries"),
-        sql_adapter=sql_adapter,  # needed to run it seperately from Dataset
-        output_table=base_output_table,
-    )
-
-    incorrect_primary_key_feature = IncorrectPrimaryKeyFeature(
-        global_config_dir=global_config_path,
-        sql_folder="simple_feature_one_queries",
+        sql_folder=dir_path,
+        sql_folder_relative_path=False,
         sql_adapter=sql_adapter,
-        input_table=base_output_table,
-        output_table="{tmp_db}.feature_one_output",
     )
+    pipeline.start()
 
-    def test_featurebase_pk_missing(self):
-        # a feature primary key not in the featurebase primary key list
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                feature_base=self.feature_base,
-                features=[self.incorrect_primary_key_feature],
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-            )
-            dataset.start()
+    # config variable sets the output table name
+    table_name = pipeline.config[pipeline.section]["pre_existing_table"]
+    formatted_table_name = table_name.format(**pipeline.config[pipeline.section])
 
-    def test_feature_pk_missing(self):
-        # primary key from a feature is not found in input table
+    yield formatted_table_name
 
-        self.feature_base.start()  # create input table
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                input_table=self.feature_base.output_table,
-                features=[self.incorrect_primary_key_feature],
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-            )
-            dataset.start()
-
-    def test_input_table_missing_columns(self):
-        """input table missing columns raises DataMismatchException
-        preexisting table lacks the input columns needed by features
-        """
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                features=[self.feature_one, self.feature_two],
-                # feature_base=self.feature_base,
-                # input_table="{tmp_db}.feature_base_table",
-                input_table="{tmp_db}.pre_existing_table",
-                import_columns="selective",
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-                verify=True,
-            )
-            dataset.start()
+    # teardown:
+    sql_adapter.connect()
+    SQLTask(
+        sql_string=f"DROP TABLE IF EXISTS {formatted_table_name};",
+        sql_adapter=sql_adapter,
+    ).start()
+    assert sql_adapter.table_exists(formatted_table_name) is False
 
 
-class TestDatasetOutcomes(TestCase):
+@pytest.mark.usefixtures("prepared_table")
+class TestDatasetOutcomes:
     """A range of tests focusing on the output of the dataset
 
     #todo:
@@ -264,28 +159,17 @@ class TestDatasetOutcomes(TestCase):
         output_table=base_output_table,
     )
 
-    def test_prexisting_tables_exist(self):
-        # create and test 'prexisting' tables for our example scenario
+    def test_prexisting_tables_exist(self, prepared_table):
+        """test if the fixture has successfully prepared the tables assumed to be prexisting
+        in the coming tests.
 
-        pre_existing_table = SQLPipeline(
-            global_config_dir=self.global_config_path,
-            sql_folder=os.path.join(self.work_dir_path, "preparation_queries"),
-            sql_folder_relative_path=False,
-            sql_adapter=self.sql_adapter,
-        )
-        pre_existing_table.start()
-        pre_existing_table.sql_adapter.connect()
-
-        name = pre_existing_table.config[pre_existing_table.section][
-            "pre_existing_table"
-        ]
-        formatted_name = name.format(
-            **pre_existing_table.config[pre_existing_table.section]
-        )
-
-        assert self.sql_adapter.table_exists(formatted_name)
-        assert self.sql_adapter.count_rows_in_table(formatted_name) > 0
-        assert set(self.sql_adapter.get_table_columns(formatted_name)) == set(
+        by accepting the fixture name as argument we can interact with the yielded object, which is
+        in this the formatted name of table it created for us.
+        """
+        self.sql_adapter.connect()
+        assert self.sql_adapter.table_exists(prepared_table)
+        assert self.sql_adapter.count_rows_in_table(prepared_table) > 0
+        assert set(self.sql_adapter.get_table_columns(prepared_table)) == set(
             ["product_id", "product_price", "product_weight"]
         )
 
