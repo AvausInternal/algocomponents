@@ -1,6 +1,6 @@
 import os
 from configparser import ConfigParser
-from unittest import TestCase
+
 
 from algocomponents.tasks import Task, GroupTask
 
@@ -14,7 +14,7 @@ class EmptyGroupTask(GroupTask):
     pass
 
 
-class TestConfigBehaviour(TestCase):
+class TestConfigBehaviour:
     test_config_global_dir = os.path.join(
         "tests", "tasks", "test_config", "dummy_global_config"
     )

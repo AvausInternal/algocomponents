@@ -1,6 +1,6 @@
 import csv
 import os
-from unittest import TestCase
+
 
 import pandas as pd
 import pytest
@@ -10,7 +10,7 @@ from algocomponents.adapters.custom_exceptions import TableAlreadyExistsExceptio
 from algocomponents.tasks import SQLTask
 
 
-class TestLocalSqliteAdapterCSVPandas(TestCase):
+class TestLocalSqliteAdapterCSVPandas:
     sqlite_adapter = LocalSqliteAdapter()
 
     pandas_query = """SELECT 

@@ -1,5 +1,5 @@
 import os.path
-from unittest import TestCase
+
 
 import pandas as pd
 import pytest
@@ -14,7 +14,7 @@ from algocomponents.tasks.downsample_table.downsample_table import DownsampleTab
 from algocomponents.tasks.stratify_groups.stratify_groups import StratifyGroups
 
 
-class TestDownsampleTable(TestCase):
+class TestDownsampleTable:
     sql_adapter = LocalSqliteAdapter(
         global_config_dir=os.path.join("tests", "tasks", "downsample_table", "config"),
     )

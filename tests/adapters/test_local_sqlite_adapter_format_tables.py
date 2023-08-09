@@ -1,9 +1,7 @@
-from unittest import TestCase
-
 from algocomponents.adapters import LocalSqliteAdapter
 
 
-class TestLocalSqliteAdapterFormatTables(TestCase):
+class TestLocalSqliteAdapterFormatTables:
     local_sqlite_adapter = LocalSqliteAdapter()
 
     simple_query = """CREATE TABLE tmp"""

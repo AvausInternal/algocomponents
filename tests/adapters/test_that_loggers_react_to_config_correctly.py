@@ -1,7 +1,7 @@
 import logging
 import os
 from typing import List
-from unittest import TestCase
+
 
 import pandas as pd
 
@@ -53,7 +53,7 @@ class CustomAdapter(SQLAdapter):
         pass
 
 
-class TestThatLoggersReactToConfigCorrectly(TestCase):
+class TestThatLoggersReactToConfigCorrectly:
     global_config_dir = os.path.join("tests", "adapters", "logging_test_config")
 
     def test_that_task_gets_correct_logger(self):

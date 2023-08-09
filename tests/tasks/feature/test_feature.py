@@ -1,5 +1,5 @@
 import os
-from unittest import TestCase
+
 
 import pytest
 
@@ -46,7 +46,7 @@ class SingleColumnFeature(Feature):
     output_columns_created = []
 
 
-class TestFeatureBase(TestCase):
+class TestFeatureBase:
     sql_adapter = LocalSqliteAdapter()
 
     def test_base_case(self):

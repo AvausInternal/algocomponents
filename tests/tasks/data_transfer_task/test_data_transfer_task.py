@@ -1,4 +1,3 @@
-from unittest import TestCase
 import os
 import pytest
 
@@ -24,7 +23,7 @@ def data_transfer_setup():
 
 
 @pytest.mark.usefixtures("data_transfer_setup")
-class TestDataTransferTask(TestCase):
+class TestDataTransferTask:
     """Test DataTransferTask"""
 
     def test_new_table_is_created(self):

@@ -1,9 +1,7 @@
-from unittest import TestCase
-
 from algocomponents.tasks import Task, GroupTask
 
 
-class TestThatTasksReceiveParentsCorrectly(TestCase):
+class TestThatTasksReceiveParentsCorrectly:
     def test_that_simple_task_has_no_parent(self):
         task = Task()
         assert task.parent is None

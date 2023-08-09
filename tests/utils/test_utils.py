@@ -1,10 +1,10 @@
 from configparser import ConfigParser
-from unittest import TestCase
+
 
 from algocomponents.utils import config_to_str
 
 
-class TestUtils(TestCase):
+class TestUtils:
     def test_config_to_str_empty_config(self):
         config = ConfigParser()
         config_str = config_to_str(config)

@@ -1,12 +1,12 @@
 from configparser import ConfigParser
-from unittest import TestCase
+
 
 import pytest
 
 from algocomponents.tasks import Task
 
 
-class TestThatTasksDealWithSectionsCorrectly(TestCase):
+class TestThatTasksDealWithSectionsCorrectly:
     nes_section = "NES"
     config = ConfigParser()
     config.add_section(nes_section)

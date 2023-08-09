@@ -1,5 +1,3 @@
-from unittest import TestCase
-
 from algocomponents.tasks import GroupTask, Task
 
 
@@ -9,7 +7,7 @@ class GroupTaskWithTaskList(GroupTask):
     ]
 
 
-class TestGroupTaskListPriority(TestCase):
+class TestGroupTaskListPriority:
     def test_that_task_list_is_used(self):
         group_task = GroupTaskWithTaskList()
         assert len(group_task.task_list) == 1

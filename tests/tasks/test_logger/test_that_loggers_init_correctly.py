@@ -1,5 +1,5 @@
 import logging
-from unittest import TestCase
+
 
 from algocomponents.adapters import (
     LocalSqliteAdapter,
@@ -10,7 +10,7 @@ from algocomponents.adapters import (
 from algocomponents.tasks import Task, GroupTask, SQLTask, SQLPipeline
 
 
-class ThatThatLoggersInitCorrectly(TestCase):
+class ThatThatLoggersInitCorrectly:
     root_logger = logging.getLogger()
 
     # Tasks

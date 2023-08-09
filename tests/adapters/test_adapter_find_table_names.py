@@ -1,10 +1,10 @@
 import random
-from unittest import TestCase
+
 
 from algocomponents.adapters import LocalSqliteAdapter, BigQueryAdapter
 
 
-class TestAdapterFindTableNames(TestCase):
+class TestAdapterFindTableNames:
     sql_adapter = LocalSqliteAdapter()
     big_query_adapter = BigQueryAdapter()
 

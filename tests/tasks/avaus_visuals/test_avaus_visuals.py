@@ -1,4 +1,3 @@
-from unittest import TestCase
 import pandas as pd
 import os.path
 
@@ -7,7 +6,7 @@ from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import AvausVisuals
 
 
-class TestAvausVisuals(TestCase):
+class TestAvausVisuals:
     """Test AvausVisuals class"""
 
     output_path = os.path.join("tests", "tasks", "avaus_visuals")
