@@ -1,6 +1,4 @@
 import os
-import pandas as pd
-from unittest import TestCase
 
 import pytest
 
@@ -62,13 +60,49 @@ class IncorrectPrimaryKeyFeature(Feature):
     do not exist elsewhere, for testing purposes."""
 
     input_columns = ["incorrectly_named_product_id"]
-    output_primary_keys = [
-        "incorrectly_named_product_id",
-    ]
+    output_primary_keys = ["incorrectly_named_product_id"]
     output_columns_created = []
 
 
-class TestDatasetinit(TestCase):
+# changing scope to 'function' fixtures will run for each methodcall seperately.
+@pytest.fixture(scope="class", name="prepared_table")
+def prepare_existing_table():
+    """
+    todo:
+        - remove assert?
+        - yield the whole pipeline or just the name?
+    """
+
+    # setup:
+    sql_adapter = LocalSqliteAdapter()
+    global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
+    dir_path = os.path.join("tests", "tasks", "dataset", "preparation_queries")
+
+    pipeline = SQLPipeline(
+        global_config_dir=global_config_path,
+        sql_folder=dir_path,
+        sql_folder_relative_path=False,
+        sql_adapter=sql_adapter,
+    )
+    pipeline.start()
+
+    # config variable defines the output table name
+    table_name = pipeline.config[pipeline.section]["pre_existing_table"]
+    formatted_table_name = table_name.format(**pipeline.config[pipeline.section])
+
+    yield formatted_table_name
+
+    # teardown:
+    sql_adapter.connect()
+    SQLTask(
+        sql_string=f"DROP TABLE IF EXISTS {formatted_table_name};",
+        sql_adapter=sql_adapter,
+    ).start()
+    assert sql_adapter.table_exists(formatted_table_name) is False
+
+
+@pytest.mark.usefixtures("prepared_table")
+class TestDatasetinit:
     """Tests concerning the initialisation of the class without start() method calls
     todo:
         - selective/vs full input
@@ -115,7 +149,8 @@ class TestDatasetinit(TestCase):
             ).startup()
 
 
-class TestDatasetFeatures(TestCase):
+@pytest.mark.usefixtures("prepared_table")
+class TestDatasetFeatures:
     """Tests concerning the features and feature miss-matches
 
     # todo:
@@ -209,7 +244,8 @@ class TestDatasetFeatures(TestCase):
             dataset.start()
 
 
-class TestDatasetOutcomes(TestCase):
+@pytest.mark.usefixtures("prepared_table")
+class TestDatasetOutcomes:
     """A range of tests focusing on the output of the dataset
 
     #todo:
@@ -264,28 +300,17 @@ class TestDatasetOutcomes(TestCase):
         output_table=base_output_table,
     )
 
-    def test_prexisting_tables_exist(self):
-        # create and test 'prexisting' tables for our example scenario
+    def test_prexisting_tables_exist(self, prepared_table):
+        """test if the fixture has successfully prepared the tables assumed to be prexisting
+        in the coming tests.
 
-        pre_existing_table = SQLPipeline(
-            global_config_dir=self.global_config_path,
-            sql_folder=os.path.join(self.work_dir_path, "preparation_queries"),
-            sql_folder_relative_path=False,
-            sql_adapter=self.sql_adapter,
-        )
-        pre_existing_table.start()
-        pre_existing_table.sql_adapter.connect()
-
-        name = pre_existing_table.config[pre_existing_table.section][
-            "pre_existing_table"
-        ]
-        formatted_name = name.format(
-            **pre_existing_table.config[pre_existing_table.section]
-        )
-
-        assert self.sql_adapter.table_exists(formatted_name)
-        assert self.sql_adapter.count_rows_in_table(formatted_name) > 0
-        assert set(self.sql_adapter.get_table_columns(formatted_name)) == set(
+        by accepting the fixture name as argument we can interact with the yielded object, which is
+        in this the formatted name of table it created for us.
+        """
+        self.sql_adapter.connect()
+        assert self.sql_adapter.table_exists(prepared_table)
+        assert self.sql_adapter.count_rows_in_table(prepared_table) > 0
+        assert set(self.sql_adapter.get_table_columns(prepared_table)) == set(
             ["product_id", "product_price", "product_weight"]
         )
 
