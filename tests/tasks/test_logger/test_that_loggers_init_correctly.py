@@ -10,7 +10,7 @@ from algocomponents.adapters import (
 from algocomponents.tasks import Task, GroupTask, SQLTask, SQLPipeline
 
 
-class ThatThatLoggersInitCorrectly:
+class TestThatLoggersInitCorrectly:
     root_logger = logging.getLogger()
 
     # Tasks
