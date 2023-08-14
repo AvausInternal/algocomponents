@@ -3,8 +3,8 @@ import os
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
-from algocomponents.tasks import Dataset, Feature, FeatureBase, SQLPipeline, SQLTask
 from algocomponents.adapters.custom_exceptions import DataMismatchException
+from algocomponents.tasks import Dataset, Feature, FeatureBase, SQLPipeline, SQLTask
 
 
 # Define class here so finding sql folder is easier
@@ -67,10 +67,11 @@ class IncorrectPrimaryKeyFeature(Feature):
 # changing scope to 'function' fixtures will run for each methodcall seperately.
 @pytest.fixture(scope="class", name="prepared_table")
 def prepare_existing_table():
-    """
-    todo:
-        - remove assert?
-        - yield the whole pipeline or just the name?
+    """Prepares a dummy table with the columns: product_id, product_price,
+    and product_weight. The fixture
+
+    Yields:
+            yield formatted_table_name
     """
 
     # setup:
@@ -89,6 +90,8 @@ def prepare_existing_table():
     # config variable defines the output table name
     table_name = pipeline.config[pipeline.section]["pre_existing_table"]
     formatted_table_name = table_name.format(**pipeline.config[pipeline.section])
+    sql_adapter.connect()
+    assert sql_adapter.table_exists(formatted_table_name)
 
     yield formatted_table_name
 
@@ -101,7 +104,47 @@ def prepare_existing_table():
     assert sql_adapter.table_exists(formatted_table_name) is False
 
 
-@pytest.mark.usefixtures("prepared_table")
+@pytest.fixture(scope="function", name="feature_input_table")
+def prepare_input_table():
+    """
+    An alternative to providing a Dataset with a Featurebase is to provide a
+    prexisting input table containing the featurebase data. This fixture defines a featurebase,
+    yielding the name of the table, and deleteing the table after the test is finished.
+
+    Yields:
+            yield formatted_table_name
+    """
+
+    # setup:
+    sql_adapter = LocalSqliteAdapter()
+    global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
+    # dir_path = os.path.join("tests", "tasks", "dataset", "preparation_queries")
+    base_output_table = "{tmp_db}.feature_base_table"
+
+    feature_base = SimpleFeatureBase(
+        global_config_dir=global_config_path,
+        sql_folder=os.path.join("make_feature_base_queries"),
+        sql_adapter=sql_adapter,  # needed if run seperately from Dataset
+        output_table=base_output_table,
+    )
+    feature_base.start()
+
+    formatted_table_name = base_output_table.format(
+        **feature_base.config[feature_base.section]
+    )
+    sql_adapter.connect()
+    assert sql_adapter.table_exists(formatted_table_name)
+    yield formatted_table_name
+
+    # teardown:
+    sql_adapter.connect()
+    SQLTask(
+        sql_string=f"DROP TABLE IF EXISTS {formatted_table_name};",
+        sql_adapter=sql_adapter,
+    ).start()
+    assert sql_adapter.table_exists(formatted_table_name) is False
+
+
 class TestDatasetinit:
     """Tests concerning the initialisation of the class without start() method calls
     todo:
@@ -149,6 +192,7 @@ class TestDatasetinit:
             ).startup()
 
 
+# @pytest.mark.usefixtures("prepared_table", "feature_input_table")
 @pytest.mark.usefixtures("prepared_table")
 class TestDatasetFeatures:
     """Tests concerning the features and feature miss-matches
@@ -164,10 +208,9 @@ class TestDatasetFeatures:
     sql_adapter = LocalSqliteAdapter()
     global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
     work_dir_path = os.path.join("tests", "tasks", "dataset")
+    # tables written out for clairity, exist also in config file:
+    pre_existing_table = "{tmp_db}.pre_existing_table"
     base_output_table = "{tmp_db}.feature_base_table"
-    pre_existing_table = (
-        "{tmp_db}.pre_existing_table"  # For clarity, but exists also in config
-    )
 
     # instantiate a simple feature
     feature_one = SimpleFeatureOne(
@@ -187,7 +230,7 @@ class TestDatasetFeatures:
     feature_base = SimpleFeatureBase(
         global_config_dir=global_config_path,
         sql_folder=os.path.join("make_feature_base_queries"),
-        sql_adapter=sql_adapter,  # needed to run it seperately from Dataset
+        sql_adapter=sql_adapter,  # needed to run seperately from Dataset
         output_table=base_output_table,
     )
 
@@ -201,41 +244,45 @@ class TestDatasetFeatures:
 
     def test_featurebase_pk_missing(self):
         # a feature primary key not in the featurebase primary key list
+        # todo: verify wont work here. counting before it exists.
+        # appears as though verify tries to count the featurebase rows before
+        # it has been constructed.. fix this.
+
         with pytest.raises(DataMismatchException):
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
                 feature_base=self.feature_base,
+                # input_table=feature_input_table,
                 features=[self.incorrect_primary_key_feature],
                 global_config_dir=self.global_config_path,
                 sql_adapter=self.sql_adapter,
+                verify=False,  # todo: fails with verify... why? see bottom.
             )
             dataset.start()
 
-    def test_feature_pk_missing(self):
+    @pytest.mark.usefixtures("feature_input_table")
+    def test_feature_pk_missing(self, feature_input_table: str):
         # primary key from a feature is not found in input table
 
-        self.feature_base.start()  # create input table
         with pytest.raises(DataMismatchException):
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
-                input_table=self.feature_base.output_table,
+                input_table=feature_input_table,
                 features=[self.incorrect_primary_key_feature],
                 global_config_dir=self.global_config_path,
                 sql_adapter=self.sql_adapter,
             )
             dataset.start()
 
-    def test_input_table_missing_columns(self):
-        """input table missing columns raises DataMismatchException
-        preexisting table lacks the input columns needed by features
+    def test_input_table_missing_columns(self, prepared_table: str):
+        """An input table missing columns raises DataMismatchException as the
+        supplied input table lacks columns needed by features
         """
         with pytest.raises(DataMismatchException):
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
                 features=[self.feature_one, self.feature_two],
-                # feature_base=self.feature_base,
-                # input_table="{tmp_db}.feature_base_table",
-                input_table="{tmp_db}.pre_existing_table",
+                input_table=prepared_table,
                 import_columns="selective",
                 global_config_dir=self.global_config_path,
                 sql_adapter=self.sql_adapter,
@@ -254,27 +301,22 @@ class TestDatasetOutcomes:
         - put featurebases in this class as input (safer)
         - [ ] Verify = True, drop_intermediate=True, featurebase:
         results in dropping the input table before the shutdown verify tasks can be run
-
-
     """
 
     # globals
     sql_adapter = LocalSqliteAdapter()
     global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
     work_dir_path = os.path.join("tests", "tasks", "dataset")
-    pre_existing_table = (
-        "{tmp_db}.pre_existing_table"  # For clarity, but exists also in config
-    )
-    base_output_table = (
-        "{tmp_db}.feature_base_table"  # For clarity, but exists also in config
-    )
+    # tables written out for clairity, exist also in config file:
+    pre_existing_table = "{tmp_db}.pre_existing_table"
+    base_output_table = "{tmp_db}.feature_base_table"
 
     # instantiate a simple feature
     feature_one = SimpleFeatureOne(
         global_config_dir=global_config_path,
         sql_folder="simple_feature_one_queries",
         input_table=base_output_table,
-        output_table="{tmp_db}.feature_one_output",
+        output_table="feature_one_output",
     )
 
     # instantiate a simple feature
@@ -300,7 +342,7 @@ class TestDatasetOutcomes:
         output_table=base_output_table,
     )
 
-    def test_prexisting_tables_exist(self, prepared_table):
+    def test_prexisting_tables_exist(self, prepared_table: str):
         """test if the fixture has successfully prepared the tables assumed to be prexisting
         in the coming tests.
 
@@ -314,7 +356,8 @@ class TestDatasetOutcomes:
             ["product_id", "product_price", "product_weight"]
         )
 
-    def test_changed_rowcount(self):
+    # @pytest.mark.usefixtures("feature_input_table")
+    def test_changed_rowcount(self, feature_input_table: str):
         # total rows must remain unchanged between input and output
         # this will only throw DataMismatchException if verify is true.
 
@@ -322,8 +365,7 @@ class TestDatasetOutcomes:
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
                 features=[self.explosive_feature],
-                # input_table=base_output_table,
-                input_table="{tmp_db}.feature_base_table",
+                input_table=feature_input_table,
                 feature_base=None,  # feature_base,
                 import_columns="full",
                 where_clause=None,
@@ -335,7 +377,7 @@ class TestDatasetOutcomes:
             )
             dataset.start()
 
-    def test_unchanged_columns(self):
+    def test_unchanged_columns(self, feature_input_table: str):
         """repeating feature_one will result in spurious columns
         which should throw an exception
         """
@@ -345,7 +387,7 @@ class TestDatasetOutcomes:
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
                 features=[self.feature_one, self.feature_one],
-                input_table="{tmp_db}.feature_base_table",
+                input_table=feature_input_table,
                 feature_base=None,
                 import_columns="full",
                 global_config_dir=self.global_config_path,
@@ -354,7 +396,7 @@ class TestDatasetOutcomes:
             )
             dataset.start()
 
-    def test_drop_intermediate_tables(self):
+    def test_drop_intermediate_tables(self, feature_input_table):
         # delete intermidate tables that features create if drop_intermediate
 
         dataset = Dataset(
@@ -363,7 +405,8 @@ class TestDatasetOutcomes:
                 self.feature_one,
                 self.feature_two,
             ],
-            input_table="{tmp_db}.feature_base_table",
+            # input_table="{tmp_db}.feature_base_table",  # todo: this could equally well be featurebase.
+            input_table=feature_input_table,
             drop_intermediate=False,  # vital to test
             global_config_dir=self.global_config_path,
             sql_adapter=self.sql_adapter,
@@ -373,6 +416,8 @@ class TestDatasetOutcomes:
 
         # Tables exist after a normal run
         intermediate_tables = dataset._get_intermediate_table_names()
+        assert len(intermediate_tables) > 0
+
         for table in intermediate_tables:
             assert dataset.sql_adapter.table_exists(table)
 
@@ -383,14 +428,14 @@ class TestDatasetOutcomes:
         for table in intermediate_tables:
             assert not dataset.sql_adapter.table_exists(table)
 
-    def test_selective_full(self):
+    @pytest.mark.usefixtures("feature_input_table")
+    def test_selective_full(self, feature_input_table):
         """r"""
-
         dataset = Dataset(
             output_table="{tmp_db}.test_output",
             features=[self.feature_one, self.feature_two],
-            feature_base=self.feature_base,
-            # input_table="{tmp_db}.feature_base_table",
+            # feature_base=self.feature_base,
+            input_table=feature_input_table,
             import_columns="selective",
             global_config_dir=self.global_config_path,
             sql_adapter=self.sql_adapter,
