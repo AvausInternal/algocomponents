@@ -1,11 +1,35 @@
 """Support for gradual typing as defined by PEP 484"""
 from typing import List
+from algocomponents.adapters import SQLAdapter
 
 from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     DataMismatchException,
 )
-from algocomponents.tasks import FeatureBase, GroupTask, SQLTask, Feature
+from algocomponents.tasks import FeatureBase, GroupTask, SQLTask, Feature, Task
+
+
+class RowCounterTask(Task):
+    """A simple task that counts the number of rows in a given table.
+    This is can be used if you need to access the row number in the middle of tasklist queue.
+
+    Access the row number by calling the class instance, after it has run.
+
+    Args:
+        input_table: The table whose rows we want to count
+
+    """
+
+    def __init__(self, input_table, sql_adapter: SQLAdapter = None, **kwargs):
+        self.table_rows = None
+        self.input_table = input_table
+        super().__init__(sql_adapter, **kwargs)
+
+    def run(self):
+        self.table_rows = self.sql_adapter.count_rows_in_table(self.input_table)
+
+    def __call__(self) -> int:
+        return self.table_rows
 
 
 class Dataset(GroupTask):
@@ -50,6 +74,9 @@ class Dataset(GroupTask):
         self.drop_intermediate = drop_intermediate
         self.target_label = target_label
         self.verify = verify
+        self.get_input_table_rows = None
+        self.input_rows = None
+        self.output_rows = None
 
         if input_table is None and feature_base is None:
             raise ValueError("Provide either an input_table or feature_base")
@@ -279,10 +306,6 @@ class Dataset(GroupTask):
                         f"Input table {self.input_table}\n is missing:"
                         f"{required_columns.difference(input_table_columns)}\n"
                     )
-            # done here because input tables can be dropped if they are made by a featurebase
-            self._input_table_rows = self.sql_adapter.count_rows_in_table(
-                self.input_table
-            )
 
     def run(self):
         """
@@ -295,6 +318,15 @@ class Dataset(GroupTask):
                 config=self.config,
             )
             self.task_list.append(join_tables_task)
+
+        if self.verify:
+            # Rowcount operations is placed here, as the input may not exist before
+            # starting (featurebase input), or after finishing (drop intermediate)
+            self.get_input_table_rows = RowCounterTask(
+                input_table=self.input_table,
+                sql_adapter=self.sql_adapter,
+            )
+            self.task_list.append(self.get_input_table_rows)
 
         if self.drop_intermediate:
             drop_tables_task = SQLTask(
@@ -331,13 +363,13 @@ class Dataset(GroupTask):
                 )
 
             # check dataset leaves no. of rows unchanged:
-            # input_table_rows = self.sql_adapter.count_rows_in_table(self.input_table)
-            output_table_row = self.sql_adapter.count_rows_in_table(self.output_table)
-            if self._input_table_rows != output_table_row:
+            self.input_rows = self.get_input_table_rows()
+            self.output_rows = self.sql_adapter.count_rows_in_table(self.output_table)
+            if self.input_rows != self.output_rows:
                 raise DataMismatchException(
                     f"Dataset run operation resulted in a change in rows\n"
-                    f"Input table has {self._input_table_rows} rows\n"
-                    f"Output table has {output_table_row} rows\n"
+                    f"Input table {self.input_table} has {self.input_rows} rows\n"
+                    f"Output table {self.output_table} has {self.output_rows} rows\n"
                 )
 
             # check intermediary tables are dropped
