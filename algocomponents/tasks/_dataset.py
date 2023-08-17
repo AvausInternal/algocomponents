@@ -1,4 +1,3 @@
-"""Support for gradual typing as defined by PEP 484"""
 from typing import List
 from algocomponents.adapters import SQLAdapter
 
@@ -126,12 +125,13 @@ class Dataset(GroupTask):
         the input's primary keys. Otherwise, the keys are the set-union
         of all the supplied feature primary keys.
         """
+        primary_keys = []
 
         if self.feature_base:
-            return self.feature_base.output_primary_keys
+            # new list object, preventing changes to featurebase
+            return primary_keys + self.feature_base.output_primary_keys
         else:
             # infer the primary keys we know of
-            primary_keys = []
             for feat in self.features:
                 primary_keys += feat.output_primary_keys
 
