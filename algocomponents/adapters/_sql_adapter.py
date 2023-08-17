@@ -131,7 +131,7 @@ class SQLAdapter(ConfigReader):
             result of each semi colon separated query in the sql file.
 
         """
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             sql_string = f.read()
             return self.run_sql_string(
                 sql_string=sql_string,
