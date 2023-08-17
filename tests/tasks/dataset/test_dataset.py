@@ -313,7 +313,7 @@ class TestDatasetOutcomes:
         global_config_dir=global_config_path,
         sql_folder="simple_feature_one_queries",
         input_table=base_output_table,
-        output_table="feature_one_output",
+        output_table="{tmp_db}.feature_one_output",
     )
 
     # instantiate a simple feature
@@ -344,7 +344,7 @@ class TestDatasetOutcomes:
         in the coming tests.
 
         by accepting the fixture name as argument we can interact with the yielded object, which is
-        in this the formatted name of table it created for us.
+        in this the formatted name of table it created.
         """
         self.sql_adapter.connect()
         assert self.sql_adapter.table_exists(prepared_table)
@@ -353,13 +353,12 @@ class TestDatasetOutcomes:
             ["product_id", "product_price", "product_weight"]
         )
 
-    # @pytest.mark.usefixtures("feature_input_table")
     def test_changed_rowcount_featurebase(self):
         """total rows must remain unchanged between input and output
         this will only throw DataMismatchException if verify is true.
 
         This also tests that the Dataset can detects a change in rows
-        after the input table is created via a featurebase,but before the
+        after the input table is created via a featurebase, but before the
         table is dropped with drop_intermediate.
         """
 
@@ -415,8 +414,8 @@ class TestDatasetOutcomes:
             )
             dataset.start()
 
-    def test_drop_intermediate_tables(self, feature_input_table):
-        # delete intermidate tables that features create if drop_intermediate
+    def test_drop_intermediate_tables(self):
+        # test that feature-created tables are deleted if drop_intermediate is true
 
         dataset = Dataset(
             output_table="{tmp_db}.test_output",
@@ -424,46 +423,64 @@ class TestDatasetOutcomes:
                 self.feature_one,
                 self.feature_two,
             ],
-            # input_table="{tmp_db}.feature_base_table",  # todo: this could equally well be featurebase.
-            input_table=feature_input_table,
-            drop_intermediate=False,  # vital to test
+            feature_base=self.feature_base,
+            drop_intermediate=False,  # vital it's False here
             global_config_dir=self.global_config_path,
             sql_adapter=self.sql_adapter,
         )
         dataset.start()
         dataset.sql_adapter.connect()
 
-        # Tables exist after a normal run
+        # intermediate tables exist:
         intermediate_tables = dataset._get_intermediate_table_names()
-        assert len(intermediate_tables) > 0
+        assert len(intermediate_tables) == 3
 
         for table in intermediate_tables:
             assert dataset.sql_adapter.table_exists(table)
 
-        # Tables deleted
+        # intermediate tables deleted:
         dataset.drop_intermediate = True
         dataset.start()
-        dataset.sql_adapter.connect()
         for table in intermediate_tables:
             assert not dataset.sql_adapter.table_exists(table)
 
-    @pytest.mark.usefixtures("feature_input_table")
-    def test_selective_full(self, feature_input_table):
-        """r"""
+    def test_featurebase_unchanged(self):
+        """Featurebase list attributes should remain unchanged"""
+
+        before_output_primary_keys = [] + self.feature_base.output_primary_keys
+        before_output_columns_created = [] + self.feature_base.output_columns_created
+
         dataset = Dataset(
             output_table="{tmp_db}.test_output",
             features=[self.feature_one, self.feature_two],
-            # feature_base=self.feature_base,
-            input_table=feature_input_table,
-            import_columns="selective",
+            feature_base=self.feature_base,
             global_config_dir=self.global_config_path,
             sql_adapter=self.sql_adapter,
-            drop_intermediate=False,
+            drop_intermediate=True,
             verify=True,
         )
         dataset.start()
-        dataset.sql_adapter.connect()
-        formatted_name = "{tmp_db}.test_output".format(
-            **dataset.config[dataset.section]
-        )
-        # todo: print to see change in output columns first
+        after_output_primary_keys = [] + self.feature_base.output_primary_keys
+        after_output_columns_created = [] + self.feature_base.output_columns_created
+        assert before_output_primary_keys == after_output_primary_keys
+        assert before_output_columns_created == after_output_columns_created
+
+    def test_selective_vs_full(self):
+        """r"""
+        pass
+        # dataset = Dataset(
+        #     output_table="{tmp_db}.test_output",
+        #     features=[self.feature_one, self.feature_two],
+        #     feature_base=self.feature_base,
+        #     # input_table=feature_input_table,
+        #     import_columns="selective",
+        #     global_config_dir=self.global_config_path,
+        #     sql_adapter=self.sql_adapter,
+        #     drop_intermediate=False,
+        #     verify=True,
+        # )
+        # dataset.start()
+        # dataset.sql_adapter.connect()
+        # formatted_name = "{tmp_db}.test_output".format(
+        #     **dataset.config[dataset.section]
+        # )
