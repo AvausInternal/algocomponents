@@ -1,5 +1,3 @@
-from unittest import TestCase
-
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
@@ -10,7 +8,7 @@ class EmptySQLPipeline(SQLPipeline):
     """Created here to fix sql folder path"""
 
 
-class TestSqlPipeline(TestCase):
+class TestSqlPipeline:
     def test_correct_file_formatting(self):
         pipeline = EmptySQLPipeline(
             sql_adapter=LocalSqliteAdapter(),

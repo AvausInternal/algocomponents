@@ -1,6 +1,6 @@
 import os.path
 import shutil
-from unittest import TestCase
+import pytest
 
 import pandas as pd
 
@@ -12,7 +12,7 @@ from algocomponents.adapters.custom_exceptions import (
 from algocomponents.tasks import VisualizeFeatures
 
 
-class TestVisualizeFeatures(TestCase):
+class TestVisualizeFeatures:
     """Test VisualizeFeatures class"""
 
     output_folder = os.path.join(
@@ -54,7 +54,7 @@ class TestVisualizeFeatures(TestCase):
 
     def test_with_missing_table(self):
         self.sql_adapter.connect()
-        with self.assertRaises(TableMissingException):
+        with pytest.raises(TableMissingException):
             VisualizeFeatures(
                 sql_adapter=self.sql_adapter,
                 input_table="A table that does not exist",
@@ -71,7 +71,7 @@ class TestVisualizeFeatures(TestCase):
             df=self.input_table_df, table=self.input_table, overwrite=True
         )
         missing_columns = ["missing"]
-        with self.assertRaises(ColumnMissingException):
+        with pytest.raises(ColumnMissingException):
             VisualizeFeatures(
                 sql_adapter=self.sql_adapter,
                 input_table=self.input_table,
@@ -81,7 +81,7 @@ class TestVisualizeFeatures(TestCase):
                 output_folder=self.output_folder,
             ).start()
         missing_columns = ["missing"]
-        with self.assertRaises(ColumnMissingException):
+        with pytest.raises(ColumnMissingException):
             VisualizeFeatures(
                 sql_adapter=self.sql_adapter,
                 input_table=self.input_table,
@@ -99,7 +99,7 @@ class TestVisualizeFeatures(TestCase):
         )
         bad_categorical_columns = ["cat_1", "cat_1"]
         bad_continuous_columns = ["cont_1", "cont_1"]
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             VisualizeFeatures(
                 sql_adapter=self.sql_adapter,
                 input_table=self.input_table,
@@ -108,7 +108,7 @@ class TestVisualizeFeatures(TestCase):
                 continuous_feature_columns=[],
                 output_folder=self.output_folder,
             ).start()
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             VisualizeFeatures(
                 sql_adapter=self.sql_adapter,
                 input_table=self.input_table,

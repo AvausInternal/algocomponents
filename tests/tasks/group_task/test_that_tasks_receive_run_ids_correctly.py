@@ -1,9 +1,7 @@
-from unittest import TestCase
-
 from algocomponents.tasks import GroupTask, Task
 
 
-class TestGroupTaskShorthand(TestCase):
+class TestGroupTaskShorthand:
     def test_that_task_has_a_run_id(self):
         task = Task()
         assert task.run_id is None

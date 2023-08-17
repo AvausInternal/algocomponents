@@ -1,6 +1,6 @@
 import os
 import shutil
-from unittest import TestCase
+
 
 import pandas as pd
 
@@ -8,7 +8,7 @@ from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import Predict, LinearRegressionTrainer
 
 
-class TestModelTraining(TestCase):
+class TestModelTraining:
     double_input_table = "double_input"
     target_label_column = "y"
     model_path = os.path.join("tests", "tasks", "model_training", "model")

@@ -1,11 +1,9 @@
-from unittest import TestCase
-
 import pytest
 
 from algocomponents.config_reader import ConfigReader
 
 
-class TestConfigReaderFormatString(TestCase):
+class TestConfigReaderFormatString:
     config_reader = ConfigReader()
     format_variables = {
         "TMP_DB": "tmp",

@@ -1,10 +1,8 @@
-from unittest import TestCase
-
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import GroupTask, Task
 
 
-class TestThatSQLAdaptersPropagate(TestCase):
+class TestThatSQLAdaptersPropagate:
     sql_adapter = LocalSqliteAdapter()
 
     def test_that_a_task_has_the_adapter_given_to_it(self):

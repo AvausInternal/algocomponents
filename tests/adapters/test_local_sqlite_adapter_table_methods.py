@@ -1,11 +1,10 @@
-from unittest import TestCase
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import SQLTask
 
 
-class TestLocalSqliteAdapterTableMethods(TestCase):
+class TestLocalSqliteAdapterTableMethods:
     sqlite_adapter = LocalSqliteAdapter()
 
     create_table_query = """DROP TABLE IF EXISTS tmp_dream_table;

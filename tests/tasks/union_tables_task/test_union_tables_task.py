@@ -1,6 +1,6 @@
 import os
 import sys
-from unittest import TestCase
+
 
 import pytest
 
@@ -9,7 +9,7 @@ from algocomponents.adapters.custom_exceptions import DataMismatchException
 from algocomponents.tasks import UnionTables, SQLTask
 
 
-class TestUnionTables(TestCase):
+class TestUnionTables:
     sql_adapter = LocalSqliteAdapter()
 
     def test_empty_table_list(self):

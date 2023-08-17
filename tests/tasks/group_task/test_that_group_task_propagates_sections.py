@@ -1,10 +1,10 @@
 from configparser import ConfigParser
-from unittest import TestCase
+
 
 from algocomponents.tasks import GroupTask, Task
 
 
-class TestThatGroupTaskPropagatesSections(TestCase):
+class TestThatGroupTaskPropagatesSections:
     test_section = "test"
     another_section = "another"
     config = ConfigParser()

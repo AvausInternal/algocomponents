@@ -1,6 +1,6 @@
 import os
 import shutil
-from unittest import TestCase
+
 
 import pandas as pd
 import pytest
@@ -13,7 +13,7 @@ from algocomponents.tasks import (
 )
 
 
-class TestModelEvaluator(TestCase):
+class TestModelEvaluator:
     dataset_table = "test_model_evaluator_dataset"
     target_label_column = "y"
     self_path = os.path.join("tests", "tasks", "model_evaluator")
