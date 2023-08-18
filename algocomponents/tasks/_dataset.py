@@ -9,10 +9,11 @@ from algocomponents.tasks import FeatureBase, GroupTask, SQLTask, Feature
 
 
 class Dataset(GroupTask):
-    """
-    A Dataset constructs a dataset table out of an input base table and a set
-    of featuresets. It does this by running all the features and followed by
-    an SQL join query to create the desired output table.
+    """Constructs a dataset table out of an input base table and a set
+    of features.
+
+    The output table is constructed by running all the features sequentually
+    followed by an SQL join query to create the desired table.
 
     Args:
         output_table: Where the resulting table is saved
@@ -23,9 +24,9 @@ class Dataset(GroupTask):
             'full': output_table  will include all the columns in the input
             'selective': output_table will include the primary keys of the input
         where_clause: Injects a where-clause inside the main join query
-        drop_intermediate: drop the intermediate tables created
+        drop_intermediate: drop the intermediate tables created by all the features
+        as well as the featurebase.
         verify: run lightweight checks on the integrity of the operations
-        target_label: assume the last column in the dataset is a target_label
 
     """
 
@@ -39,7 +40,6 @@ class Dataset(GroupTask):
         where_clause: str = None,
         drop_intermediate: bool = False,
         verify: bool = True,
-        target_label: bool = False,  #! remove todo L
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -48,7 +48,6 @@ class Dataset(GroupTask):
         self.features = features
         self.where_clause = where_clause
         self.drop_intermediate = drop_intermediate
-        self.target_label = target_label
         self.verify = verify
         self.input_rows = None
         self.output_rows = None
@@ -59,11 +58,11 @@ class Dataset(GroupTask):
         elif input_table is not None and feature_base is not None:
             raise ValueError("Provide either an input_table or feature_base")
 
-        elif input_table is None:  # implies input is a featurebase
+        elif feature_base:
             self.task_list.insert(0, feature_base)
             self.input_table = feature_base.output_table
 
-        elif feature_base is None:  # implies input is a an ordinary table
+        elif input_table:
             self.input_table = input_table.format(**self.config[self.section])
 
         if import_columns.lower() in ["selective", "full"]:
@@ -72,15 +71,11 @@ class Dataset(GroupTask):
             raise ValueError(
                 f"import_columns must be 'selective' or 'full', not {import_columns}"
             )
-        if features is None:
+        if not features:
             raise ValueError("Provide at least one feature in features")
-        if target_label:
-            raise NotImplementedError(
-                "Target labels will be supported in future releases"
-            )
 
         for feature_task in self.features:
-            if isinstance(feature_task, Feature):  # refactor after renaming Feature
+            if isinstance(feature_task, Feature):
                 self.task_list.append(feature_task)
             else:
                 raise ValueError(
@@ -91,12 +86,13 @@ class Dataset(GroupTask):
         self.propagate_config()
         self.propagate_sql_adapter(self.sql_adapter)
 
-        # add to config without propogation to tasks in tasklist
+        # add to config without propagation to tasks in tasklist
         self.output_table = str(output_table.format(**self.config[self.section]))
         self.add_to_config("output_table", self.output_table, recursive=False)
 
     def primary_keys(self) -> List[str]:
-        """The primary keys of the dataset output table.
+        """Get the primary keys of the dataset output table.
+
         If the input is a featurebase, the primary keys are equal to
         the input's primary keys. Otherwise, the keys are the set-union
         of all the supplied feature primary keys.
@@ -114,9 +110,15 @@ class Dataset(GroupTask):
             return list(set(primary_keys))
 
     def _format_query_cols(
-        self, features: List[Feature], prepend: str, pad: str
+        self,
+        features: List[Feature],
+        prepend: str,
+        pad: str,
     ) -> str:
-        """Helper function for _get_sql_join_query()"""
+        """Collect and format the columns of the output table
+
+        Helper function for _get_sql_join_query()
+        """
 
         output_columns = []
         for feature_col in features:
@@ -146,7 +148,7 @@ class Dataset(GroupTask):
     def _get_sql_join_query(
         self, where_clause: str = None, pad_spaces: int = 2, drop_existing: bool = True
     ) -> str:
-        """_summary_
+        """Generate the full SQL join query to construct the final output
 
         Args:
             where_clause (str, optional): The lines following a WHERE. Defaults to None
@@ -197,7 +199,7 @@ class Dataset(GroupTask):
         return final_query
 
     def _get_sql_drop_query(self, table_names: List[str]) -> str:
-        """given a list of table_names, generate the sql to drop all the tables
+        """given a list of table_names, generate the SQL query to drop the tables
 
         Args:
             table_names (list): list of table names to drop
@@ -213,8 +215,11 @@ class Dataset(GroupTask):
         return "".join([i + ";\n" for i in query])
 
     def _get_import_table_columns(self) -> List[str]:
-        """Returns a list of the input table column names. Depending on self.import_columns,
-        will return either: the entire list of columns, or the primary keys of the table.
+        """Returns a list of the input table column names.
+
+        Depending on self.import_columns, will return either:
+            - the entire list of columns
+            - the primary keys of the table.
 
         Returns:
             List[str]: Input column names
@@ -247,7 +252,11 @@ class Dataset(GroupTask):
         return output_columns
 
     def _get_intermediate_table_names(self) -> List[str]:
-        """Helper function for _get_sql_drop_query"""
+        """Collect the names of all the intermediate tables created
+        by features and the featurebase.
+
+        Helper function for _get_sql_drop_query.
+        """
         tables = []
         for feat in self.features:
             tables.append(feat.output_table)
@@ -259,7 +268,7 @@ class Dataset(GroupTask):
 
     def startup(self):
         """
-        If verify is true, run startup tasks that verify the integrity of the opterations.
+        Run startup tasks that verify the integrity of the opterations.
         """
         super().startup()
 
