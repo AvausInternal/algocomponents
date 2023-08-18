@@ -414,8 +414,10 @@ class TestDatasetOutcomes:
             )
             dataset.start()
 
-    def test_drop_intermediate_tables(self):
-        # test that feature-created tables are deleted if drop_intermediate is true
+    def test_intermediate_tables(self):
+        """Test that feature-created tables are dropped if and only if
+        drop_intermediate is True.
+        """
 
         dataset = Dataset(
             output_table="{tmp_db}.test_output",
@@ -433,7 +435,7 @@ class TestDatasetOutcomes:
 
         # intermediate tables exist:
         intermediate_tables = dataset._get_intermediate_table_names()
-        assert len(intermediate_tables) == 3
+        assert len(intermediate_tables) == 3  # 2 features and 1 featurebase
 
         for table in intermediate_tables:
             assert dataset.sql_adapter.table_exists(table)

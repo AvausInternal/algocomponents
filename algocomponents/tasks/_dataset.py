@@ -5,30 +5,7 @@ from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     DataMismatchException,
 )
-from algocomponents.tasks import FeatureBase, GroupTask, SQLTask, Feature, Task
-
-
-class RowCounterTask(Task):
-    """A simple task that counts the number of rows in a given table.
-    This is can be used if you need to access the row number in the middle of tasklist queue.
-
-    Access the row number by calling the class instance, after it has run.
-
-    Args:
-        input_table: The table whose rows we want to count
-
-    """
-
-    def __init__(self, input_table, sql_adapter: SQLAdapter = None, **kwargs):
-        self.table_rows = None
-        self.input_table = input_table
-        super().__init__(sql_adapter, **kwargs)
-
-    def run(self):
-        self.table_rows = self.sql_adapter.count_rows_in_table(self.input_table)
-
-    def __call__(self) -> int:
-        return self.table_rows
+from algocomponents.tasks import FeatureBase, GroupTask, SQLTask, Feature
 
 
 class Dataset(GroupTask):
@@ -62,7 +39,7 @@ class Dataset(GroupTask):
         where_clause: str = None,
         drop_intermediate: bool = False,
         verify: bool = True,
-        target_label: bool = False,
+        target_label: bool = False,  #! remove todo L
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -73,7 +50,6 @@ class Dataset(GroupTask):
         self.drop_intermediate = drop_intermediate
         self.target_label = target_label
         self.verify = verify
-        self.get_input_table_rows = None
         self.input_rows = None
         self.output_rows = None
 
@@ -319,24 +295,6 @@ class Dataset(GroupTask):
             )
             self.task_list.append(join_tables_task)
 
-        if self.verify:
-            # Rowcount operations is placed here, as the input may not exist before
-            # starting (featurebase input), or after finishing (drop intermediate)
-            self.get_input_table_rows = RowCounterTask(
-                input_table=self.input_table,
-                sql_adapter=self.sql_adapter,
-            )
-            self.task_list.append(self.get_input_table_rows)
-
-        if self.drop_intermediate:
-            drop_tables_task = SQLTask(
-                sql_adapter=self.sql_adapter,
-                sql_string=self._get_sql_drop_query(
-                    self._get_intermediate_table_names()
-                ),
-            )
-            self.task_list.append(drop_tables_task)
-
         super().run()
 
     def shutdown(self):
@@ -363,7 +321,7 @@ class Dataset(GroupTask):
                 )
 
             # check dataset leaves no. of rows unchanged:
-            self.input_rows = self.get_input_table_rows()
+            self.input_rows = self.sql_adapter.count_rows_in_table(self.input_table)
             self.output_rows = self.sql_adapter.count_rows_in_table(self.output_table)
             if self.input_rows != self.output_rows:
                 raise DataMismatchException(
@@ -372,10 +330,11 @@ class Dataset(GroupTask):
                     f"Output table {self.output_table} has {self.output_rows} rows\n"
                 )
 
-            # check intermediary tables are dropped
-            if self.drop_intermediate:
-                for table in self._get_intermediate_table_names():
-                    if self.sql_adapter.table_exists(table):
-                        raise DataMismatchException(
-                            f"Drop intermidate tables failed, table {table} exists \n"
-                        )
+        if self.drop_intermediate:
+            drop_tables_task = SQLTask(
+                sql_adapter=self.sql_adapter,
+                sql_string=self._get_sql_drop_query(
+                    self._get_intermediate_table_names()
+                ),
+            )
+            drop_tables_task.start()
