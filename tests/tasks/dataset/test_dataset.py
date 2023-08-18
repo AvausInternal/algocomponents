@@ -61,7 +61,7 @@ class IncorrectPrimaryKeyFeature(Feature):
 
     input_columns = ["incorrectly_named_product_id"]
     output_primary_keys = ["incorrectly_named_product_id"]
-    output_columns_created = []
+    output_columns_created = ["incorrectly_named_output"]
 
 
 # changing scope to 'function' fixtures will run for each methodcall seperately.
@@ -148,9 +148,8 @@ def prepare_input_table():
 class TestDatasetinit:
     """Tests concerning the initialisation of the class without start() method calls
     todo:
-        - selective/vs full input
-        - Features with empty lists: columns and primary_keys
-        - catch verify and no sql adapter.
+        - featurebase with empty lists
+        - features without primary keys
     """
 
     def test_init_featurelist(self):
@@ -190,6 +189,26 @@ class TestDatasetinit:
                 verify=True,
                 sql_adapter=None,
             ).startup()
+
+    def test_features_without_pk(self):
+        feature_one = SimpleFeatureOne(
+            input_table="fake_input_table",
+            output_table="fake_output_table",
+        )
+        feature_one.output_primary_keys = []
+
+        with pytest.raises(ValueError):
+            Dataset(
+                input_table="fake_input_table",
+                output_table="fake_output_table",
+                features=[feature_one],
+                verify=True,
+                sql_adapter=None,
+            )
+
+    def test_empty_featurebase(self):
+        # as above but without feature's lists.
+        pass
 
 
 # @pytest.mark.usefixtures("prepared_table", "feature_input_table")
@@ -253,7 +272,7 @@ class TestDatasetFeatures:
                 features=[self.incorrect_primary_key_feature],
                 global_config_dir=self.global_config_path,
                 sql_adapter=self.sql_adapter,
-                verify=True,  # todo: fails with verify... why? see bottom.
+                verify=True,
             )
             dataset.start()
 

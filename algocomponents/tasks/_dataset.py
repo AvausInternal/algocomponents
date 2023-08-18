@@ -59,8 +59,15 @@ class Dataset(GroupTask):
             raise ValueError("Provide either an input_table or feature_base")
 
         elif feature_base:
-            self.task_list.insert(0, feature_base)
-            self.input_table = feature_base.output_table
+            if not (
+                feature_base.output_primary_keys or feature_base.output_columns_created
+            ):
+                raise ValueError(
+                    f"Featurebase must contain output_primary_keys or output_primary_keys"
+                )
+            else:
+                self.task_list.insert(0, feature_base)
+                self.input_table = feature_base.output_table
 
         elif input_table:
             self.input_table = input_table.format(**self.config[self.section])
@@ -75,12 +82,20 @@ class Dataset(GroupTask):
             raise ValueError("Provide at least one feature in features")
 
         for feature_task in self.features:
-            if isinstance(feature_task, Feature):
-                self.task_list.append(feature_task)
-            else:
+            if not isinstance(feature_task, Feature):
                 raise ValueError(
                     f"features must be of type Feature, not {type(feature_task)}"
                 )
+            elif not feature_task.output_primary_keys:
+                raise ValueError(
+                    f"feature {feature_task} must contain output_primary_keys"
+                )
+            elif not feature_task.output_columns_created:
+                raise ValueError(
+                    f"feature {feature_task} must contain output_columns_created"
+                )
+            else:
+                self.task_list.append(feature_task)
 
         # propagate config to tasks in task list
         self.propagate_config()
