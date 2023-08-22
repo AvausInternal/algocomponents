@@ -36,7 +36,7 @@ class Dataset(GroupTask):
         features: List[Feature],
         input_table: str = None,
         feature_base: FeatureBase = None,
-        import_columns: str = "selective",
+        import_columns: str = "full",
         where_clause: str = None,
         drop_intermediate: bool = False,
         verify: bool = True,
