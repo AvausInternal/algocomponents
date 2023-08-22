@@ -146,11 +146,7 @@ def prepare_input_table():
 
 
 class TestDatasetinit:
-    """Tests concerning the initialisation of the class without start() method calls
-    todo:
-        - featurebase with empty lists
-        - features without primary keys
-    """
+    """Tests concerning the initialisation of the class without start() method calls"""
 
     def test_init_featurelist(self):
         # feature list given wrong data type
@@ -206,22 +202,40 @@ class TestDatasetinit:
                 sql_adapter=None,
             )
 
+    def test_features_without_cols_created(self):
+        feature_one = SimpleFeatureOne(
+            input_table="fake_input_table",
+            output_table="fake_output_table",
+        )
+        feature_one.output_columns_created = []
+
+        with pytest.raises(ValueError):
+            Dataset(
+                input_table="fake_input_table",
+                output_table="fake_output_table",
+                features=[feature_one],
+                verify=True,
+                sql_adapter=None,
+            )
+
     def test_empty_featurebase(self):
-        # as above but without feature's lists.
-        pass
+        # An empty featurebase without primary_keys and columns_created
+
+        feature_base = SimpleFeatureBase(output_table="fake_table")
+        feature_base.output_primary_keys = []
+        feature_base.output_columns_created = []
+
+        with pytest.raises(ValueError):
+            Dataset(
+                feature_base=feature_base,
+                output_table="fake_output_table",
+                features=[],
+            )
 
 
-# @pytest.mark.usefixtures("prepared_table", "feature_input_table")
 @pytest.mark.usefixtures("prepared_table")
 class TestDatasetFeatures:
-    """Tests concerning the features and feature miss-matches
-
-    # todo:
-        #! a dataset with featurebase and output, but no features leads to confusing output table checks.
-        # if features have output_columns_created = [] code crashes?
-        - full or selective choice
-        - test_input_table_missing_columns
-    """
+    """Tests focusing on the dataset features choices"""
 
     # globals
     sql_adapter = LocalSqliteAdapter()
@@ -309,14 +323,11 @@ class TestDatasetFeatures:
 
 @pytest.mark.usefixtures("prepared_table")
 class TestDatasetOutcomes:
-    """A range of tests focusing on the output of the dataset
+    """Tests focusing on the final output of the dataset
 
     #todo:
-        - test if it runs with and without verify
         - full or selective
-        - put featurebases in this class as input (safer)
-        - [ ] Verify = True, drop_intermediate=True, featurebase:
-        results in dropping the input table before the shutdown verify tasks can be run
+        - where clause
     """
 
     # globals
@@ -359,11 +370,11 @@ class TestDatasetOutcomes:
     )
 
     def test_prexisting_tables_exist(self, prepared_table: str):
-        """test if the fixture has successfully prepared the tables assumed to be prexisting
-        in the coming tests.
+        """test if the fixture has successfully prepared the tables assumed
+        to be prexisting in the coming tests.
 
-        by accepting the fixture name as argument we can interact with the yielded object, which is
-        in this the formatted name of table it created.
+        Note: by accepting the fixture name as argument we can interact with
+        the yielded object, which here is the formatted name of table created.
         """
         self.sql_adapter.connect()
         assert self.sql_adapter.table_exists(prepared_table)
@@ -376,7 +387,7 @@ class TestDatasetOutcomes:
         """total rows must remain unchanged between input and output
         this will only throw DataMismatchException if verify is true.
 
-        This also tests that the Dataset can detects a change in rows
+        This also tests that the Dataset is able to detect change in rows
         after the input table is created via a featurebase, but before the
         table is dropped with drop_intermediate.
         """
@@ -397,7 +408,6 @@ class TestDatasetOutcomes:
     def test_changed_rowcount(self, feature_input_table):
         """total rows must remain unchanged between input and output
         this will only throw DataMismatchException if verify is true.
-
         This test uses a preexisting input table as source.
         """
 
@@ -486,22 +496,4 @@ class TestDatasetOutcomes:
         assert before_output_primary_keys == after_output_primary_keys
         assert before_output_columns_created == after_output_columns_created
 
-    def test_selective_vs_full(self):
-        """r"""
-        pass
-        # dataset = Dataset(
-        #     output_table="{tmp_db}.test_output",
-        #     features=[self.feature_one, self.feature_two],
-        #     feature_base=self.feature_base,
-        #     # input_table=feature_input_table,
-        #     import_columns="selective",
-        #     global_config_dir=self.global_config_path,
-        #     sql_adapter=self.sql_adapter,
-        #     drop_intermediate=False,
-        #     verify=True,
-        # )
-        # dataset.start()
-        # dataset.sql_adapter.connect()
-        # formatted_name = "{tmp_db}.test_output".format(
-        #     **dataset.config[dataset.section]
-        # )
+    
