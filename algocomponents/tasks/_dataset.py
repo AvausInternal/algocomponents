@@ -59,8 +59,9 @@ class Dataset(GroupTask):
             raise ValueError("Provide either an input_table or feature_base")
 
         elif feature_base:
-            if not (
-                feature_base.output_primary_keys or feature_base.output_columns_created
+            if (
+                not feature_base.output_primary_keys
+                and not feature_base.output_columns_created
             ):
                 raise ValueError(
                     f"Featurebase must contain output_primary_keys or output_primary_keys"
