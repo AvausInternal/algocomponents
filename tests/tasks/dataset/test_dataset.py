@@ -37,7 +37,8 @@ class SimpleFeatureOne(Feature):
 
 class SimpleFeatureTwo(Feature):
     """A example feature that uses a prexisting table as input to
-    add features on the product level.
+    add features on the product level. Fixture prepare_existing_table
+    generates said table
     """
 
     input_columns = [
@@ -118,7 +119,6 @@ def prepare_input_table():
     # setup:
     sql_adapter = LocalSqliteAdapter()
     global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
-    # dir_path = os.path.join("tests", "tasks", "dataset", "preparation_queries")
     base_output_table = "{tmp_db}.feature_base_table"
 
     feature_base = SimpleFeatureBase(
@@ -326,7 +326,6 @@ class TestDatasetOutcomes:
     """Tests focusing on the final output of the dataset
 
     #todo:
-        - full or selective
         - where clause
     """
 
@@ -496,4 +495,44 @@ class TestDatasetOutcomes:
         assert before_output_primary_keys == after_output_primary_keys
         assert before_output_columns_created == after_output_columns_created
 
-    
+    def test_selective_vs_full(self, feature_input_table):
+        """Depending on import_columns the dataset output should contain either:
+            - all the input table columns
+            - all the primary keys in the input column
+        In this test the input table contains user_ids and product_ids. Feature_two is
+        a product level feature. Therefore user_id is omitted if import_columns is set
+        to selective, but not otherwise.
+
+        """
+        output_selective = "{tmp_db}.test_output_selective"
+        output_full = "{tmp_db}.test_output_full"
+
+        selective = Dataset(
+            output_table=output_selective,
+            features=[self.feature_two],
+            input_table=feature_input_table,
+            import_columns="selective",
+            global_config_dir=self.global_config_path,
+            sql_adapter=self.sql_adapter,
+            drop_intermediate=True,
+        )
+        full = Dataset(
+            output_table=output_full,
+            features=[self.feature_two],
+            input_table=feature_input_table,
+            import_columns="full",
+            global_config_dir=self.global_config_path,
+            sql_adapter=self.sql_adapter,
+            drop_intermediate=True,
+        )
+
+        selective.start()
+        full.start()
+
+        formatted_name = output_selective.format(**selective.config[selective.section])
+        selective_columns = self.sql_adapter.get_table_columns(formatted_name)
+        formatted_name = output_full.format(**full.config[full.section])
+        full_columns = self.sql_adapter.get_table_columns(formatted_name)
+
+        assert len(full_columns) >= len(selective_columns)
+        assert list(set(full_columns).difference(set(selective_columns))) == ["user_id"]
