@@ -7,4 +7,3 @@ UNION ALL SELECT 3 AS product_id, 20 as product_price, 7 AS product_weight
 UNION ALL SELECT 4 AS product_id, 25 as product_price, 9 AS product_weight
 UNION ALL SELECT 5 AS product_id, 30 as product_price, 11 AS product_weight
 ;
-
