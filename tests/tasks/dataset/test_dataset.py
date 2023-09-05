@@ -292,7 +292,6 @@ class TestDatasetFeatures:
             )
             dataset.start()
 
-    @pytest.mark.usefixtures("feature_input_table")
     def test_feature_pk_missing(self, feature_input_table: str):
         # primary key from a feature is not found in input table
 
