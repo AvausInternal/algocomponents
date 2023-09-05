@@ -19,6 +19,7 @@ from sklearn.metrics import (
     mean_squared_error,
     precision_recall_curve,
     roc_auc_score,
+    confusion_matrix,
 )
 
 
@@ -114,6 +115,8 @@ class ModelEvaluator(Task):
             self.logger.info("F1:        %.3f" % f1_score(y_test, y_pred))
             self.logger.info("Precision: %.3f" % precision_score(y_test, y_pred))
             self.logger.info("Recall:    %.3f" % recall_score(y_test, y_pred))
+            self.logger.info("Confusion matrix:")
+            self.logger.info(confusion_matrix(y_test, y_pred))
 
         if self.plot_folder and self.model_type == "classification":
             precision, recall, thresholds = precision_recall_curve(y_test, y_pred)
