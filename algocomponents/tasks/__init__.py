@@ -4,9 +4,11 @@ from algocomponents.tasks._group_task import GroupTask
 from algocomponents.tasks._sql_pipeline import SQLPipeline
 from algocomponents.tasks._feature_base import FeatureBase
 from algocomponents.tasks._feature import Feature
-from algocomponents.tasks._union_tables import UnionTables
 from algocomponents.tasks._dataset import Dataset
-from algocomponents.tasks.model_evaluator.model_evaluator import ModelEvaluator
+from algocomponents.tasks._union_tables import UnionTables
+from algocomponents.tasks.evaluate_prediction.evaluate_prediction import (
+    EvaluatePrediction,
+)
 from algocomponents.tasks._avaus_visuals import AvausVisuals
 from algocomponents.tasks._visualize_dataset import VisualizeDataset
 from algocomponents.tasks.check_significance.check_significance import (
@@ -56,5 +58,6 @@ __all__ = [
     "RandomForestClassifierTrainer",
     "GradientBoostingClassifierTrainer",
     "VisualizeFeatures",
-    "UnionTablesTask",
+    "DataTransferTask",
+    "ModelEvaluator",
 ]
