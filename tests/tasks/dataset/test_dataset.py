@@ -422,6 +422,7 @@ class TestDatasetOutcomes:
         """
 
         with pytest.raises(DataMismatchException):
+            self.feature_base.start()  # todo: remove this line. experiment only.
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
                 features=[self.feature_one, self.feature_one],
