@@ -321,7 +321,7 @@ class TestDatasetFeatures:
             dataset.start()
 
 
-@pytest.mark.usefixtures("prepared_table")
+@pytest.mark.usefixtures("prepared_table", "feature_input_table")
 class TestDatasetOutcomes:
     """Tests focusing on the final output of the dataset"""
 
@@ -422,7 +422,6 @@ class TestDatasetOutcomes:
         """
 
         with pytest.raises(DataMismatchException):
-            self.feature_base.start()  # todo: remove this line. experiment only.
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
                 features=[self.feature_one, self.feature_one],
