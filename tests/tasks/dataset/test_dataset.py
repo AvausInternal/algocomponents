@@ -373,27 +373,27 @@ class TestDatasetOutcomes:
             ["product_id", "product_price", "product_weight"]
         )
 
-    # def test_changed_rowcount_featurebase(self):
-    #     """Total rows must remain unchanged between input and output tables
+    def test_changed_rowcount_featurebase(self):
+        """Total rows must remain unchanged between input and output tables
 
-    #     Will only raise DataMismatchException if verify is true.
-    #     This also tests that the Dataset is able to detect change in rows
-    #     after the input table is created via a featurebase, but before the
-    #     table is dropped with drop_intermediate.
-    #     """
+        Will only raise DataMismatchException if verify is true.
+        This also tests that the Dataset is able to detect change in rows
+        after the input table is created via a featurebase, but before the
+        table is dropped with drop_intermediate.
+        """
 
-    #     with pytest.raises(DataMismatchException):
-    #         dataset = Dataset(
-    #             output_table="{tmp_db}.test_output",
-    #             features=[self.explosive_feature],
-    #             feature_base=self.feature_base,
-    #             import_columns="full",
-    #             drop_intermediate=True,
-    #             verify=True,
-    #             global_config_dir=self.global_config_path,
-    #             sql_adapter=self.sql_adapter,
-    #         )
-    #         dataset.start()
+        with pytest.raises(DataMismatchException):
+            dataset = Dataset(
+                output_table="{tmp_db}.test_output",
+                features=[self.explosive_feature],
+                feature_base=self.feature_base,
+                import_columns="full",
+                drop_intermediate=True,
+                verify=True,
+                global_config_dir=self.global_config_path,
+                sql_adapter=self.sql_adapter,
+            )
+            dataset.start()
 
     # def test_changed_rowcount(self, feature_input_table):
     #     """total rows must remain unchanged between input and output
