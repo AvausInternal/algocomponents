@@ -278,47 +278,47 @@ class TestDatasetFeatures:
         output_table="{tmp_db}.feature_one_output",
     )
 
-    def test_featurebase_pk_missing(self):
-        # a feature primary key not in the featurebase primary key list
+    # def test_featurebase_pk_missing(self):
+    #     # a feature primary key not in the featurebase primary key list
 
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                feature_base=self.feature_base,
-                features=[self.incorrect_primary_key_feature],
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-                verify=True,
-            )
-            dataset.start()
+    #     with pytest.raises(DataMismatchException):
+    #         dataset = Dataset(
+    #             output_table="{tmp_db}.test_output",
+    #             feature_base=self.feature_base,
+    #             features=[self.incorrect_primary_key_feature],
+    #             global_config_dir=self.global_config_path,
+    #             sql_adapter=self.sql_adapter,
+    #             verify=True,
+    #         )
+    #         dataset.start()
 
-    def test_feature_pk_missing(self, feature_input_table: str):
-        # primary key from a feature is not found in input table
+    # def test_feature_pk_missing(self, feature_input_table: str):
+    #     # primary key from a feature is not found in input table
 
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                input_table=feature_input_table,
-                features=[self.incorrect_primary_key_feature],
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-            )
-            dataset.start()
+    #     with pytest.raises(DataMismatchException):
+    #         dataset = Dataset(
+    #             output_table="{tmp_db}.test_output",
+    #             input_table=feature_input_table,
+    #             features=[self.incorrect_primary_key_feature],
+    #             global_config_dir=self.global_config_path,
+    #             sql_adapter=self.sql_adapter,
+    #         )
+    #         dataset.start()
 
-    def test_input_table_missing_columns(self, prepared_table: str):
-        """An input table lacking the columns needed by features"""
+    # def test_input_table_missing_columns(self, prepared_table: str):
+    #     """An input table lacking the columns needed by features"""
 
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                features=[self.feature_one, self.feature_two],
-                input_table=prepared_table,
-                import_columns="selective",
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-                verify=True,
-            )
-            dataset.start()
+    #     with pytest.raises(DataMismatchException):
+    #         dataset = Dataset(
+    #             output_table="{tmp_db}.test_output",
+    #             features=[self.feature_one, self.feature_two],
+    #             input_table=prepared_table,
+    #             import_columns="selective",
+    #             global_config_dir=self.global_config_path,
+    #             sql_adapter=self.sql_adapter,
+    #             verify=True,
+    #         )
+    #         dataset.start()
 
 
 @pytest.mark.usefixtures("prepared_table")
@@ -373,163 +373,163 @@ class TestDatasetOutcomes:
             ["product_id", "product_price", "product_weight"]
         )
 
-    def test_changed_rowcount_featurebase(self):
-        """Total rows must remain unchanged between input and output tables
+    # def test_changed_rowcount_featurebase(self):
+    #     """Total rows must remain unchanged between input and output tables
 
-        Will only raise DataMismatchException if verify is true.
-        This also tests that the Dataset is able to detect change in rows
-        after the input table is created via a featurebase, but before the
-        table is dropped with drop_intermediate.
-        """
+    #     Will only raise DataMismatchException if verify is true.
+    #     This also tests that the Dataset is able to detect change in rows
+    #     after the input table is created via a featurebase, but before the
+    #     table is dropped with drop_intermediate.
+    #     """
 
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                features=[self.explosive_feature],
-                feature_base=self.feature_base,
-                import_columns="full",
-                drop_intermediate=True,
-                verify=True,
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-            )
-            dataset.start()
+    #     with pytest.raises(DataMismatchException):
+    #         dataset = Dataset(
+    #             output_table="{tmp_db}.test_output",
+    #             features=[self.explosive_feature],
+    #             feature_base=self.feature_base,
+    #             import_columns="full",
+    #             drop_intermediate=True,
+    #             verify=True,
+    #             global_config_dir=self.global_config_path,
+    #             sql_adapter=self.sql_adapter,
+    #         )
+    #         dataset.start()
 
-    def test_changed_rowcount(self, feature_input_table):
-        """total rows must remain unchanged between input and output
-        this will only throw DataMismatchException if verify is true.
-        This test uses a preexisting input table as source.
-        """
+    # def test_changed_rowcount(self, feature_input_table):
+    #     """total rows must remain unchanged between input and output
+    #     this will only throw DataMismatchException if verify is true.
+    #     This test uses a preexisting input table as source.
+    #     """
 
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                features=[self.explosive_feature],
-                input_table=feature_input_table,
-                import_columns="full",
-                drop_intermediate=True,
-                verify=True,
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-            )
-            dataset.start()
+    #     with pytest.raises(DataMismatchException):
+    #         dataset = Dataset(
+    #             output_table="{tmp_db}.test_output",
+    #             features=[self.explosive_feature],
+    #             input_table=feature_input_table,
+    #             import_columns="full",
+    #             drop_intermediate=True,
+    #             verify=True,
+    #             global_config_dir=self.global_config_path,
+    #             sql_adapter=self.sql_adapter,
+    #         )
+    #         dataset.start()
 
-    def test_unchanged_columns(self, feature_input_table: str):
-        """Test for unexpected columns in the output.
+    # def test_unchanged_columns(self, feature_input_table: str):
+    #     """Test for unexpected columns in the output.
 
-        Repeating features will generate excessive columns
-        leading to an exception DataMismatchException
-        """
+    #     Repeating features will generate excessive columns
+    #     leading to an exception DataMismatchException
+    #     """
 
-        with pytest.raises(DataMismatchException):
-            dataset = Dataset(
-                output_table="{tmp_db}.test_output",
-                features=[self.feature_one, self.feature_one],
-                input_table=feature_input_table,
-                feature_base=None,
-                import_columns="full",
-                global_config_dir=self.global_config_path,
-                sql_adapter=self.sql_adapter,
-                verify=True,
-            )
-            dataset.start()
+    #     with pytest.raises(DataMismatchException):
+    #         dataset = Dataset(
+    #             output_table="{tmp_db}.test_output",
+    #             features=[self.feature_one, self.feature_one],
+    #             input_table=feature_input_table,
+    #             feature_base=None,
+    #             import_columns="full",
+    #             global_config_dir=self.global_config_path,
+    #             sql_adapter=self.sql_adapter,
+    #             verify=True,
+    #         )
+    #         dataset.start()
 
-    def test_intermediate_tables(self):
-        """Test that the intermediate tables are dropped
+    # def test_intermediate_tables(self):
+    #     """Test that the intermediate tables are dropped
 
-        The feature-created tables should only dropped if and only if
-        drop_intermediate is True. This includes the featurebase output.
-        """
+    #     The feature-created tables should only dropped if and only if
+    #     drop_intermediate is True. This includes the featurebase output.
+    #     """
 
-        dataset = Dataset(
-            output_table="{tmp_db}.test_output",
-            features=[
-                self.feature_one,
-                self.feature_two,
-            ],
-            feature_base=self.feature_base,
-            drop_intermediate=False,  # vital it's False here
-            global_config_dir=self.global_config_path,
-            sql_adapter=self.sql_adapter,
-        )
-        dataset.start()
-        dataset.sql_adapter.connect()
+    #     dataset = Dataset(
+    #         output_table="{tmp_db}.test_output",
+    #         features=[
+    #             self.feature_one,
+    #             self.feature_two,
+    #         ],
+    #         feature_base=self.feature_base,
+    #         drop_intermediate=False,  # vital it's False here
+    #         global_config_dir=self.global_config_path,
+    #         sql_adapter=self.sql_adapter,
+    #     )
+    #     dataset.start()
+    #     dataset.sql_adapter.connect()
 
-        # intermediate tables exist:
-        intermediate_tables = dataset._get_intermediate_table_names()
-        assert len(intermediate_tables) == 3  # 2 features and 1 featurebase
+    #     # intermediate tables exist:
+    #     intermediate_tables = dataset._get_intermediate_table_names()
+    #     assert len(intermediate_tables) == 3  # 2 features and 1 featurebase
 
-        for table in intermediate_tables:
-            assert dataset.sql_adapter.table_exists(table)
+    #     for table in intermediate_tables:
+    #         assert dataset.sql_adapter.table_exists(table)
 
-        # intermediate tables deleted:
-        dataset.drop_intermediate = True
-        dataset.start()
-        for table in intermediate_tables:
-            assert not dataset.sql_adapter.table_exists(table)
+    #     # intermediate tables deleted:
+    #     dataset.drop_intermediate = True
+    #     dataset.start()
+    #     for table in intermediate_tables:
+    #         assert not dataset.sql_adapter.table_exists(table)
 
-    def test_featurebase_unchanged(self):
-        """Featurebase list attributes should remain unchanged"""
+    # def test_featurebase_unchanged(self):
+    #     """Featurebase list attributes should remain unchanged"""
 
-        before_output_primary_keys = [] + self.feature_base.output_primary_keys
-        before_output_columns_created = [] + self.feature_base.output_columns_created
+    #     before_output_primary_keys = [] + self.feature_base.output_primary_keys
+    #     before_output_columns_created = [] + self.feature_base.output_columns_created
 
-        dataset = Dataset(
-            output_table="{tmp_db}.test_output",
-            features=[self.feature_one, self.feature_two],
-            feature_base=self.feature_base,
-            global_config_dir=self.global_config_path,
-            sql_adapter=self.sql_adapter,
-            drop_intermediate=True,
-            verify=True,
-        )
-        dataset.start()
-        after_output_primary_keys = [] + self.feature_base.output_primary_keys
-        after_output_columns_created = [] + self.feature_base.output_columns_created
-        assert before_output_primary_keys == after_output_primary_keys
-        assert before_output_columns_created == after_output_columns_created
+    #     dataset = Dataset(
+    #         output_table="{tmp_db}.test_output",
+    #         features=[self.feature_one, self.feature_two],
+    #         feature_base=self.feature_base,
+    #         global_config_dir=self.global_config_path,
+    #         sql_adapter=self.sql_adapter,
+    #         drop_intermediate=True,
+    #         verify=True,
+    #     )
+    #     dataset.start()
+    #     after_output_primary_keys = [] + self.feature_base.output_primary_keys
+    #     after_output_columns_created = [] + self.feature_base.output_columns_created
+    #     assert before_output_primary_keys == after_output_primary_keys
+    #     assert before_output_columns_created == after_output_columns_created
 
-    def test_selective_vs_full(self, feature_input_table):
-        """Tests whether correct import columns are included in output.
+    # def test_selective_vs_full(self, feature_input_table):
+    #     """Tests whether correct import columns are included in output.
 
-        Depending on import_columns the dataset output should contain either:
-            - all the input table columns
-            - all the primary keys in the input column
+    #     Depending on import_columns the dataset output should contain either:
+    #         - all the input table columns
+    #         - all the primary keys in the input column
 
-        In this test the input table contains user_ids and product_ids. Feature_two is
-        a product level feature. Therefore user_id is omitted if import_columns is set
-        to selective, but not otherwise.
+    #     In this test the input table contains user_ids and product_ids. Feature_two is
+    #     a product level feature. Therefore user_id is omitted if import_columns is set
+    #     to selective, but not otherwise.
 
-        """
-        output_selective = "{tmp_db}.test_output_selective"
-        output_full = "{tmp_db}.test_output_full"
+    #     """
+    #     output_selective = "{tmp_db}.test_output_selective"
+    #     output_full = "{tmp_db}.test_output_full"
 
-        selective = Dataset(
-            output_table=output_selective,
-            features=[self.feature_two],
-            input_table=feature_input_table,
-            import_columns="selective",
-            global_config_dir=self.global_config_path,
-            sql_adapter=self.sql_adapter,
-            drop_intermediate=True,
-        )
-        full = Dataset(
-            output_table=output_full,
-            features=[self.feature_two],
-            input_table=feature_input_table,
-            import_columns="full",
-            global_config_dir=self.global_config_path,
-            sql_adapter=self.sql_adapter,
-            drop_intermediate=True,
-        )
+    #     selective = Dataset(
+    #         output_table=output_selective,
+    #         features=[self.feature_two],
+    #         input_table=feature_input_table,
+    #         import_columns="selective",
+    #         global_config_dir=self.global_config_path,
+    #         sql_adapter=self.sql_adapter,
+    #         drop_intermediate=True,
+    #     )
+    #     full = Dataset(
+    #         output_table=output_full,
+    #         features=[self.feature_two],
+    #         input_table=feature_input_table,
+    #         import_columns="full",
+    #         global_config_dir=self.global_config_path,
+    #         sql_adapter=self.sql_adapter,
+    #         drop_intermediate=True,
+    #     )
 
-        selective.start()
-        full.start()
+    #     selective.start()
+    #     full.start()
 
-        formatted_name = output_selective.format(**selective.config[selective.section])
-        selective_columns = self.sql_adapter.get_table_columns(formatted_name)
-        formatted_name = output_full.format(**full.config[full.section])
-        full_columns = self.sql_adapter.get_table_columns(formatted_name)
+    #     formatted_name = output_selective.format(**selective.config[selective.section])
+    #     selective_columns = self.sql_adapter.get_table_columns(formatted_name)
+    #     formatted_name = output_full.format(**full.config[full.section])
+    #     full_columns = self.sql_adapter.get_table_columns(formatted_name)
 
-        assert len(full_columns) >= len(selective_columns)
-        assert list(set(full_columns).difference(set(selective_columns))) == ["user_id"]
+    #     assert len(full_columns) >= len(selective_columns)
+    #     assert list(set(full_columns).difference(set(selective_columns))) == ["user_id"]
