@@ -132,7 +132,7 @@ def prepare_input_table():
 
     feature_base = SimpleFeatureBase(
         global_config_dir=global_config_path,
-        sql_folder=os.path.join("make_feature_base_queries"),
+        sql_folder=os.path.join("Make_feature_base_queries"),
         sql_adapter=sql_adapter,  # needed if run seperately from Dataset
         output_table=base_output_table,
     )
@@ -266,7 +266,7 @@ class TestDatasetFeatures:
     )
     feature_base = SimpleFeatureBase(
         global_config_dir=global_config_path,
-        sql_folder=os.path.join("make_feature_base_queries"),
+        sql_folder=os.path.join("Make_feature_base_queries"),
         sql_adapter=sql_adapter,  # needed to run seperately from Dataset
         output_table="{tmp_db}.feature_base_table",
     )
@@ -355,7 +355,7 @@ class TestDatasetOutcomes:
 
     feature_base = SimpleFeatureBase(
         global_config_dir=global_config_path,
-        sql_folder=os.path.join("make_feature_base_queries"),
+        sql_folder=os.path.join("Make_feature_base_queries"),
         sql_adapter=sql_adapter,  # needed if run seperately from Dataset
         output_table="{tmp_db}.feature_base_table",
     )
