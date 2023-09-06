@@ -127,7 +127,7 @@ def prepare_input_table():
     # setup:
     sql_adapter = LocalSqliteAdapter()
     global_config_path = os.path.join("tests", "tasks", "dataset", "dataset_config")
-    base_output_table = "{tmp_db}.prerun_feature_base_table" # different name from normal featurebase 
+    base_output_table = "{tmp_db}.prerun_feature_base_table"  # todo: experiment.
 
     feature_base = SimpleFeatureBase(
         global_config_dir=global_config_path,
