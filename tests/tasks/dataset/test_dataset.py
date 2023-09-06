@@ -374,7 +374,7 @@ class TestDatasetOutcomes:
             ["product_id", "product_price", "product_weight"]
         )
 
-    def test_changed_rowcount_featurebase(self, feature_input_table):
+    def test_changed_rowcount_featurebase(self):
         """Total rows must remain unchanged between input and output tables
 
         Will only raise DataMismatchException if verify is true.
@@ -387,8 +387,8 @@ class TestDatasetOutcomes:
             dataset = Dataset(
                 output_table="{tmp_db}.test_output",
                 features=[self.explosive_feature],
-                # feature_base=self.feature_base, #todo: replace here.
-                input_table=feature_input_table,
+                feature_base=self.feature_base,
+                # input_table=feature_input_table,
                 import_columns="full",
                 drop_intermediate=True,
                 verify=True,
