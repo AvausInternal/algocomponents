@@ -1,4 +1,5 @@
 from typing import List
+from algocomponents.adapters import SQLAdapter
 
 from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
@@ -214,7 +215,7 @@ class Dataset(GroupTask):
         return final_query
 
     def _get_sql_drop_query(self, table_names: List[str]) -> str:
-        """Given a list of table_names, generate the SQL query to drop the tables
+        """given a list of table_names, generate the SQL query to drop the tables
 
         Args:
             table_names (list): list of table names to drop
@@ -252,6 +253,7 @@ class Dataset(GroupTask):
                 )
                 return list(set().union(cols))
             else:
+                self.sql_adapter.connect()  # might not be necessary
                 return self.sql_adapter.get_table_columns(self.input_table)
 
     def _get_all_dataset_columns(self) -> List[str]:
@@ -281,7 +283,9 @@ class Dataset(GroupTask):
         return tables
 
     def startup(self):
-        """Run startup tasks that verify the integrity of the operations"""
+        """
+        Run startup tasks that verify the integrity of the opterations.
+        """
         super().startup()
 
         if self.verify:
@@ -290,13 +294,14 @@ class Dataset(GroupTask):
 
             if not self.feature_base:
                 # if the input is a feature base no input table exists during startup()
+                self.sql_adapter.connect()
                 input_table_columns = set(
                     self.sql_adapter.get_table_columns(self.input_table)
                 )
                 required_columns = set(self._get_import_table_columns())
 
                 # verify required columns are a subset of the input table columns
-                if not required_columns.issubset(input_table_columns):
+                if not set(required_columns).issubset(input_table_columns):
                     raise DataMismatchException(
                         f"Input table does not contain the necessary columns\n"
                         f"Input table {self.input_table}\n is missing:"
@@ -304,7 +309,9 @@ class Dataset(GroupTask):
                     )
 
     def run(self):
-        """Appends necessary SQL tasks to the task list before running"""
+        """
+        Appends necessary SQL tasks to the task list before running
+        """
         if self.features:
             join_tables_task = SQLTask(
                 sql_adapter=self.sql_adapter,
@@ -316,7 +323,9 @@ class Dataset(GroupTask):
         super().run()
 
     def shutdown(self):
-        """Run shutdown tasks, such as verifying the integrity of the operations done"""
+        """
+        run shutdown tasks, such as verifying the integrity of the opterations done
+        """
         if self.verify:
             # check for existance of output table
             if not self.sql_adapter.table_exists(self.output_table):
@@ -336,7 +345,7 @@ class Dataset(GroupTask):
                     f"but should contain columns: {generated_columns}\n"
                 )
 
-            # check dataset leaves number of rows unchanged:
+            # check dataset leaves no. of rows unchanged:
             self.input_rows = self.sql_adapter.count_rows_in_table(self.input_table)
             self.output_rows = self.sql_adapter.count_rows_in_table(self.output_table)
             if self.input_rows != self.output_rows:
