@@ -4,6 +4,7 @@ from algocomponents.tasks._group_task import GroupTask
 from algocomponents.tasks._sql_pipeline import SQLPipeline
 from algocomponents.tasks._feature_base import FeatureBase
 from algocomponents.tasks._feature import Feature
+from algocomponents.tasks._dataset import Dataset
 from algocomponents.tasks._union_tables import UnionTables
 from algocomponents.tasks.evaluate_prediction.evaluate_prediction import (
     EvaluatePrediction,
@@ -45,6 +46,7 @@ __all__ = [
     "SQLPipeline",
     "FeatureBase",
     "Feature",
+    "Dataset",
     "UnionTables",
     "EvaluatePrediction",
     "AvausVisuals",
