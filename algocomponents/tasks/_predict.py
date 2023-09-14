@@ -36,6 +36,7 @@ class Predict(Task):
         output_prediction_column: str = "score",
         excluded_columns: List[str] = None,
         overwrite_output_table: bool = False,
+        use_probabilistic_predictions: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -46,6 +47,7 @@ class Predict(Task):
         self.output_prediction_column = output_prediction_column
         self.excluded_columns = excluded_columns or []
         self.overwrite_output_table = overwrite_output_table
+        self.use_probabilistic_predictions = use_probabilistic_predictions
         self.metadata = {}
 
     def startup(self):
@@ -61,6 +63,7 @@ class Predict(Task):
             metadata=self.metadata,
             df=x,
             prediction_column=self.output_prediction_column,
+            predict_probabilities=self.use_probabilistic_predictions,
         )
 
         self.sql_adapter.pandas_df_as_table(

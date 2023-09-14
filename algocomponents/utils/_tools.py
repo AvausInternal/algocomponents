@@ -61,7 +61,11 @@ def merge_configs(merge_this, into_this, overwrite: bool = False):
 
 
 def predict_with_model(
-    model_path: str, metadata: Dict, df: pd.DataFrame, prediction_column: str = "score"
+    model_path: str,
+    metadata: Dict,
+    df: pd.DataFrame,
+    prediction_column: str = "score",
+    predict_probabilities: bool = False,
 ) -> pd.DataFrame:
     import os
     import joblib
@@ -74,6 +78,9 @@ def predict_with_model(
         preprocessor = joblib.load(filename=pre_processor_path)
         df = preprocessor.transform(df)
 
-    df[prediction_column] = model.predict(df)
+    if predict_probabilities:
+        df[prediction_column] = model.predict_proba(df)
+    else:
+        df[prediction_column] = model.predict(df)
 
     return df
