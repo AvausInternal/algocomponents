@@ -63,6 +63,11 @@ class Predict(Task):
         self.metadata = self._load_and_validate_metadata()
 
     def run(self):
+        if not self.overwrite_output and os.path.exists(self.output_prediction_csv):
+            raise ValueError(
+                f"output file already exists: {self.output_prediction_csv}"
+            )
+
         df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
 
         for excluded_column in self.excluded_columns:
