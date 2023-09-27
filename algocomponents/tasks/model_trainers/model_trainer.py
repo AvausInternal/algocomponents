@@ -45,7 +45,7 @@ class ModelTrainer(Task):
         categorical_columns: List[str] = None,
         excluded_columns: List[str] = None,
         overwrite_existing_model: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.dataset_table = dataset_table
