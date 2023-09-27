@@ -1,11 +1,11 @@
 import os
 import shutil
 
-
 import pandas as pd
+import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
-from algocomponents.tasks import Predict, LinearRegressionTrainer
+from algocomponents.tasks import LinearRegressionTrainer
 
 
 class TestModelTraining:
@@ -30,7 +30,61 @@ class TestModelTraining:
         )
         self.sql_adapter.disconnect()
 
-    def test_training_and_predicting(self):
+    def test_training_existing_model_without_overwrite(self):
+        if not os.path.exists(self.model_path):
+            os.makedirs(self.model_path)
+        metadata_file_path = os.path.join(self.model_path, "meta.json")
+        with open(metadata_file_path, "w") as file:
+            file.write("Nothing")
+
+        self.create_dataset_table(dataset_table=self.double_input_table)
+        with pytest.raises(ValueError):
+            training_pipeline = LinearRegressionTrainer(
+                sql_adapter=self.sql_adapter,
+                dataset_table=self.double_input_table,
+                target_label_column=self.target_label_column,
+                output_path=self.model_path,
+                overwrite_existing_model=False,
+            )
+            training_pipeline.start()
+
+        self.sql_adapter.connect()
+        self.sql_adapter.run_sql_string(f"DROP TABLE {self.double_input_table}")
+        self.sql_adapter.disconnect()
+
+    def test_excluding_columns_that_do_not_exist(self):
+        self.create_dataset_table(dataset_table=self.double_input_table)
+        with pytest.raises(ValueError):
+            training_pipeline = LinearRegressionTrainer(
+                sql_adapter=self.sql_adapter,
+                dataset_table=self.double_input_table,
+                target_label_column=self.target_label_column,
+                output_path=self.model_path,
+                excluded_columns=["does_not_exist"],
+                overwrite_existing_model=True,
+            )
+            training_pipeline.start()
+
+        self.sql_adapter.connect()
+        self.sql_adapter.run_sql_string(f"DROP TABLE {self.double_input_table}")
+        self.sql_adapter.disconnect()
+
+    def test_training_on_non_existent_target_label(self):
+        self.create_dataset_table(dataset_table=self.double_input_table)
+        with pytest.raises(ValueError):
+            training_pipeline = LinearRegressionTrainer(
+                sql_adapter=self.sql_adapter,
+                dataset_table=self.double_input_table,
+                target_label_column="not_in_the_dataset",
+                output_path=self.model_path,
+            )
+            training_pipeline.start()
+
+        self.sql_adapter.connect()
+        self.sql_adapter.run_sql_string(f"DROP TABLE {self.double_input_table}")
+        self.sql_adapter.disconnect()
+
+    def test_training_real_model(self):
         self.create_dataset_table(dataset_table=self.double_input_table)
         training_pipeline = LinearRegressionTrainer(
             sql_adapter=self.sql_adapter,
@@ -52,22 +106,7 @@ class TestModelTraining:
             os.path.join(self.model_path, training_pipeline.preprocessor_file)
         )
 
-        Predict(
-            sql_adapter=self.sql_adapter,
-            dataset_table=self.double_input_table,
-            target_label_column=self.target_label_column,
-            model_path=self.model_path,
-            output_prediction_table=self.output_table,
-            overwrite_output_table=True,
-        ).start()
-
         self.sql_adapter.connect()
-        assert self.sql_adapter.table_exists(table=self.output_table)
-        assert self.sql_adapter.table_contains_columns(
-            table=self.output_table,
-            columns=["score"],
-        )
-        assert self.sql_adapter.count_rows_in_table(table=self.output_table) > 0
-
-        self.sql_adapter.run_sql_string(f"DROP TABLE {self.output_table}")
+        self.sql_adapter.run_sql_string(f"DROP TABLE {self.double_input_table}")
+        self.sql_adapter.disconnect()
         shutil.rmtree(self.model_path)
