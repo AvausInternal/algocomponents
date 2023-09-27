@@ -57,7 +57,7 @@ class TestPredict(TestCase):
                 target_label_column=self.target_label_column,
                 model_path="Nowhere",
                 output_prediction_table=self.output_table,
-                overwrite_output_table=True,
+                overwrite_output=True,
             ).start()
 
     def test_predicting_with_bad_metadata_file(self):
@@ -74,7 +74,7 @@ class TestPredict(TestCase):
                 target_label_column=self.target_label_column,
                 model_path=self.model_path,
                 output_prediction_table=self.output_table,
-                overwrite_output_table=True,
+                overwrite_output=True,
             ).start()
 
         shutil.rmtree(self.model_path)
@@ -90,7 +90,7 @@ class TestPredict(TestCase):
                 target_label_column=self.target_label_column,
                 model_path=self.model_path,
                 output_prediction_table=self.output_table,
-                overwrite_output_table=True,
+                overwrite_output=True,
             ).start()
 
         shutil.rmtree(self.model_path)
@@ -104,7 +104,7 @@ class TestPredict(TestCase):
             target_label_column=self.target_label_column,
             model_path=self.model_path,
             output_prediction_table=self.output_table,
-            overwrite_output_table=True,
+            overwrite_output=True,
         ).start()
 
         self.sql_adapter.connect()
