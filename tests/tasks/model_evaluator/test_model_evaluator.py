@@ -141,4 +141,5 @@ class TestModelEvaluator:
         model_evaluator.start()
 
         self.sql_adapter.disconnect()
+        shutil.rmtree(self.model_path)
         shutil.rmtree(self.plot_path)
