@@ -54,6 +54,14 @@ class Predict(Task):
 
     def run(self):
         df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
+
+        for excluded_column in self.excluded_columns:
+            if excluded_column not in df.columns:
+                raise ValueError(
+                    f"tried to exclude column {excluded_column} "
+                    f"which is not in the dataset:\n{df.head(5)}"
+                )
+
         x = df.drop(columns=self.excluded_columns + [self.target_label_column])
 
         df = predict_with_model(
@@ -72,6 +80,12 @@ class Predict(Task):
 
     def _load_and_validate_metadata(self):
         metadata_path = os.path.join(self.model_path, "meta.json")
+        if not os.path.exists(metadata_path):
+            raise FileNotFoundError(
+                "Could not find the metadata file, there is probably not a model here: "
+                f"{self.model_path}"
+            )
+
         with open(metadata_path, "r") as f:
             metadata = json.load(f)
 
