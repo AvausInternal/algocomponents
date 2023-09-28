@@ -45,7 +45,7 @@ class ModelTrainer(Task):
         categorical_columns: List[str] = None,
         excluded_columns: List[str] = None,
         overwrite_existing_model: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.dataset_table = dataset_table
@@ -58,13 +58,29 @@ class ModelTrainer(Task):
         self.overwrite_existing_model = overwrite_existing_model
 
     def run(self):
+        if not self.overwrite_existing_model and os.path.exists(self.output_path):
+            raise ValueError(f"model already exists at {self.output_path}")
+
         model, preprocessor = self._create_model()
 
         self._save_model(model, preprocessor)
 
     def _create_model(self):
         df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
+
+        for excluded_column in self.excluded_columns:
+            if excluded_column not in df.columns:
+                raise ValueError(
+                    f"tried to exclude column {excluded_column} "
+                    f"which is not in the dataset:\n{df.head(5)}"
+                )
         df = df.drop(columns=self.excluded_columns)
+
+        if self.target_label_column not in df.columns:
+            raise ValueError(
+                f"could not find the target label {self.target_label_column} "
+                f"in the dataset:\n{df.head(5)}"
+            )
 
         preprocessor = ColumnTransformer(
             transformers=[("cat", OneHotEncoder(), self.categorical_columns)],
