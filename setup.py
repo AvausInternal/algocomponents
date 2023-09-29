@@ -11,6 +11,7 @@ setup(
         "algocomponents.tasks.evaluate_prediction",
         "algocomponents.tasks.evaluate_prediction.sql",
         "algocomponents.tasks.model_trainers",
+        "algocomponents.tasks.synthesize_table",
         "algocomponents.tasks.stratify_groups",
         "algocomponents.tasks.stratify_groups.sql",
         "algocomponents.tasks.stratify_groups.sqlite",
