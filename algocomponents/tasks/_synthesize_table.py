@@ -50,16 +50,17 @@ class SynthesizeTable(Task):
         distinct_values = {}
 
         for column in df.columns:
-            if column in self.row_number_columns:
-                distinct_values[column] = list(range(1, self.max_values_per_column+1))
-            else:
-                distinct_values[column] = df[column].unique()[: self.max_values_per_column]
+            distinct_values[column] = df[column].unique()[: self.max_values_per_column]
 
         cross_join = list(product(*list(distinct_values.values())))
+
         shuffle(cross_join)
         df = pd.DataFrame(
             cross_join[: self.max_rows], columns=list(distinct_values.keys())
         )
+
+        for column in self.row_number_columns:
+            df[column] = df.index % self.max_values_per_column
 
         for column in self.hash_columns:
             df[column] = df[column].astype(str).apply(hash)
