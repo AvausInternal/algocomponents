@@ -52,6 +52,10 @@ class TestSynthesizeTable(TestCase):
         input_table_df = adapter.table_as_pandas_df(self.input_table)
         output_table_df = adapter.table_as_pandas_df(self.output_table)
 
+        input_column_set = set(input_table_df["c"].tolist())
+        output_column_set = set(output_table_df["c"].tolist())
+        assert input_column_set != output_column_set
+
         assert list(input_table_df.columns) == list(output_table_df.columns)
         assert all(input_table_df.dtypes == output_table_df.dtypes)
 
