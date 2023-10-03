@@ -49,6 +49,8 @@ class ModelEvaluator(Task):
         prediction_column: str = "score",
         plot_folder: str = None,
         excluded_columns: List[str] = None,
+        output_table: str = None,
+        overwrite_output_table: bool = False,
         **kwargs,
     ):
         if model_type not in ["classification", "regression"]:
@@ -60,6 +62,8 @@ class ModelEvaluator(Task):
                 f"Target label column {target_label_column} not found in dataset_df columns: {dataset_df.columns}"
             )
         super().__init__(**kwargs)
+        if output_table and self.sql_adapter is None:
+            raise ValueError(f"sql_adapter is required if an output_table is given")
         self.dataset_df = dataset_df
         self.target_label_column = target_label_column
         self.model_path = model_path
@@ -67,6 +71,11 @@ class ModelEvaluator(Task):
         self.model_type = model_type
         self.prediction_column = prediction_column
         self.plot_folder = plot_folder
+        if output_table:
+            self.output_table = self.format_string(output_table)
+        else:
+            self.output_table = None
+        self.overwrite_output_table = overwrite_output_table
         self.metadata = {}
 
     def startup(self):
@@ -86,6 +95,12 @@ class ModelEvaluator(Task):
         )
 
         self.dataset_df[self.prediction_column] = predict_df[self.prediction_column]
+        if self.output_table:
+            self.sql_adapter.pandas_df_as_table(
+                df=self.dataset_df,
+                table=self.output_table,
+                overwrite=self.overwrite_output_table,
+            )
 
         y_test = self.dataset_df[self.target_label_column]
         y_pred = self.dataset_df[self.prediction_column]
