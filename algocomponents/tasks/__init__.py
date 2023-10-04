@@ -30,6 +30,9 @@ from algocomponents.tasks._visualize_features import (
 )
 from algocomponents.tasks._data_transfer_task import DataTransferTask
 from algocomponents.tasks._model_evaluator import ModelEvaluator
+from algocomponents.tasks._synthesize_table import (
+    SynthesizeTable,
+)
 
 """Allows classes to live in separate files while keeping imports short
 
@@ -60,4 +63,5 @@ __all__ = [
     "VisualizeFeatures",
     "DataTransferTask",
     "ModelEvaluator",
+    "SynthesizeTable",
 ]
