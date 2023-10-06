@@ -1,14 +1,13 @@
 import json
 import os
 from typing import List
-
-import joblib
 import numpy as np
 import pandas as pd
 
 from algocomponents.tasks import Task, AvausVisuals
-from algocomponents.utils import predict_with_model
+from algocomponents.utils import predict_with_model, load_model
 
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
     precision_score,
     recall_score,
@@ -52,6 +51,7 @@ class ModelEvaluator(Task):
         excluded_columns: List[str] = None,
         output_table: str = None,
         overwrite_output_table: bool = False,
+        n_permutation_repeats: int = 5,
         **kwargs,
     ):
         if model_type not in ["classification", "regression"]:
@@ -77,6 +77,7 @@ class ModelEvaluator(Task):
         else:
             self.output_table = None
         self.overwrite_output_table = overwrite_output_table
+        self.n_permutation_repeats = n_permutation_repeats
         self.metadata = {}
 
     def startup(self):
@@ -85,6 +86,10 @@ class ModelEvaluator(Task):
 
     def run(self):
         x = self.dataset_df.drop(
+            columns=self.excluded_columns + [self.target_label_column]
+        )
+
+        x2 = self.dataset_df.drop(
             columns=self.excluded_columns + [self.target_label_column]
         )
 
@@ -130,6 +135,35 @@ class ModelEvaluator(Task):
                 y_col="Precision",
                 title=f"AUC Score: {auc_score}",
                 file_name="precision_recall_curve",
+                output_folder=self.plot_folder,
+                show=False,
+            )
+
+        model = load_model(model_path=self.model_path, metadata=self.metadata)
+        r = permutation_importance(
+            model, X=x2, y=y_test, n_repeats=self.n_permutation_repeats, random_state=0
+        )
+        sorted_importances_idx = (-r.importances_mean).argsort()
+
+        importances_df = pd.DataFrame(
+            r.importances[sorted_importances_idx].T,
+            columns=x2.columns[sorted_importances_idx],
+        )
+
+        self.logger.info("Feature importance")
+        for feature in sorted_importances_idx:
+            self.logger.info(
+                f"{x2.columns[feature]:<10}   : ",
+                f"{r.importances_mean[feature]:.3f}",
+                f" +/- {r.importances_std[feature]:.3f}",
+            )
+
+        if self.plot_folder:
+            visualizer = AvausVisuals()
+            visualizer.boxplot(
+                importances_df,
+                title="Permutation importances",
+                file_name="permutation_importance_boxplot",
                 output_folder=self.plot_folder,
                 show=False,
             )

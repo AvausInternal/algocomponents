@@ -4,6 +4,7 @@ import shutil
 
 import pandas as pd
 import pytest
+import random
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import (
@@ -25,9 +26,11 @@ class TestModelEvaluator:
 
     def create_regression_model(self):
         df = pd.DataFrame()
-        input_list = list(range(1, 100))
-        df["x"] = input_list
-        df[self.target_label_column] = df["x"] * 2
+        df["x"] = list(range(1, 100))
+        df["y"] = list(range(500, 599))
+        df["z"] = list(range(5000, 5099))
+        df["unused"] = list(range(300, 399))
+        df[self.target_label_column] = df["x"] * 2 + df["y"] - df["z"] * 1.5
 
         self.sql_adapter.connect()
         self.sql_adapter.pandas_df_as_table(
@@ -48,9 +51,13 @@ class TestModelEvaluator:
     def create_classification_model(self):
         df = pd.DataFrame()
         input_list = list(range(1, 100))
+        random_list = [random.random() for _ in range(99)]
         df["x"] = input_list
+        df["y"] = input_list
+        df["z"] = input_list
+        df["unused"] = random_list
         df[self.target_label_column] = 0
-        df.loc[df["x"] > 50, self.target_label_column] = 1
+        df.loc[(df["x"] > 50) & (df["z"] < 80), self.target_label_column] = 1
 
         self.sql_adapter.connect()
         self.sql_adapter.pandas_df_as_table(
@@ -67,42 +74,6 @@ class TestModelEvaluator:
         )
         training_pipeline.start()
         self.sql_adapter.disconnect()
-
-    def test_evaluating_regression_model(self):
-        self.create_regression_model()
-
-        self.sql_adapter.connect()
-
-        dataset_df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
-        model_evaluator = ModelEvaluator(
-            sql_adapter=self.sql_adapter,
-            dataset_df=dataset_df,
-            target_label_column=self.target_label_column,
-            model_path=self.model_path,
-            model_type="regression",
-        )
-        model_evaluator.start()
-
-        self.sql_adapter.disconnect()
-        shutil.rmtree(self.model_path)
-
-    def test_evaluating_classification_model(self):
-        self.create_classification_model()
-
-        self.sql_adapter.connect()
-
-        dataset_df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
-        model_evaluator = ModelEvaluator(
-            sql_adapter=self.sql_adapter,
-            dataset_df=dataset_df,
-            target_label_column=self.target_label_column,
-            model_path=self.model_path,
-            model_type="classification",
-        )
-        model_evaluator.start()
-
-        self.sql_adapter.disconnect()
-        shutil.rmtree(self.model_path)
 
     def test_incorrect_model_type(self):
         with pytest.raises(ValueError):
@@ -124,7 +95,7 @@ class TestModelEvaluator:
                 model_type="classification",
             )
 
-    def test_drawing_plots(self):
+    def test_classification_model_drawing_plots(self):
         self.create_classification_model()
 
         self.sql_adapter.connect()
@@ -139,7 +110,38 @@ class TestModelEvaluator:
             plot_folder=self.plot_path,
         )
         model_evaluator.start()
-
         self.sql_adapter.disconnect()
+
+        folder_path = self.plot_path
+        file1 = "permutation_importance_boxplot.png"
+        file2 = "precision_recall_curve.png"
+        file1_path = os.path.join(folder_path, file1)
+        file2_path = os.path.join(folder_path, file2)
+        assert os.path.exists(file1_path), f"{file1} does not exist in {folder_path}"
+        assert os.path.exists(file2_path), f"{file2} does not exist in {folder_path}"
+        shutil.rmtree(self.model_path)
+        shutil.rmtree(self.plot_path)
+
+    def test_regression_model_drawing_plots(self):
+        self.create_classification_model()
+
+        self.sql_adapter.connect()
+
+        dataset_df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
+        model_evaluator = ModelEvaluator(
+            sql_adapter=self.sql_adapter,
+            dataset_df=dataset_df,
+            target_label_column=self.target_label_column,
+            model_path=self.model_path,
+            model_type="regression",
+            plot_folder=self.plot_path,
+        )
+        model_evaluator.start()
+        self.sql_adapter.disconnect()
+
+        folder_path = self.plot_path
+        file1 = "permutation_importance_boxplot.png"
+        file1_path = os.path.join(folder_path, file1)
+        assert os.path.exists(file1_path), f"{file1} does not exist in {folder_path}"
         shutil.rmtree(self.model_path)
         shutil.rmtree(self.plot_path)

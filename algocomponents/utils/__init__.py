@@ -1,7 +1,13 @@
 from algocomponents.utils._launch_task import launch_task
 from algocomponents.utils._loggiedoggie import LoggieDoggie
 from algocomponents.utils._ab_tools import ABTools
-from algocomponents.utils._tools import config_to_str, merge_configs, predict_with_model
+from algocomponents.utils._tools import (
+    config_to_str,
+    merge_configs,
+    predict_with_model,
+    load_model,
+    pre_process_df,
+)
 
 
 """Allows classes to live in separate files while keeping imports short
@@ -19,4 +25,6 @@ __all__ = [
     "config_to_str",
     "merge_configs",
     "predict_with_model",
+    "load_model",
+    "pre_process_df",
 ]
