@@ -152,7 +152,7 @@ class SQLAdapter(ConfigReader):
             result of each semi colon separated query in the sql file.
 
         """
-        if not sql_string.strip():
+        if sql_string.strip() == "":
             raise ValueError(f"attempted to run an empty query: {sql_string}")
 
         if not format_variables:
@@ -163,7 +163,7 @@ class SQLAdapter(ConfigReader):
         for query in queries:
             query = query.strip()
 
-            if not query:
+            if query == "":
                 continue
 
             query = self.format_string(
