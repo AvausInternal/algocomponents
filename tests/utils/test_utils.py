@@ -5,26 +5,8 @@ import pandas as pd
 import pytest
 from algocomponents.utils import config_to_str, predict_with_model
 
-class MockModel:
-    def predict(self, df):
-        """Mock predict function that simply returns 1 for all entries in the dataframe."""
-        return [1 for _ in range(len(df))]
-
-    def predict_proba(self, df):
-        """
-        Mock predict_proba function that returns a fixed probability distribution
-        (for example [0.1, 0.9]) for all entries in the dataframe.
-        """
-        return [[0.1, 0.9] for _ in range(len(df))]
-
-class MockPreProcessor:
-    def transform(self, df):
-        """Mock transform function that simply returns the dataframe as-is without any transformation."""
-        return df
 
 class TestUtils:
-
-
     def test_config_to_str_empty_config(self):
         config = ConfigParser()
         config_str = config_to_str(config)
