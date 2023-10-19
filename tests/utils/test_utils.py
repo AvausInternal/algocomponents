@@ -1,8 +1,7 @@
-from configparser import ConfigParser
-
 import numpy as np
 import pandas as pd
 import pytest
+from configparser import ConfigParser
 from algocomponents.utils import config_to_str, predict_with_model
 
 
@@ -28,8 +27,8 @@ class TestUtils:
         config.set(section="DEVIANT", option="p", value="q")
         config_str = config_to_str(config)
         assert (
-            config_str
-            == "{'DEFAULT': {'a': 'b', 'x': 'y'}, 'DEVIANT': {'a': 'o', 'p': 'q', 'x': 'y'}}"
+                config_str
+                == "{'DEFAULT': {'a': 'b', 'x': 'y'}, 'DEVIANT': {'a': 'o', 'p': 'q', 'x': 'y'}}"
         )
 
     class FakeModel:
@@ -54,11 +53,13 @@ class TestUtils:
         monkeypatch.setattr("joblib.load", lambda filename: TestUtils.FakeModel())
 
     def test_predict_with_probabilities(self, sample_data):
-        result_df = predict_with_model(sample_data["model_path"], sample_data["metadata"], sample_data["df"].copy(), predict_probabilities=True)
+        result_df = predict_with_model(sample_data["model_path"], sample_data["metadata"], sample_data["df"].copy(),
+                                       predict_probabilities=True)
         assert "score" in result_df.columns
         assert result_df["score"].tolist() == [0.9, 0.9, 0.9]
 
     def test_predict_without_probabilities(self, sample_data):
-        result_df = predict_with_model(sample_data["model_path"], sample_data["metadata"], sample_data["df"].copy(), predict_probabilities=False)
+        result_df = predict_with_model(sample_data["model_path"], sample_data["metadata"], sample_data["df"].copy(),
+                                       predict_probabilities=False)
         assert "score" in result_df.columns
         assert result_df["score"].tolist() == [1, 1, 1]
