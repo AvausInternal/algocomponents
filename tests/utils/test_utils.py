@@ -39,41 +39,26 @@ class TestUtils:
         def predict_proba(self, df):
             return np.array([[0.1, 0.9] for _ in range(len(df))])
 
-    class FakePreProcessor:
-        def transform(self, df):
-            df['transformed'] = True  # Add a column to signify the transformation
-            return df
-
     @pytest.fixture
-    def sample_data_for_predict_probabilities(self):
+    def sample_data(self):
         return {
             "metadata": {
-                "model_file": "model.pkl",
-                "preprocessor_path": "preprocessor.pkl"
+                "model_file": "model.pkl"
             },
             "df": pd.DataFrame({"feature1": [1, 2, 3], "feature2": [4, 5, 6]}),
             "model_path": "/path/to/model"
         }
 
     @pytest.fixture(autouse=True)
-    def mock_model_and_preprocessor(self, monkeypatch):
-        def mock_load_function(filename):
-            if "preprocessor" in filename:
-                return TestUtils.FakePreProcessor()
-            else:
-                return TestUtils.FakeModel()
-        monkeypatch.setattr("joblib.load", mock_load_function)
+    def mock_model(self, monkeypatch):
+        monkeypatch.setattr("joblib.load", lambda filename: TestUtils.FakeModel())
 
-    def test_predict_with_probabilities(self, sample_data_for_predict_probabilities):
-        result_df = predict_with_model(sample_data_for_predict_probabilities["model_path"], sample_data_for_predict_probabilities["metadata"], sample_data_for_predict_probabilities["df"].copy(),
-                                       predict_probabilities=True)
+    def test_predict_with_probabilities(self, sample_data):
+        result_df = predict_with_model(sample_data["model_path"], sample_data["metadata"], sample_data["df"].copy(), predict_probabilities=True)
         assert "score" in result_df.columns
-        assert "transformed" in result_df.columns
         assert result_df["score"].tolist() == [0.9, 0.9, 0.9]
 
-    def test_predict_without_probabilities(self, sample_data_for_predict_probabilities):
-        result_df = predict_with_model(sample_data_for_predict_probabilities["model_path"], sample_data_for_predict_probabilities["metadata"], sample_data_for_predict_probabilities["df"].copy(),
-                                       predict_probabilities=False)
+    def test_predict_without_probabilities(self, sample_data):
+        result_df = predict_with_model(sample_data["model_path"], sample_data["metadata"], sample_data["df"].copy(), predict_probabilities=False)
         assert "score" in result_df.columns
-        assert "transformed" in result_df.columns
         assert result_df["score"].tolist() == [1, 1, 1]
