@@ -1,15 +1,12 @@
 import os
 import shutil
-from unittest import TestCase
-
 import pandas as pd
 import pytest
-
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import Predict, LinearRegressionTrainer
 
 
-class TestPredict(TestCase):
+class TestPredict:
     """Assumes ModelTraining works
 
     If tests are failing here it might be because ModelTraining does not work.

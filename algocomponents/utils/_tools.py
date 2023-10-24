@@ -79,7 +79,7 @@ def predict_with_model(
         df = preprocessor.transform(df)
 
     if predict_probabilities:
-        df[prediction_column] = model.predict_proba(df)
+        df[prediction_column] = model.predict_proba(df)[:, 1]
     else:
         df[prediction_column] = model.predict(df)
 
