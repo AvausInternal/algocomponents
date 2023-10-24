@@ -1,0 +1,45 @@
+name: SQLFluff fix & lint
+
+on:
+  pull_request:
+    branches: [ "develop", "master" ]
+
+permissions:
+  contents: write
+
+jobs:
+  fix_and_lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.head_ref }}
+
+    - name: Install SQLFluff from fork
+      run: |
+        git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/AvausInternal/sqlfluff
+        cd sqlfluff
+        pip install --upgrade setuptools wheel
+        pip install --upgrade build
+        python -m build
+        pip install dist/sqlfluff-3.0.0a2-py3-none-any.whl\
+        
+    - name: Run SQLFluff fix
+      id: fix_step
+      continue-on-error: true
+      run: |
+        sqlfluff fix -f algocomponents tests
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'SQLFluff'
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+        git checkout $GITHUB_HEAD_REF
+        git commit -am "SQLFluff fix" || echo "No changes to commit"
+        git push
+
+    - name: Run SQLFluff lint and display results
+      run: |
+        sqlfluff lint algocomponents tests
