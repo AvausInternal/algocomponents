@@ -67,20 +67,35 @@ def predict_with_model(
     prediction_column: str = "score",
     predict_probabilities: bool = False,
 ) -> pd.DataFrame:
+    model = load_model(model_path=model_path, metadata=metadata)
+
+    if "preprocessor_path" in metadata:
+        df = pre_process_df(df=df, model_path=model_path, metadata=metadata)
+
+    if predict_probabilities:
+        df[prediction_column] = model.predict_proba(df)[:, 1]
+    else:
+        df[prediction_column] = model.predict(df)
+
+    return df
+
+
+def load_model(model_path: str, metadata: Dict):
     import os
     import joblib
 
     model_path = os.path.join(model_path, metadata["model_file"])
     model = joblib.load(filename=model_path)
 
-    if "preprocessor_path" in metadata:
-        pre_processor_path = os.path.join(model_path, metadata["preprocessor_path"])
-        preprocessor = joblib.load(filename=pre_processor_path)
-        df = preprocessor.transform(df)
+    return model
 
-    if predict_probabilities:
-        df[prediction_column] = model.predict_proba(df)[:, 1]
-    else:
-        df[prediction_column] = model.predict(df)
+
+def pre_process_df(df: pd.DataFrame, model_path: str, metadata: Dict) -> pd.DataFrame:
+    import os
+    import joblib
+
+    pre_processor_path = os.path.join(model_path, metadata["preprocessor_path"])
+    preprocessor = joblib.load(filename=pre_processor_path)
+    df = preprocessor.transform(df)
 
     return df
