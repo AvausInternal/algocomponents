@@ -136,7 +136,7 @@ class VisualizeDataset(Task):
         for column in self.categorical_features:
             plotter.histplot(
                 df=self.input_df,
-                x_col=column,
+                y_cols=column,
                 legend=False,
                 title=f"Categorical feature {column}",
                 show=False,
