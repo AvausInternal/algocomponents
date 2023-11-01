@@ -153,9 +153,7 @@ class ModelEvaluator(Task):
         self.logger.info("Feature importance")
         for feature in sorted_importances_idx:
             self.logger.info(
-                f"{x2.columns[feature]:<10}   : ",
-                f"{r.importances_mean[feature]:.3f}",
-                f" +/- {r.importances_std[feature]:.3f}",
+                f"{x2.columns[feature]:<10}   : {r.importances_mean[feature]:.3f} +/- {r.importances_std[feature]:.3f}"
             )
 
         if self.plot_folder:
