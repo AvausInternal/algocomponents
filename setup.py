@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="algocomponents",
-    version="0.9.0",
+    version="0.9.16",
     packages=[
         "algocomponents",
         "algocomponents.tasks",
@@ -21,19 +21,19 @@ setup(
         "algocomponents.adapters",
     ],
     install_requires=[
-        "google-cloud-bigquery==3.3.2",
+        "google-cloud-bigquery==3.12.0",
         "pandas==1.4.3",
         "protobuf==4.21.6",
         "pyspark==3.3.0",
         "pytest==7.1.2",
         "setuptools==63.2.0",
-        "db-dtypes",
-        "scipy==1.9.1",
+        "db-dtypes==1.1.1",
+        "scipy==1.10.1",
         "numpy==1.23.4",
         "plotly==5.10.0",
         "matplotlib==3.6.2",
         "seaborn==0.12.0",
-        "scikit-learn==1.1.2",
+        "scikit-learn==1.2.2",
         "joblib==1.2.0",
     ],
     package_data={"": ["*.sql"]},
