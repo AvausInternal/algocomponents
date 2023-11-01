@@ -28,6 +28,9 @@ class ModelTrainer(Task):
         excluded_columns: Columns to not use when training (for example primary keys)
         overwrite_existing_model: If True, anything at the file destination will be
             deleted before saving the model.
+        ignore_unknown_categorical_values: Whether to drop unknown categorical
+            values when one hot encoding or not. If False, unknown categorical
+            vales will crash the model.
 
     """
 
@@ -45,6 +48,7 @@ class ModelTrainer(Task):
         categorical_columns: List[str] = None,
         excluded_columns: List[str] = None,
         overwrite_existing_model: bool = False,
+        ignore_unknown_categorical_values: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -56,6 +60,7 @@ class ModelTrainer(Task):
         self.categorical_columns = categorical_columns or []
         self.excluded_columns = excluded_columns or []
         self.overwrite_existing_model = overwrite_existing_model
+        self.ignore_unknown_categorical_values = ignore_unknown_categorical_values
 
     def run(self):
         if not self.overwrite_existing_model and os.path.exists(self.output_path):
@@ -82,10 +87,16 @@ class ModelTrainer(Task):
                 f"in the dataset:\n{df.head(5)}"
             )
 
-        preprocessor = ColumnTransformer(
-            transformers=[("cat", OneHotEncoder(), self.categorical_columns)],
-            remainder="passthrough",
-        )
+        if self.ignore_unknown_categorical_values:
+            preprocessor = ColumnTransformer(
+                transformers=[("cat", OneHotEncoder(handle_unknown="ignore"), self.categorical_columns)],
+                remainder="passthrough",
+            )
+        else:
+            preprocessor = ColumnTransformer(
+                transformers=[("cat", OneHotEncoder(), self.categorical_columns)],
+                remainder="passthrough",
+            )
         model = Pipeline(
             steps=[
                 ("preprocessor", preprocessor),
