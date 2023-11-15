@@ -36,6 +36,12 @@ class SQLPipeline(GroupTask, ABC):
         else:
             self.sql_folder = sql_folder
 
+        if not os.path.exists(self.sql_folder):
+            raise FileNotFoundError(f"Folder '{self.sql_folder}' does not exist.")
+
+        if not os.listdir(self.sql_folder):
+            raise RuntimeError(f"Folder '{self.sql_folder}' is empty.")
+
         self.task_list = self.get_sql_tasks()
 
         self.propagate_sql_adapter(self.sql_adapter)

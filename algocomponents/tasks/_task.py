@@ -48,7 +48,7 @@ class Task(ConfigReader):
         """
         run_start = datetime.now()
 
-        self.logger.info(f"Starting task {self.task_name} with section {self.section}")
+        self.logger.debug(f"Starting task {self.task_name} with section {self.section}")
         self.logger.debug(config_to_str(self.config))
 
         self.startup()

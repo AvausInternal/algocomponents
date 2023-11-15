@@ -170,8 +170,9 @@ class SQLAdapter(ConfigReader):
                 string=query, additional_format_variables=format_variables
             )
             query = self._format_table_names(query=query)
+            self.logger.info("*****************************************")
             self.logger.info(f"Executing the following query: \n{query}")
-
+            self.logger.info("*****************************************")
             df = self._run_formatted_query(query=query)
 
             dataframes.append(df)

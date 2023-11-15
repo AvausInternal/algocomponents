@@ -104,7 +104,6 @@ class BigQueryAdapter(SQLAdapter):
         if len(table.split(".")) > 2:
             self.logger.info("Using the gcp project already present in the table name")
             return f"`{table}`"
-
         gcp_project = self.adapter_format_variables["gcp_project"]
         return f"`{gcp_project}.{table}`"
 
@@ -155,7 +154,7 @@ class BigQueryAdapter(SQLAdapter):
 
         """
         self.query_job = self.client.query(query)
-        self.logger.info(
+        self.logger.debug(
             "This query will process {} bytes.".format(
                 self.query_job.total_bytes_processed
             )
