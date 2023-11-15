@@ -1,7 +1,8 @@
 import json
 import os
+import shap
+import matplotlib.pyplot as plt
 from typing import List
-
 import numpy as np
 import pandas as pd
 from sklearn.inspection import permutation_importance
@@ -17,7 +18,6 @@ from sklearn.metrics import (
     roc_auc_score,
     confusion_matrix,
 )
-
 from algocomponents.tasks import Task, AvausVisuals
 from algocomponents.utils import predict_with_model, load_model
 
@@ -52,8 +52,11 @@ class ModelEvaluator(Task):
         output_table: str = None,
         overwrite_output_table: bool = False,
         n_permutation_repeats: int = 5,
+        calculate_shap: bool = False,
+        shap_max_display: int = 20,
         **kwargs,
     ):
+        self.shap_max_display = shap_max_display
         if model_type not in ["classification", "regression"]:
             raise ValueError(
                 'model_type must be either "classification" or "regression"'
@@ -78,6 +81,7 @@ class ModelEvaluator(Task):
             self.output_table = None
         self.overwrite_output_table = overwrite_output_table
         self.n_permutation_repeats = n_permutation_repeats
+        self.calculate_shap = calculate_shap
         self.metadata = {}
 
     def startup(self):
@@ -85,6 +89,7 @@ class ModelEvaluator(Task):
         self.metadata = self._load_and_validate_metadata()
 
     def run(self):
+        self.dataset_df = self.dataset_df.dropna()
         x = self.dataset_df.drop(
             columns=self.excluded_columns + [self.target_label_column]
         )
@@ -107,10 +112,8 @@ class ModelEvaluator(Task):
                 table=self.output_table,
                 overwrite=self.overwrite_output_table,
             )
-
         y_test = self.dataset_df[self.target_label_column]
         y_pred = self.dataset_df[self.prediction_column]
-
         if self.model_type == "regression":
             self.logger.info("MAE : %.3f", mean_absolute_error(y_test, y_pred))
             self.logger.info("RMSE: %.3f", np.sqrt(mean_squared_error(y_test, y_pred)))
@@ -165,6 +168,8 @@ class ModelEvaluator(Task):
                 output_folder=self.plot_folder,
                 show=False,
             )
+        if self.calculate_shap:
+            self._calculate_shap_values()
 
     def _load_and_validate_metadata(self):
         metadata_path = os.path.join(self.model_path, "meta.json")
@@ -177,3 +182,38 @@ class ModelEvaluator(Task):
             )
 
         return metadata
+
+    def _calculate_shap_values(self):
+        model = load_model(model_path=self.model_path, metadata=self.metadata)
+        X = self.dataset_df.drop(
+            columns=self.excluded_columns + [self.target_label_column]
+        )
+        preprocessor = model.named_steps["preprocessor"]
+        X_transformed = preprocessor.transform(X)
+        all_feature_names = preprocessor.get_feature_names_out()
+        explainer = shap.Explainer(
+            model.named_steps[self.model_type], feature_names=all_feature_names
+        )
+        shap_values = explainer(X_transformed)
+        shap_df = pd.DataFrame(shap_values.values, columns=all_feature_names)
+        vals = np.abs(shap_df.values).mean(0)
+        shap_importance = pd.DataFrame(
+            list(zip(all_feature_names, vals)),
+            columns=["feature", "feature_importance"],
+        )
+        shap_importance.sort_values(
+            by=["feature_importance"], ascending=False, inplace=True
+        )
+        self.logger.info("SHAP importance:")
+        self.logger.info(shap_importance)
+        if self.plot_folder:
+            shap.plots.beeswarm(
+                shap_values, show=False, max_display=self.shap_max_display
+            )
+            plt.savefig(f"{self.plot_folder}/shap_beeswarm.png", bbox_inches="tight")
+            plt.clf()
+            shap.plots.bar(shap_values, show=False, max_display=self.shap_max_display)
+            plt.savefig(f"{self.plot_folder}/shap_bar.png", bbox_inches="tight")
+            shap_importance.to_csv(
+                f"{self.plot_folder}/shap_importance.csv", index=False
+            )
