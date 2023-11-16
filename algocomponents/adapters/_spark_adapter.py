@@ -2,6 +2,7 @@ from typing import List
 
 from algocomponents.adapters import SQLAdapter
 from algocomponents.adapters.custom_exceptions import TableMissingException
+from algocomponents.utils._wrappers import require_connection
 
 
 class SparkAdapter(SQLAdapter):
@@ -44,6 +45,7 @@ class SparkAdapter(SQLAdapter):
         """
         return self.spark is not None
 
+    @require_connection
     def disconnect(self):
         """Disconnects the adapter.
 
@@ -68,6 +70,7 @@ class SparkAdapter(SQLAdapter):
         """
         return table
 
+    @require_connection
     def table_exists(self, table: str) -> bool:
         """Checks whether a table exists.
 
@@ -85,6 +88,7 @@ class SparkAdapter(SQLAdapter):
         )
         return sql_tables.count() > 0
 
+    @require_connection
     def get_table_columns(self, table: str) -> List[str]:
         """Gets the columns of a table.
 
@@ -100,6 +104,7 @@ class SparkAdapter(SQLAdapter):
         columns_names = [col[0] for col in columns]
         return columns_names
 
+    @require_connection
     def _run_formatted_query(self, query: str):
         """Runs a query towards BigQuery.
 
@@ -127,6 +132,7 @@ class SparkAdapter(SQLAdapter):
         """
         raise NotImplementedError()
 
+    @require_connection
     def pandas_df_as_table(self, df, table, overwrite=False):
         """Get the result of the latest query as a pandas dataframe.
 
@@ -140,6 +146,7 @@ class SparkAdapter(SQLAdapter):
         """
         raise NotImplementedError()
 
+    @require_connection
     def insert_pandas_df_into_table(self, df, table):
         """Creates a table and puts a pandas dataframe in it.
 
@@ -163,6 +170,7 @@ class SparkAdapter(SQLAdapter):
         """
         raise NotImplementedError()
 
+    @require_connection
     def count_rows_in_table(self, table: str) -> int:
         """Count the number of rows in a table
 
