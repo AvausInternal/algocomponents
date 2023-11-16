@@ -6,6 +6,7 @@ from typing import Dict, List
 import pandas as pd
 
 from algocomponents.config_reader import ConfigReader
+from algocomponents.utils._wrappers import require_connection
 
 
 class SQLAdapter(ConfigReader):
@@ -74,6 +75,7 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    @require_connection
     def get_table_columns(self, table: str) -> List[str]:
         """Gets the columns of a table.
 
@@ -91,6 +93,7 @@ class SQLAdapter(ConfigReader):
         # The .values part was added since converting an array to a list is way faster than doing it on an Index
         return df.columns.values.tolist()
 
+    @require_connection
     def table_contains_columns(
         self, table: str, columns: List[str], identical: bool = False
     ) -> bool:
@@ -117,6 +120,7 @@ class SQLAdapter(ConfigReader):
         else:
             return set(columns).issubset(set(table_columns))
 
+    @require_connection
     def run_sql_file(
         self, path: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
@@ -138,6 +142,7 @@ class SQLAdapter(ConfigReader):
                 format_variables=format_variables,
             )
 
+    @require_connection
     def run_sql_string(
         self, sql_string: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
@@ -178,6 +183,7 @@ class SQLAdapter(ConfigReader):
 
         return dataframes
 
+    @require_connection
     @abstractmethod
     def _run_formatted_query(self, query: str) -> pd.DataFrame:
         """Runs an SQL query towards whichever service this adapter is connected.
@@ -193,6 +199,7 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    @require_connection
     def _format_table_names(self, query: str, ignore_ctes: bool = True) -> str:
         """Run _format_table_name on all tables in a query.
 
@@ -416,6 +423,7 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    @require_connection
     def table_as_pandas_df(self, table: str) -> pd.DataFrame:
         """Return all rows in a table as a pandas dataframe.
 
@@ -431,6 +439,7 @@ class SQLAdapter(ConfigReader):
         """
         return self.run_sql_string(f"SELECT * FROM {table}")[0]
 
+    @require_connection
     @abstractmethod
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
         """Creates a table and puts a pandas dataframe in it.
@@ -445,6 +454,7 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    @require_connection
     @abstractmethod
     def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
         """Inserts a pandas dataframe into a table.
@@ -470,6 +480,7 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    @require_connection
     def table_is_empty(self, table: str) -> bool:
         """Checks whether a table is empty or not.
 
@@ -485,6 +496,7 @@ class SQLAdapter(ConfigReader):
         """
         return len(self.table_as_pandas_df(table)) == 0
 
+    @require_connection
     def count_rows_in_table(self, table: str) -> int:
         """Count the number of rows in a table.
 
