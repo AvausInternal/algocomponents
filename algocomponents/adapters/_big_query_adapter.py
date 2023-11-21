@@ -337,6 +337,9 @@ class BigQueryAdapter(SQLAdapter):
             ValueError: If the dataframe does not have column names
 
         """
+        for column in df.columns:
+            if " " in column:
+                raise ValueError("Spaces aren't allowed in column names in BigQuery")
         job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
         table = self._format_table_name(table).replace("`", "")
 
