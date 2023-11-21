@@ -9,10 +9,12 @@ class TestAdapterFindTableNames:
 
     def test_that_running_empty_string_raises_value_error(self):
         with pytest.raises(ValueError):
+            self.sql_adapter.connect()
             self.sql_adapter.run_sql_string("")
 
     def test_that_running_whitespace_string_raises_value_error(self):
         with pytest.raises(ValueError):
+            self.sql_adapter.connect()
             self.sql_adapter.run_sql_string("\n\n\t    ")
 
     def test_that_running_correct_query_produces_no_error(self):

@@ -8,6 +8,7 @@ from algocomponents.adapters.custom_exceptions import (
     TableAlreadyExistsException,
     TableMissingException,
 )
+from algocomponents.utils._wrappers import require_connection
 
 
 class BigQueryAdapter(SQLAdapter):
@@ -66,6 +67,7 @@ class BigQueryAdapter(SQLAdapter):
         """
         return self.client is not None
 
+    @require_connection
     def disconnect(self):
         """Disconnects the adapter.
 
@@ -108,6 +110,7 @@ class BigQueryAdapter(SQLAdapter):
         gcp_project = self.adapter_format_variables["gcp_project"]
         return f"`{gcp_project}.{table}`"
 
+    @require_connection
     def table_exists(self, table: str) -> bool:
         """Checks whether a table exists.
 
@@ -127,6 +130,7 @@ class BigQueryAdapter(SQLAdapter):
         except NotFound:
             return False
 
+    @require_connection
     def get_table_columns(self, table: str) -> List[str]:
         """Gets the columns of a table.
 
@@ -142,6 +146,7 @@ class BigQueryAdapter(SQLAdapter):
         columns_names = [column.name for column in schema]
         return columns_names
 
+    @require_connection
     def _run_formatted_query(self, query: str) -> pd.DataFrame:
         """Runs a query towards BigQuery.
 
@@ -286,6 +291,7 @@ class BigQueryAdapter(SQLAdapter):
         """
         return self.query_job.to_dataframe()
 
+    @require_connection
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
         """Creates a table and puts a pandas dataframe in it.
 
@@ -308,6 +314,7 @@ class BigQueryAdapter(SQLAdapter):
                 )
             self.pandas_df_helper_method(df, table, "WRITE_TRUNCATE")
 
+    @require_connection
     def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
         """Inserts a pandas dataframe into a table.
 
@@ -323,6 +330,7 @@ class BigQueryAdapter(SQLAdapter):
         """
         self.pandas_df_helper_method(df, table, "WRITE_APPEND")
 
+    @require_connection
     def pandas_df_helper_method(
         self, df: pd.DataFrame, table: str, write_disposition: str
     ):
@@ -359,6 +367,7 @@ class BigQueryAdapter(SQLAdapter):
         dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)
 
+    @require_connection
     def count_rows_in_table(self, table: str) -> int:
         """Count the number of rows in a table.
 

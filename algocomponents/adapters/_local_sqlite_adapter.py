@@ -8,6 +8,7 @@ from algocomponents.adapters.custom_exceptions import (
     TableAlreadyExistsException,
     TableMissingException,
 )
+from algocomponents.utils._wrappers import require_connection
 
 
 class LocalSqliteAdapter(SQLAdapter):
@@ -85,6 +86,7 @@ class LocalSqliteAdapter(SQLAdapter):
         """
         return table.replace("`", "").replace(".", "_")
 
+    @require_connection
     def table_exists(self, table: str) -> bool:
         """Checks whether a table exists.
 
@@ -104,6 +106,7 @@ class LocalSqliteAdapter(SQLAdapter):
         )[0]
         return len(tables) > 0
 
+    @require_connection
     def get_table_columns(self, table: str) -> List[str]:
         """Gets the columns of a table.
 
@@ -117,6 +120,7 @@ class LocalSqliteAdapter(SQLAdapter):
         df = self.table_as_pandas_df(table)
         return list(df.columns)
 
+    @require_connection
     def _run_formatted_query(self, query: str) -> pd.DataFrame:
         """Runs a query towards SQLite.
 
@@ -165,6 +169,7 @@ class LocalSqliteAdapter(SQLAdapter):
             columns=self.columns,
         )
 
+    @require_connection
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
         """Creates a table and puts a pandas dataframe in it.
 
@@ -184,6 +189,7 @@ class LocalSqliteAdapter(SQLAdapter):
                 )
             df.to_sql(table, self.connection, index=False)
 
+    @require_connection
     def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
         """Inserts a pandas dataframe into a table.
 
@@ -207,6 +213,7 @@ class LocalSqliteAdapter(SQLAdapter):
         dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)
 
+    @require_connection
     def count_rows_in_table(self, table: str) -> int:
         """Count the number of rows in a table.
 
