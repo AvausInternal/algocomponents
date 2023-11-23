@@ -23,6 +23,7 @@ jobs:
           pip install seaborn
           pip install scikit-learn
           pip install joblib
+          pip install pytest-mock
       - name: Test with pytest
         run: |
           pytest
