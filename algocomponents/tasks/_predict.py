@@ -77,7 +77,9 @@ class Predict(Task):
                     f"which is not in the dataset:\n{df_all_columns.head(5)}"
                 )
 
-        x = df_all_columns.drop(columns=self.excluded_columns + [self.target_label_column])
+        x = df_all_columns.drop(
+            columns=self.excluded_columns + [self.target_label_column]
+        )
 
         df_with_score = predict_with_model(
             model_path=self.model_path,
@@ -87,7 +89,9 @@ class Predict(Task):
             predict_probabilities=self.use_probabilistic_predictions,
         )
 
-        df_all_columns[self.output_prediction_column] = df_with_score[self.output_prediction_column]
+        df_all_columns[self.output_prediction_column] = df_with_score[
+            self.output_prediction_column
+        ]
 
         if self.output_prediction_csv:
             if self.overwrite_output and os.path.exists(self.output_prediction_csv):
