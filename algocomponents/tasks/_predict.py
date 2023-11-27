@@ -68,18 +68,20 @@ class Predict(Task):
                 f"output file already exists: {self.output_prediction_csv}"
             )
 
-        df = self.sql_adapter.table_as_pandas_df(self.dataset_table)
+        df_all_columns = self.sql_adapter.table_as_pandas_df(self.dataset_table)
 
         for excluded_column in self.excluded_columns:
-            if excluded_column not in df.columns:
+            if excluded_column not in df_all_columns.columns:
                 raise ValueError(
                     f"tried to exclude column {excluded_column} "
-                    f"which is not in the dataset:\n{df.head(5)}"
+                    f"which is not in the dataset:\n{df_all_columns.head(5)}"
                 )
 
-        x = df.drop(columns=self.excluded_columns + [self.target_label_column])
+        x = df_all_columns.drop(
+            columns=self.excluded_columns + [self.target_label_column]
+        )
 
-        df = predict_with_model(
+        df_with_score = predict_with_model(
             model_path=self.model_path,
             metadata=self.metadata,
             df=x,
@@ -87,13 +89,17 @@ class Predict(Task):
             predict_probabilities=self.use_probabilistic_predictions,
         )
 
+        df_all_columns[self.output_prediction_column] = df_with_score[
+            self.output_prediction_column
+        ]
+
         if self.output_prediction_csv:
             if self.overwrite_output and os.path.exists(self.output_prediction_csv):
                 os.remove(self.output_prediction_csv)
-            df.to_csv(self.output_prediction_csv)
+            df_all_columns.to_csv(self.output_prediction_csv)
         if self.output_prediction_table:
             self.sql_adapter.pandas_df_as_table(
-                df=df,
+                df=df_all_columns,
                 table=self.output_prediction_table,
                 overwrite=self.overwrite_output,
             )
