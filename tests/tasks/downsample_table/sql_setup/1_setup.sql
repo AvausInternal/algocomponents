@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS {downsample_input_table};
 
 CREATE TABLE {downsample_input_table} AS
-          SELECT "I" AS word
+SELECT "I" AS word
 UNION ALL SELECT "wanna" AS word
 UNION ALL SELECT "be" AS word
 UNION ALL SELECT "the" AS word
