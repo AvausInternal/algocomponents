@@ -212,11 +212,16 @@ class AvausVisuals:
         legend: bool = False,
         show: bool = True,
         file_name: str = None,
-        output_folder: str = None
+        output_folder: str = None,
     ):
         sns.scatterplot(data=df, x=x_col, y=y_col, color=self.primary_colors["PINE"])
-        self.visualize(title=title, show=show, legend=legend, file_name=file_name, output_folder=output_folder)
-
+        self.visualize(
+            title=title,
+            show=show,
+            legend=legend,
+            file_name=file_name,
+            output_folder=output_folder,
+        )
 
     def visualize(
         self,
