@@ -18,17 +18,45 @@ output_folder = os.path.join("tests", "visualize_dataset_examples", "plots")
 input_table = "avaus_visuals_test_data"
 input_table_df = pd.DataFrame(
     data={
-        "cat_1": ["a", "b", "c", "a", "a", "c", "b", "b", "b"],
-        "cat_2": ["p", "q", "q", "p", "q", "p", "p", "p", "q"],
-        "cont_1": [0.1, 0.3, 0.3, 0.7, 0.4, 0.2, 0.0, 0.6, 0.9],
-        "cont_2": [1, 3, 3, 7, 4, 2, 0, 6, 9],
-        "cont_3": [9, 0, 0, 1, 4, 0, 4, 4, 2],
+        "cat_1": [
+            "Pelle Svanslös",
+            "Katten Gustaf",
+            "Pelle Svanslös",
+            "Tom",
+            "Tom",
+            "Katten Gustaf",
+            "Sir Thomas Trueheart Allyn Meowington",
+            "Katten Gustaf",
+            "Sir Thomas Trueheart Allyn Meowington",
+        ],
+        "cat_2": [
+            "Looooooooooooong cat",
+            "Ceiling cat",
+            "Grumpy cat",
+            "Grumpy cat",
+            "Ceiling cat",
+            "Looooooooooooong cat",
+            "Ceiling cat",
+            "Ceiling cat",
+            "Nyan cat",
+        ],
+        "luck": [0.1, 0.3, 0.3, 0.7, 0.4, 0.2, 0.0, 0.6, 0.9],
+        "skill": [1, 3, 3, 7, 4, 2, 0, 6, 9],
+        "concentrated power of will": [9, 0, 0, 1, 4, 0, 4, 4, 2],
+        "pleasure": [1, 3, 3, 7, 4, 2, 0, 6, 9],
+        "pain": [9, 0, 0, 1, 4, 0, 4, 4, 2],
+        "reason to remember the name": [1, 3, 3, 7, 4, 2, 0, 6, 9],
         "target_label": [0, 1, 1, 0, 1, 0, 1, 1, 0],
     }
 )
+
 VisualizeDataset(
     input_df=input_table_df,
-    continuous_features=["cont_1", "cont_2", "cont_3"],
+    continuous_features=[
+        key
+        for key in input_table_df.keys()
+        if not key.startswith("cat") and not key == "target_label"
+    ],
     categorical_features=["cat_1", "cat_2"],
     output_folder=output_folder,
 ).start()

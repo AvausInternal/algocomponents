@@ -4,6 +4,7 @@ from typing import List
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from matplotlib.ticker import FixedLocator, FixedFormatter
 
 
 class AvausVisuals:
@@ -37,6 +38,14 @@ class AvausVisuals:
 
     def __init__(self):
         sns.set_style("whitegrid", {"axes.grid": False})
+
+    def shorten_column_names(self, df, max_length=15):
+        df_copy = df.copy()
+        df_copy.columns = [
+            col[:max_length] + "..." if len(col) > max_length else col
+            for col in df.columns
+        ]
+        return df_copy
 
     def lineplot(
         self,
@@ -72,7 +81,27 @@ class AvausVisuals:
         file_name: str = None,
         output_folder: str = None,
     ):
-        sns.histplot(data=df, x=x_col, y=y_cols, palette=self.histogram_palette)
+        sns.histplot(data=df, y=y_cols, x=x_col, palette=self.histogram_palette)
+        plt.subplots_adjust(left=0.25)
+
+        # Get the current y-axis labels
+        y_labels = [str(label.get_text()) for label in plt.gca().get_yticklabels()]
+
+        # Truncate the labels
+        truncated_labels = [
+            label[:14] + "..." if len(label) > 15 else label for label in y_labels
+        ]
+
+        # Set the y-axis tick locations explicitly
+        tick_locations = plt.gca().get_yticks()
+        plt.gca().yaxis.set_major_locator(FixedLocator(tick_locations))
+
+        # Set the y-axis labels with the truncated labels
+        plt.gca().yaxis.set_major_formatter(FixedFormatter(truncated_labels))
+
+        # Set the y-axis labels with the truncated labels
+        plt.gca().set_yticklabels(truncated_labels)
+
         self.visualize(
             title=title,
             legend=legend,
@@ -89,7 +118,10 @@ class AvausVisuals:
         file_name: str = None,
         output_folder: str = None,
     ):
-        sns.heatmap(data=df.corr(), cmap=self.heatmap_palette)
+        df_short_cols = self.shorten_column_names(df)
+        sns.heatmap(data=df_short_cols.corr(), cmap=self.heatmap_palette)
+        plt.subplots_adjust(left=0.23)
+        plt.subplots_adjust(bottom=0.32)
         self.visualize(
             title=title,
             show=show,
@@ -108,10 +140,14 @@ class AvausVisuals:
         file_name: str = None,
         output_folder: str = None,
     ):
+        df_short_cols = self.shorten_column_names(df)
         if x_col and y_col:
             sns.boxplot(x=x_col, y=y_col, data=df, palette=self.primary_colors.values())
         else:
-            sns.boxplot(data=df, palette=self.primary_colors.values())
+            sns.boxplot(
+                data=df_short_cols, palette=self.primary_colors.values(), orient="h"
+            )
+        plt.subplots_adjust(left=0.25)
         self.visualize(
             title=title,
             legend=legend,
