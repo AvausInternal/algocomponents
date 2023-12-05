@@ -8,6 +8,7 @@ from algocomponents.utils._tools import (
     load_model,
     pre_process_df,
 )
+from algocomponents.utils._wrappers import require_connection
 
 
 """Allows classes to live in separate files while keeping imports short
@@ -27,4 +28,5 @@ __all__ = [
     "predict_with_model",
     "load_model",
     "pre_process_df",
+    "require_connection",
 ]

@@ -2,7 +2,7 @@ from typing import List
 
 from algocomponents.adapters import SQLAdapter
 from algocomponents.adapters.custom_exceptions import TableMissingException
-from algocomponents.utils._wrappers import require_connection
+from algocomponents.utils import require_connection
 
 
 class SparkAdapter(SQLAdapter):
