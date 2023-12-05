@@ -67,7 +67,7 @@ class LocalSqliteAdapter(SQLAdapter):
     def disconnect(self):
         """Disconnects the adapter.
 
-        This is done by closing the connections.
+        This is done by closing the connection.
 
         """
         if self.is_connected():
