@@ -1,8 +1,8 @@
 import os.path
 import shutil
-import pytest
 
 import pandas as pd
+import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.adapters.custom_exceptions import (

@@ -1,8 +1,7 @@
-import pandas as pd
 import os.path
 
-from algocomponents.tasks import VisualizeDataset
-from algocomponents.adapters import LocalSqliteAdapter
+import pandas as pd
+
 from algocomponents.tasks import AvausVisuals
 
 

@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from configparser import ConfigParser
 from typing import List
 
-from algocomponents.adapters import SQLAdapter
 from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     DataMismatchException,

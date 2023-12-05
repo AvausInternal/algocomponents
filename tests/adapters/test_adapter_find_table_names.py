@@ -1,6 +1,5 @@
 import random
 
-
 from algocomponents.adapters import LocalSqliteAdapter, BigQueryAdapter
 
 

@@ -1,12 +1,9 @@
 import json
 import os
 from typing import List
+
 import numpy as np
 import pandas as pd
-
-from algocomponents.tasks import Task, AvausVisuals
-from algocomponents.utils import predict_with_model, load_model
-
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
     precision_score,
@@ -20,6 +17,9 @@ from sklearn.metrics import (
     roc_auc_score,
     confusion_matrix,
 )
+
+from algocomponents.tasks import Task, AvausVisuals
+from algocomponents.utils import predict_with_model, load_model
 
 
 class ModelEvaluator(Task):

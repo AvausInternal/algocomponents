@@ -1,7 +1,9 @@
 import os
 import shutil
+
 import pandas as pd
 import pytest
+
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import Predict, LinearRegressionTrainer
 

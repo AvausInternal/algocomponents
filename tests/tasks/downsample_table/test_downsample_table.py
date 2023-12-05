@@ -1,17 +1,8 @@
 import os.path
 
-
-import pandas as pd
-import pytest
-
 from algocomponents.adapters import LocalSqliteAdapter
-from algocomponents.adapters.custom_exceptions import (
-    DataMismatchException,
-    TableIsEmptyException,
-)
 from algocomponents.tasks import SQLPipeline
 from algocomponents.tasks.downsample_table.downsample_table import DownsampleTable
-from algocomponents.tasks.stratify_groups.stratify_groups import StratifyGroups
 
 
 class TestDownsampleTable:

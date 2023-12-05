@@ -1,6 +1,5 @@
 from configparser import ConfigParser
 
-
 from algocomponents.tasks import GroupTask, Task
 
 

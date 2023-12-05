@@ -1,7 +1,6 @@
 import os
 from configparser import ConfigParser
 
-
 from algocomponents.adapters import BigQueryAdapter, SQLAdapter
 
 

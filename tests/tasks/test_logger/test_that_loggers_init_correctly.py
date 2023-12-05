@@ -1,6 +1,5 @@
 import logging
 
-
 from algocomponents.adapters import (
     LocalSqliteAdapter,
     BigQueryAdapter,

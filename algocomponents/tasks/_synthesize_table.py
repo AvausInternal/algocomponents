@@ -1,7 +1,6 @@
 from itertools import product
-from typing import List
 from random import shuffle
-
+from typing import List
 
 import pandas as pd
 

@@ -4,8 +4,8 @@ from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     ColumnMissingException,
 )
-from algocomponents.tasks import Task
 from algocomponents.tasks import AvausVisuals
+from algocomponents.tasks import Task
 
 
 class VisualizeFeatures(Task):

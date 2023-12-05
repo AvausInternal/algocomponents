@@ -1,5 +1,5 @@
-from algocomponents.tasks import Task, SQLTask
 from algocomponents.adapters import SQLAdapter
+from algocomponents.tasks import Task, SQLTask
 
 
 class DataTransferTask(Task):
