@@ -1,8 +1,9 @@
 import os
+
 import pytest
 
-from algocomponents.tasks._data_transfer_task import DataTransferTask
 from algocomponents.adapters._local_sqlite_adapter import LocalSqliteAdapter
+from algocomponents.tasks._data_transfer_task import DataTransferTask
 from algocomponents.tasks._sql_task import SQLTask
 
 

@@ -1,10 +1,9 @@
 import os
+import random
 import shutil
-
 
 import pandas as pd
 import pytest
-import random
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import (

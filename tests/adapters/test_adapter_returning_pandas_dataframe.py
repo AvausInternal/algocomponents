@@ -2,7 +2,6 @@ import os
 import sys
 from configparser import ConfigParser
 
-
 import pandas as pd
 
 from algocomponents.adapters import LocalSqliteAdapter

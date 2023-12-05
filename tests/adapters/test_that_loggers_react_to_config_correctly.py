@@ -2,7 +2,6 @@ import logging
 import os
 from typing import List
 
-
 import pandas as pd
 
 from algocomponents.adapters import SQLAdapter

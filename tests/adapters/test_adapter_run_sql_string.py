@@ -1,7 +1,7 @@
+import pandas as pd
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
-import pandas as pd
 
 
 class TestAdapterFindTableNames:

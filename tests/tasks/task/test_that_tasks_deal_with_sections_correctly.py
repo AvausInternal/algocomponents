@@ -1,6 +1,5 @@
 from configparser import ConfigParser
 
-
 import pytest
 
 from algocomponents.tasks import Task

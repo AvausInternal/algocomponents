@@ -1,9 +1,8 @@
 import pandas as pd
 import pytest
-import os.path
 
-from algocomponents.tasks import VisualizeDataset
 from algocomponents.adapters import LocalSqliteAdapter
+from algocomponents.tasks import VisualizeDataset
 
 
 class TestVisualizeDataset:

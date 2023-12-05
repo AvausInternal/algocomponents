@@ -1,6 +1,5 @@
 import os
 
-
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import SQLTask
 

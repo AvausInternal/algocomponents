@@ -2,8 +2,6 @@ import json
 import os
 from typing import List
 
-import joblib
-
 from algocomponents.tasks import Task
 from algocomponents.utils import predict_with_model
 

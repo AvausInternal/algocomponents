@@ -1,10 +1,9 @@
-import math
+from typing import Tuple
 
+import math
 from scipy import stats
 
 from algocomponents.utils import LoggieDoggie
-
-from typing import Tuple
 
 
 class ABTools:
