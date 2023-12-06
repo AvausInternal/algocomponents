@@ -8,9 +8,9 @@ from matplotlib.ticker import FixedLocator, FixedFormatter
 
 
 class AvausVisuals:
-    """Helps create plots in Avaus colors and style
+    """Creates plots in Avaus colors and style
 
-    All Avaus colors are hard coded into the class and uses by the plots it
+    All Avaus colors are hard-coded into the class and are used by the plots it
     generates. Other stylized choices have also been made to make the plots look
     professional.
 

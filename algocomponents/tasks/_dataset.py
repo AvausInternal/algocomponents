@@ -10,7 +10,7 @@ from algocomponents.tasks import FeatureBase, GroupTask, SQLTask, Feature
 class Dataset(GroupTask):
     """Constructs a dataset table out of an input base table and a set of features.
 
-    The output table is constructed by running all the features sequentually
+    The output table is constructed by running all the features sequentially
     followed by an SQL join query to create the desired table.
 
     Args:

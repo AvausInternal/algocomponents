@@ -5,22 +5,24 @@ from algocomponents.tasks import Task, SQLTask
 class DataTransferTask(Task):
     """DataTransferTask transfers data across adapters.
 
-    Remember that if you use the LocalSQLite adapter, the data will be stored locally on your computer.
-    Only store data locally if you are allowed to do so.
+    Remember that if you use the LocalSQLite adapter, the data will be stored
+    on your computer. Only store data locally if you are allowed to do so.
 
-    The task can only either take `from_table` as input or `sql_string/sql_file_path` as input.
+    The task can only either take "from_table" as input or
+    "sql_string/sql_file_path" as input.
 
-    If `from_table` is given as input, the task copies the full table and saves it to
-    the specified table.
+    If "from_table" is given as input, the task copies the full table and saves
+    it to the specified table.
 
-    If `sql_string` or `sql_file_path` is given as input, the task copies the query result
-    from one adapter and saves it to the specified table.
+    If "sql_string" or "sql_file_path" is given as input, the task copies the
+    query result from one adapter and saves it to the specified table.
 
-    If both `sql_string` and `sql_file_path` are given, sql_string takes priority.
+    If both "sql_string" and "sql_file_path" are given, sql_string takes
+    priority.
 
 
     Args:
-        from_adapter: The adapter we want to move data from. LocalSqliteAdapter and BigQueryAdaper are supported.
+        from_adapter: The adapter we want to move data from.
         to_adapter: The adapter we want to move data to.
         from_table: The table we want to move data from.
         to_table: The table we want to move data too.

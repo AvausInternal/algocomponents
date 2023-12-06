@@ -9,19 +9,19 @@ from algocomponents.utils import ABTools
 
 
 class CheckSignificance(Task):
-    """Task that checks whether a test results were statistically significant
+    """Checks whether a test result was statistically significant.
 
-    This task runs Welch's t-test for every kpi column in the input table.
-    The group column must contain values which speficy does the value belong
-    to the test or control group. The results are logged for every t-test.
+    This task runs Welch's t-test for every kpi-column in the input table. The
+    group column must contain values that specify whether the value belongs to
+    the test or control group. The results are logged for every t-test.
 
     Args:
         input_table: Table which contains the data.
-        group_column: Name of the columnn which specifies the groups.
+        group_column: Name of the column which specifies the groups.
         kpi_columns: List of column names for which the test is performed.
         group_names: List specifying what the group names are.
         sig_level: Significance level often denoted as alpha, typically 0.05.
-        tail: `one_sided` or `two_sided` test.
+        tail: "one_sided" or "two_sided" test.
 
     """
 

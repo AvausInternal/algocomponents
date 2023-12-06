@@ -8,7 +8,15 @@ from algocomponents.tasks import Task
 
 
 class SynthesizeTable(Task):
-    """A task that synthesizes and exports a table
+    """A task that synthesizes and exports a table.
+
+    A synthesized table ideally has the same structure as the original table,
+    but has none of the sensitive information. Relations are removed by
+    sampling from the individual columns, distributions are removed in the same
+    operations and sensitive values should be hashed. This allows you to bring
+    a synthesized version of a table outside the project you are working on, for
+    example to allow people outside the project to write pipelines for the data,
+    or to get help troubleshooting sql from someone outside the project.
 
     Args:
         input_table: The table to synthesize

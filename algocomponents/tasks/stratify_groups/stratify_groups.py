@@ -11,8 +11,10 @@ from algocomponents.tasks import SQLPipeline
 
 
 class StratifyGroups(SQLPipeline):
-    """Given a table with a set of columns to order the table, a stratified
-     table with intended number of groups returns.
+    """Stratifies an input table into a number of groups.
+
+    Stratification is done by ordering by the columns given, and using a row
+    number operation with a modulo operator to create the groups.
 
     Args:
         sql_adapter: A SQL adapter to connect to designated database type
@@ -20,10 +22,6 @@ class StratifyGroups(SQLPipeline):
         stratify_on: A set of columns to order the table
         n_groups: Number of groups to stratify the table
         output_table: The table name to be returned
-        **kwargs: Arbitrary keyword arguments
-
-    Returns:
-        An ordered table with stratified groups
 
     """
 

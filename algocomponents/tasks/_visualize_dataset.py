@@ -8,11 +8,11 @@ from algocomponents.tasks import Task, AvausVisuals
 class VisualizeDataset(Task):
     """A task that visualizes features given a dataset table.
 
-    The task takes one of the following dataset sources as input:
-    input_df, input_csv_file or input_table_name and save descriptive plots:
-    boxplot, normalized boxplot, histograms, correlation matrix of that dataset.
+    The task takes one of the following dataset sources as input: input_df,
+    input_csv_file or input_table_name and save descriptive plots: boxplot,
+    normalized boxplot, histograms, correlation matrix of that dataset.
 
-    Attributes:
+    Args:
         input_df: Pandas DataFrame with dataset to visualize.
         input_csv_file: Csv file path with dataset to visualize.
         input_table_name: Database table name with dataset to visualize

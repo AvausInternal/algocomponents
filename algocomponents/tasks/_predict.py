@@ -10,7 +10,7 @@ class Predict(Task):
     """Predicts using a model and appends the model score to a dataset table.
 
     Given a dataset_table as an input, this Task will produce an output table
-    that contains everything from the dataset
+    that contains everything from the dataset.
 
     Args:
         dataset_table: Full path to table used to predict.
