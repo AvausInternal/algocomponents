@@ -53,6 +53,8 @@ class AvausVisuals:
         x_col: str = None,
         y_col: str = None,
         title: str = None,
+        x_title: str = None,
+        y_title: str = None,
         legend: bool = False,
         dashes: bool = False,
         show: bool = True,
@@ -64,6 +66,10 @@ class AvausVisuals:
         )
         self.visualize(
             title=title,
+            x_col=x_col,
+            y_col=y_col,
+            x_title=x_title,
+            y_title=y_title,
             legend=legend,
             show=show,
             file_name=file_name,
@@ -76,6 +82,8 @@ class AvausVisuals:
         x_col: str = None,
         y_cols: List[str] = None,
         title: str = None,
+        x_title: str = None,
+        y_title: str = None,
         legend: bool = False,
         show: bool = True,
         file_name: str = None,
@@ -104,6 +112,9 @@ class AvausVisuals:
 
         self.visualize(
             title=title,
+            x_col=x_col,
+            x_title=x_title,
+            y_title=y_title,
             legend=legend,
             show=show,
             file_name=file_name,
@@ -113,6 +124,8 @@ class AvausVisuals:
     def heatmap(
         self,
         df: pd.DataFrame,
+        x_title: str = None,
+        y_title: str = None,
         title: str = None,
         show: bool = True,
         file_name: str = None,
@@ -124,6 +137,8 @@ class AvausVisuals:
         plt.subplots_adjust(bottom=0.32)
         self.visualize(
             title=title,
+            x_title=x_title,
+            y_title=y_title,
             show=show,
             file_name=file_name,
             output_folder=output_folder,
@@ -135,6 +150,8 @@ class AvausVisuals:
         x_col: str = None,
         y_col: str = None,
         title: str = None,
+        x_title: str = None,
+        y_title: str = None,
         legend: bool = False,
         show: bool = True,
         file_name: str = None,
@@ -150,6 +167,10 @@ class AvausVisuals:
         plt.subplots_adjust(left=0.25)
         self.visualize(
             title=title,
+            x_col=x_col,
+            y_col=y_col,
+            x_title=x_title,
+            y_title=y_title,
             legend=legend,
             show=show,
             file_name=file_name,
@@ -162,6 +183,8 @@ class AvausVisuals:
         x_col: str = None,
         y_col: str = None,
         title: str = None,
+        x_title: str = None,
+        y_title: str = None,
         legend: bool = False,
         show: bool = True,
         file_name: str = None,
@@ -170,6 +193,10 @@ class AvausVisuals:
         sns.countplot(x=x_col, data=df, hue=y_col, palette=self.primary_colors.values())
         self.visualize(
             title=title,
+            x_col=x_col,
+            y_col=y_col,
+            x_title=x_title,
+            y_title=y_title,
             legend=legend,
             show=show,
             file_name=file_name,
@@ -179,6 +206,10 @@ class AvausVisuals:
     def visualize(
         self,
         title: str = None,
+        x_col: str = None,
+        y_col: str = None,
+        x_title: str = None,
+        y_title: str = None,
         legend: bool = False,
         show: bool = True,
         output_folder: str = None,
@@ -192,8 +223,8 @@ class AvausVisuals:
         sns.despine(bottom=True, left=True)
 
         # Remove labels and add horizontal grid lines
-        plt.xlabel("")
-        plt.ylabel("")
+        plt.xlabel(x_title if x_title else x_col)
+        plt.ylabel(y_title if y_title else y_col)
         plt.grid(axis="y")
 
         # legend
