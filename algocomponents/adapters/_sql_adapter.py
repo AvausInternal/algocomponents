@@ -6,7 +6,7 @@ from typing import Dict, List
 import pandas as pd
 
 from algocomponents.config_reader import ConfigReader
-from algocomponents.utils._wrappers import require_connection
+from algocomponents.utils import require_connection
 
 
 class SQLAdapter(ConfigReader):

@@ -8,7 +8,7 @@ from algocomponents.adapters.custom_exceptions import (
     TableAlreadyExistsException,
     TableMissingException,
 )
-from algocomponents.utils._wrappers import require_connection
+from algocomponents.utils import require_connection
 
 
 class LocalSqliteAdapter(SQLAdapter):
