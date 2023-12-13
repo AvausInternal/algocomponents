@@ -8,7 +8,7 @@ from algocomponents.utils import LoggieDoggie, merge_configs
 
 
 class ConfigReader(ABC):
-    """A class used to read and manage configs
+    """A class used to read and manage configs.
 
     The config files are python config.ini-files. The priority is as follows,
     starting with the highest priority (in terms of what overwrites what):

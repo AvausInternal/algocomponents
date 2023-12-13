@@ -5,8 +5,10 @@ from algocomponents.tasks.stratify_groups.stratify_groups import StratifyGroups
 
 
 class DownsampleTable(SQLPipeline):
-    """Given a table with a set of columns to order the table, a stratified
-     table with intended number of groups returns.
+    """Performs a stratified downsampling of a table.
+
+    This task uses StratifyGroups to stratify into a required number of groups,
+    and then selects group 1 of that table as the output table.
 
     Args:
         input_table: The name for the table to downsample
@@ -14,10 +16,6 @@ class DownsampleTable(SQLPipeline):
         downsample_ratio: What percentage of the original table to keep
         stratify_on: Which columns in the original table to stratify on in order
                      to keep the original table distribution.
-        **kwargs: SQLPipeline key word arguments
-
-    Returns:
-        A downsampled version of the original table
 
     """
 

@@ -15,7 +15,7 @@ class VisualizeFeatures(Task):
     and the target label, this task will use AvausVisuals to create one
     countplot per categorical feature and one boxplot per continuous feature.
 
-    Attributes:
+    Args:
         input_table: Which table the data to visualize is in.
         target_label_column: Which column in the data is the target label.
         categorical_feature_columns: A list of all the columns that contain

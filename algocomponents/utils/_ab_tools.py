@@ -7,7 +7,7 @@ from algocomponents.utils import LoggieDoggie
 
 
 class ABTools:
-    """A/B testing tools
+    """A collection of methods useful in A/B-tests.
 
     ABTools contain a number of methods that are useful for conducting A/B tests
     and report results of A/B tests.

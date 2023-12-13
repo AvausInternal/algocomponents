@@ -12,8 +12,9 @@ from algocomponents.utils import require_connection
 class SQLAdapter(ConfigReader):
     """An abstract adapter used for connecting to a service and running queries.
 
-    The purpose of the sql adapter is to generalize how we set up connections to
-    different services. There will be one adapter per service.
+    The purpose of the sql adapter is to generalize how connections are set up
+    to different databases. Each type of database used in a project should have
+    it's own adapter.
 
     """
 
@@ -108,7 +109,7 @@ class SQLAdapter(ConfigReader):
             identical: Whether the given columns should be identical to the table columns.
 
         Returns:
-            True if the tables contains the columns, False otherwise
+            True if the tables contains the columns, False otherwise.
 
         """
         if len(columns) != len(set(columns)):
@@ -130,7 +131,7 @@ class SQLAdapter(ConfigReader):
             path: Path to the SQL file, from project root.
             format_variables: A dictionary used to .format() the SQL string.
 
-        Return:
+        Returns:
             A list of pandas dataframes, where each pandas dataframe is the
             result of each semi colon separated query in the sql file.
 
@@ -152,9 +153,9 @@ class SQLAdapter(ConfigReader):
             sql_string: The SQL string to run. Can be several queries ;-separated.
             format_variables: A dictionary used to .format() the SQL string.
 
-        Return:
+        Returns:
             A list of pandas dataframes, where each pandas dataframe is the
-            result of each semi colon separated query in the sql file.
+            result of each semi colon separated query in the sql string.
 
         """
         if sql_string.strip() == "":
@@ -397,7 +398,7 @@ class SQLAdapter(ConfigReader):
             sql: The query to remove comments from.
 
         Returns:
-            The sql without comments
+            The sql string without comments.
 
         """
         lines = sql.split("\n")

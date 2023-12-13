@@ -8,7 +8,10 @@ from algocomponents.utils import require_connection
 class SparkAdapter(SQLAdapter):
     """Used to run queries in spark.
 
-    This adapter functions when running queries in Databricks as well.
+    Using this in notebooks might not work as some notebooks set up a spark
+    variable automatically using SparkSession, which this adapter may interfere
+    with. In case it does not work, consider creating a new class that
+    overwrites the connect(), is_connected() and disconnect()-methods.
 
     """
 
@@ -40,7 +43,7 @@ class SparkAdapter(SQLAdapter):
         As long as self.spark is not None, the adapter is considered connected.
 
         Returns:
-            True if self.spark is not None, False otherwise
+            True if self.spark is not None, False otherwise.
 
         """
         return self.spark is not None

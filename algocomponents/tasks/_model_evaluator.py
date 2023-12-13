@@ -23,7 +23,7 @@ from algocomponents.utils import predict_with_model, load_model
 
 
 class ModelEvaluator(Task):
-    """Evaluates a Sci-kit learn model
+    """Evaluates a Sci-kit learn model.
 
     Given a dataset_table as an input, this Task will evaluate and log model
     performance.

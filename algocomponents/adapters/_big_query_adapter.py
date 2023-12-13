@@ -14,9 +14,8 @@ from algocomponents.utils import require_connection
 class BigQueryAdapter(SQLAdapter):
     """Used to run queries on BigQuery.
 
-    This adapter is intended for running queries on Google BigQuery.
-    The script expects that the user is authenticated in the affected
-    gcp project using googles python client libraries and setup instructions.
+    The adapter expects that the user is authenticated in the affected gcp
+    project using googles python client libraries and setup instructions.
 
     """
 
@@ -89,10 +88,10 @@ class BigQueryAdapter(SQLAdapter):
               gcp-project in the config given)
 
         Args:
-            table: The table to format.
+            table: The table string to format.
 
         Returns:
-            The provided query, with table names formatted.
+            The table name, formatted.
 
         """
         table = table.replace("`", "")
@@ -138,7 +137,7 @@ class BigQueryAdapter(SQLAdapter):
             table: The table to look at.
 
         Returns:
-            A list of the table columns
+            A list of the table's columns
 
         """
         formatted_table = self._format_table_name(table).replace("`", "")
@@ -286,7 +285,7 @@ class BigQueryAdapter(SQLAdapter):
         """Get the result of the latest query as a pandas dataframe.
 
         Returns:
-            A pandas dataframe of the latest query_job
+            A pandas dataframe of the latest query_job.
 
         """
         return self.query_job.to_dataframe()
@@ -301,7 +300,7 @@ class BigQueryAdapter(SQLAdapter):
             overwrite: Whether to overwrite an existing table, defaults to False.
 
         Raises:
-            ValueError: If the dataframe does not have column names
+            ValueError: If the dataframe does not have column names.
 
         """
         if overwrite:
@@ -325,7 +324,7 @@ class BigQueryAdapter(SQLAdapter):
             table: The table where you want to insert it.
 
         Raises:
-            ValueError: If the dataframe does not have column names
+            ValueError: If the dataframe does not have column names.
 
         """
         self.pandas_df_helper_method(df, table, "WRITE_APPEND")
@@ -342,7 +341,7 @@ class BigQueryAdapter(SQLAdapter):
             write_disposition: BigQuery argument for handling existing tables.
 
         Raises:
-            ValueError: If the dataframe does not have column names
+            ValueError: If the dataframe does not have column names.
 
         """
         job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
