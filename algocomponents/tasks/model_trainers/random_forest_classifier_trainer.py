@@ -39,7 +39,7 @@ class RandomForestClassifierTrainer(ModelTrainer):
             categorical_columns=categorical_columns,
             excluded_columns=excluded_columns,
             overwrite_existing_model=overwrite_existing_model,
-            model_type="classifier",
+            model_type="classification",
             model_reference=RandomForestClassifier(),
             **kwargs,
         )

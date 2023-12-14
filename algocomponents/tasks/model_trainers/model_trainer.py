@@ -22,7 +22,7 @@ class ModelTrainer(Task):
         dataset_table: Full path to table where data to train model is.
         target_label_column: Name of target label column.
         output_path: Path to folder where model files will be saved.
-        model_type: Passed to scikit-learn, custom name of model such as "classifier".
+        model_type: Passed to scikit-learn, custom name of model such as "classification".
         model_reference: An Instantiated() object of the class used to train models.
         categorical_columns: Which columns to one_hot_encode. Can have any data type.
         excluded_columns: Columns to not use when training (for example primary keys)
