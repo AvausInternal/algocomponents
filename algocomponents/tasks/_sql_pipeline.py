@@ -61,11 +61,11 @@ class SQLPipeline(GroupTask, ABC):
 
         """
         if not os.path.exists(self.sql_folder):
-            self.logger.warning(f"Folder does not exist: {self.sql_folder}")
-            return []
-
+            raise FileNotFoundError(f"Folder {self.sql_folder} does not exist")
         sql_files = os.listdir(self.sql_folder)
         sql_files = [file for file in sql_files if file.split(".")[-1] == "sql"]
+        if not sql_files:
+            raise FileNotFoundError(f"No SQL files found in {self.sql_folder}")
         regex_pattern = re.compile(self.sql_file_pattern)
 
         for sql_file in sql_files:

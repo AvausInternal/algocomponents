@@ -2,6 +2,7 @@ import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import SQLPipeline
+from tempfile import TemporaryDirectory
 
 
 class EmptySQLPipeline(SQLPipeline):
@@ -34,3 +35,12 @@ class TestSqlPipeline:
         result = pipeline.start()
 
         assert result is not None
+
+    def test_get_sql_tasks_fails_on_empty_folder(self):
+        with TemporaryDirectory() as temp_dir:
+            with pytest.raises(FileNotFoundError):
+                EmptySQLPipeline(sql_folder=temp_dir)
+
+    def test_get_sql_tasks_fails_on_nonexistent_folder(self):
+        with pytest.raises(FileNotFoundError):
+            EmptySQLPipeline(sql_folder="non_existent_folder")
