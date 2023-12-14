@@ -35,6 +35,7 @@ setup(
         "seaborn==0.12.0",
         "scikit-learn==1.1.2",
         "joblib==1.2.0",
+        "shap==0.43.0",
     ],
     package_data={"": ["*.sql"]},
     url="",
