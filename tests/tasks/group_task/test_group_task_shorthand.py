@@ -1,5 +1,5 @@
 from algocomponents.adapters import LocalSqliteAdapter
-from algocomponents.tasks import GroupTask, SQLPipeline
+from algocomponents.tasks import GroupTask, SQLPipeline, Task
 
 
 class EmptySQLPipeline(SQLPipeline):
@@ -8,7 +8,7 @@ class EmptySQLPipeline(SQLPipeline):
 
 class ShorthandGroupTask(GroupTask):
     task_list = [
-        EmptySQLPipeline(),
+        Task(),
     ]
 
     sql_adapter = LocalSqliteAdapter()
@@ -16,7 +16,7 @@ class ShorthandGroupTask(GroupTask):
 
 class AnotherShorthandGroupTask(GroupTask):
     task_list = [
-        EmptySQLPipeline(),
+        Task(),
     ]
 
     sql_adapter = LocalSqliteAdapter()

@@ -13,7 +13,6 @@ class EmptySQLPipeline(SQLPipeline):
 
 
 class TestCheckSignificance:
-    sql_pipeline = EmptySQLPipeline(sql_adapter=LocalSqliteAdapter())
 
     @classmethod
     def setup_class(cls):
