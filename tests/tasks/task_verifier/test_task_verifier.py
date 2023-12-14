@@ -19,10 +19,11 @@ class EmptySQLPipeline(SQLPipeline):
 class TestTaskVerifier:
     sql_pipeline = EmptySQLPipeline(
         sql_folder=os.path.join(
-                "tests", "tasks", "task_verifier", "task_verifier_queries"
-            ),
-            sql_adapter=LocalSqliteAdapter(),
-            sql_folder_relative_path=False,)
+            "tests", "tasks", "task_verifier", "task_verifier_queries"
+        ),
+        sql_adapter=LocalSqliteAdapter(),
+        sql_folder_relative_path=False,
+    )
 
     @classmethod
     def setup_class(cls):

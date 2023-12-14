@@ -13,7 +13,6 @@ class EmptySQLPipeline(SQLPipeline):
 
 
 class TestCheckSignificance:
-
     @classmethod
     def setup_class(cls):
         # create the testing database
