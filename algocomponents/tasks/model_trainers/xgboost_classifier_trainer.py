@@ -3,7 +3,7 @@ from xgboost import XGBClassifier
 from algocomponents.tasks import ModelTrainer
 
 
-class XGBoostModelTrainer(ModelTrainer):
+class XGBoostClassifierTrainer(ModelTrainer):
     """Trains a model using XGBClassifier() from xgboost library.
 
     Inherits from ModelTrainer which does all the work. This class is just a way
