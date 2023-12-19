@@ -138,7 +138,31 @@ class ModelEvaluator(Task):
                 output_folder=self.plot_folder,
                 show=False,
             )
+        if self.plot_folder and self.model_type == "regression":
+            visualizer = AvausVisuals()
+            residuals_df = pd.DataFrame({"Residuals": y_test - y_pred})
+            visualizer.histplot(
+                df=residuals_df,
+                x_col="Residuals",
+                title="Residuals Distribution",
+                file_name="residuals_distribution",
+                output_folder=self.plot_folder,
+                show=False,
+            )
 
+            # Scatter Plot of Actual vs Predicted Values
+            actual_vs_predicted_df = pd.DataFrame(
+                {"Actual": y_test, "Predicted": y_pred}
+            )
+            visualizer.lineplot(
+                df=actual_vs_predicted_df,
+                x_col="Actual",
+                y_col="Predicted",
+                title="Actual vs Predicted Values",
+                file_name="actual_vs_predicted",
+                output_folder=self.plot_folder,
+                show=False,
+            )
         model = load_model(model_path=self.model_path, metadata=self.metadata)
         r = permutation_importance(
             model, X=x2, y=y_test, n_repeats=self.n_permutation_repeats, random_state=0
