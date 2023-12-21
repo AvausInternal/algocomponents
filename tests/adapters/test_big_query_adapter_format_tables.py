@@ -1,12 +1,10 @@
 import os
 from configparser import ConfigParser
-from unittest import TestCase
 
 from algocomponents.adapters import BigQueryAdapter, SQLAdapter
 
 
-class TestBigQueryAdapterFormatTables(TestCase):
-
+class TestBigQueryAdapterFormatTables:
     gcp_project = "avaus-academy"
     config = ConfigParser()
     config.set(section="DEFAULT", option="gcp_project", value=gcp_project)

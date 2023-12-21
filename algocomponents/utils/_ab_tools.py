@@ -1,27 +1,16 @@
-import math
+from typing import Tuple
 
+import math
 from scipy import stats
 
 from algocomponents.utils import LoggieDoggie
 
 
 class ABTools:
-    """A/B testing tools
+    """A collection of methods useful in A/B-tests.
 
     ABTools contain a number of methods that are useful for conducting A/B tests
     and report results of A/B tests.
-
-    Methods:
-        get_min_sample_size_binomial():
-            Calculate the minimum sample size to set up an A/B test for a binomial metric.
-        get_min_sample_size_continuous():
-            Calculate the minimum sample size to set up an A/B test for a continuous metric.
-        get_unequal_sample_size():
-            Calculate the minimum sample size of the control group when the samples have unequal size.
-        is_significant_binomial():
-            Calculate if an A/B test with binomial metric was statistically significant (Z-test).
-        is_significant_continuous()
-            Calculate if an A/B test with continuous metric was statistically significant (Welch's t-test).
 
     """
 
@@ -152,7 +141,7 @@ class ABTools:
         self.logger.info(f"Minimum sample size of each group is: {min_n}")
         return min_n
 
-    def get_unequal_sample_size(self, N: int, N_adj: int) -> (int, int):
+    def get_unequal_sample_size(self, N: int, N_adj: int) -> Tuple[int, int]:
         """Returns the minimum sample size of the control group when the samples have unequal size.
 
         When the control and target groups are of different sizes, the total
@@ -208,7 +197,7 @@ class ABTools:
         p2: float,
         sig_level: float = _default_significance_level,
         tail: str = _default_tail,
-    ) -> (float, float):
+    ) -> Tuple[float, float]:
         """Tests the null hypothesis against the given alternative for significance:
 
         H0: p1=p2 vs HA: p1!=p2
@@ -285,7 +274,7 @@ class ABTools:
         var2,
         sig_level=_default_significance_level,
         tail=_default_tail,
-    ) -> (float, float):
+    ) -> Tuple[float, float]:
         """Welch's t-test. Unequal variance. Unequal or equal sample size.
 
         We test the null hypothesis against the given alternative:

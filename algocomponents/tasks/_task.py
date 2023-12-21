@@ -25,6 +25,7 @@ class Task(ConfigReader):
         self.task_name = self.class_name
         self.run_id = None
         self.parent = None
+        self.i_connected_the_adapter = False
 
         if sql_adapter:
             self.sql_adapter = sql_adapter
@@ -34,27 +35,20 @@ class Task(ConfigReader):
     def start(self):
         """Starts the task
 
-        This is the method to use when starting a task. This method will call
-        the three following methods in order:
+        This is the method to use when starting a task. This method will init
+        the logger, time the task, and call the three following methods:
 
             startup()
             run()
             shutdown()
 
-        The above methods are the methods other tasks overwrite with their own
-        functionality. For a Task, all of these three methods are blank.
+        The above methods are the methods other tasks will use to implement
+        their respective functionality.
 
         """
         run_start = datetime.now()
 
-        if self.parent:
-            self.run_id = self.parent.run_id
-        else:
-            self.run_id = str(uuid.uuid1())
-
-        self.logger.info(
-            f"Starting task {self.task_name} " f"with section {self.section}"
-        )
+        self.logger.info(f"Starting task {self.task_name} with section {self.section}")
         self.logger.debug(config_to_str(self.config))
 
         self.startup()
@@ -68,41 +62,46 @@ class Task(ConfigReader):
 
     def startup(self):
         """What the task needs to do before executing it's main functionality"""
-        pass
+        if self.parent:
+            self.run_id = self.parent.run_id
+        else:
+            self.run_id = str(uuid.uuid1())
+
+        if self.sql_adapter and not self.sql_adapter.is_connected():
+            self.i_connected_the_adapter = True
+            self.sql_adapter.connect()
 
     def run(self):
         """The tasks main functionality"""
         pass
 
     def shutdown(self):
-        """Disconnects the sql_adapter, if no other task will use it.
+        """What the task should do after having executed it's main functionality
 
-        We will try to disconnect if we have an adapter and it is connected.
-
-        We disconnect if either of these are true:
-            - There is no parent.
-            - The parent does not have an sql_adapter.
-            - The parent does not have the same sql_adapter.
-
-        In other words: Disconnect unless we share the adapter with our parent.
-
-        The most common scenario is that one sql_adapter is used throughout a
-        GroupTask: It passes it's sql_adapter to all it's children. Since that
-        GroupTasks shutdown() is the last method to run, and it is the only task
-        that does not have a parent, the last thing that happens is that the
-        sql_adapter is disconnected.
-
-        However, more complicated setups are supported, where as parts of a
-        task-tree have their own adapters.
+        If this adapter connected the adapter, it should also disconnect it.
+        This rule is all-encompassing for handling connecting and disconnecting
+        adapters in trees: GroupTasks connect their adapters before passing them
+        to their child tasks, so being the task that connects the adapter is the
+        same as being the root task in a task tree.
 
         """
-        if self.sql_adapter is not None and self.sql_adapter.is_connected():
-            if not self.parent:
-                self.sql_adapter.disconnect()
-            elif not hasattr(self.parent, "sql_adapter"):
-                self.sql_adapter.disconnect()
-            elif self.sql_adapter != self.parent.sql_adapter:
-                self.sql_adapter.disconnect()
+        if self.i_connected_the_adapter:
+            self.sql_adapter.disconnect()
+
+    def set_section(self, section):
+        """Set the section for this Task
+
+        This is implemented as a method in order for GroupTasks to recursively
+        set_section in a task-tree.
+
+        Args:
+            section: The section to set.
+        Raises:
+            ValueError: If the section is not in the config
+
+        """
+        self.verify_section_is_in_config(section)
+        self.section = section
 
     def set_sql_adapter(self, sql_adapter):
         """Set the SQLAdapter for this Task

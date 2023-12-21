@@ -1,0 +1,16 @@
+name: Auto-assign issue to project
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  add-to-project:
+    name: Autoassign newly opened issue to competence-development project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/orgs/AvausInternal/projects/1
+          github-token: ${{ secrets.GH_PERSONAL_TOKEN }}

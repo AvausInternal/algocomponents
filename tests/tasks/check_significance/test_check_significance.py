@@ -1,5 +1,3 @@
-import os
-from unittest import TestCase
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
@@ -14,7 +12,7 @@ class EmptySQLPipeline(SQLPipeline):
     pass
 
 
-class TestCheckSignificance(TestCase):
+class TestCheckSignificance:
     sql_pipeline = EmptySQLPipeline(sql_adapter=LocalSqliteAdapter())
 
     @classmethod

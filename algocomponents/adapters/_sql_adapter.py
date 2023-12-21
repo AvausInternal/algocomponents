@@ -6,13 +6,15 @@ from typing import Dict, List
 import pandas as pd
 
 from algocomponents.config_reader import ConfigReader
+from algocomponents.utils import require_connection
 
 
 class SQLAdapter(ConfigReader):
     """An abstract adapter used for connecting to a service and running queries.
 
-    The purpose of the sql adapter is to generalize how we set up connections to
-    different services. There will be one adapter per service.
+    The purpose of the sql adapter is to generalize how connections are set up
+    to different databases. Each type of database used in a project should have
+    it's own adapter.
 
     """
 
@@ -74,11 +76,12 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
-    @abstractmethod
+    @require_connection
     def get_table_columns(self, table: str) -> List[str]:
         """Gets the columns of a table.
 
-        Non-abstract adapters overwrite this method.
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
 
         Args:
             table: The table to look at.
@@ -87,8 +90,11 @@ class SQLAdapter(ConfigReader):
             A list with the names of the columns.
 
         """
-        pass
+        df = self.run_sql_string(sql_string=f"SELECT * FROM {table} LIMIT 1")[0]
+        # The .values part was added since converting an array to a list is way faster than doing it on an Index
+        return df.columns.values.tolist()
 
+    @require_connection
     def table_contains_columns(
         self, table: str, columns: List[str], identical: bool = False
     ) -> bool:
@@ -103,7 +109,7 @@ class SQLAdapter(ConfigReader):
             identical: Whether the given columns should be identical to the table columns.
 
         Returns:
-            True if the tables contains the columns, False otherwise
+            True if the tables contains the columns, False otherwise.
 
         """
         if len(columns) != len(set(columns)):
@@ -115,6 +121,7 @@ class SQLAdapter(ConfigReader):
         else:
             return set(columns).issubset(set(table_columns))
 
+    @require_connection
     def run_sql_file(
         self, path: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
@@ -124,18 +131,19 @@ class SQLAdapter(ConfigReader):
             path: Path to the SQL file, from project root.
             format_variables: A dictionary used to .format() the SQL string.
 
-        Return:
+        Returns:
             A list of pandas dataframes, where each pandas dataframe is the
             result of each semi colon separated query in the sql file.
 
         """
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             sql_string = f.read()
             return self.run_sql_string(
                 sql_string=sql_string,
                 format_variables=format_variables,
             )
 
+    @require_connection
     def run_sql_string(
         self, sql_string: str, format_variables: Dict[str, str] = None
     ) -> List[pd.DataFrame]:
@@ -145,11 +153,14 @@ class SQLAdapter(ConfigReader):
             sql_string: The SQL string to run. Can be several queries ;-separated.
             format_variables: A dictionary used to .format() the SQL string.
 
-        Return:
+        Returns:
             A list of pandas dataframes, where each pandas dataframe is the
-            result of each semi colon separated query in the sql file.
+            result of each semi colon separated query in the sql string.
 
         """
+        if sql_string.strip() == "":
+            raise ValueError(f"attempted to run an empty query: {sql_string}")
+
         if not format_variables:
             format_variables = {}
 
@@ -158,13 +169,12 @@ class SQLAdapter(ConfigReader):
         for query in queries:
             query = query.strip()
 
-            if not query:
+            if query == "":
                 continue
 
-            if not self.is_connected():
-                self.connect()
-
-            query = self._format_query(query=query, format_variables=format_variables)
+            query = self.format_string(
+                string=query, additional_format_variables=format_variables
+            )
             query = self._format_table_names(query=query)
             self.logger.info(f"Executing the following query: \n{query}")
 
@@ -174,6 +184,7 @@ class SQLAdapter(ConfigReader):
 
         return dataframes
 
+    @require_connection
     @abstractmethod
     def _run_formatted_query(self, query: str) -> pd.DataFrame:
         """Runs an SQL query towards whichever service this adapter is connected.
@@ -188,48 +199,6 @@ class SQLAdapter(ConfigReader):
 
         """
         pass
-
-    def _format_query(
-        self, query: str, format_variables: Dict[str, str], max_depth: int = 5
-    ) -> str:
-        """Recursively .format():s a query given a dict until it does not change.
-
-        A max depth is used, as writing a more general approach to this method
-        involves solving self-referencing problems in the format variables. For
-        example, {"a": "{b}", "b": "{a}"} which will cause "{a}" to be formatted
-        into "{b}", which will format into "{a}", etc. There are solutions, but
-        the added code complexity was deemed to not be worth it.
-
-        Args:
-            query: The string to format.
-            format_variables: A dictionary used to .format() the SQL string.
-            max_depth: Max number of times .format() will be done.
-
-        Returns:
-            The provided query, formatted.
-
-        Raises:
-            RecursionError: When .format():ing more than max_depth times and the
-                query is still changing
-
-        Examples:
-            {output_table} -> {tmp_db}.output_table -> tmp.output_table
-
-        """
-        format_variables.update(self.adapter_format_variables)
-        previous_query = ""
-        depth = 0
-        while query != previous_query:
-            previous_query = query
-            query = query.format(**format_variables)
-            depth += 1
-            if depth > max_depth:
-                raise RecursionError(
-                    f"Reached max reformatting depth of {max_depth} with:\n"
-                    f"query:\n{query}\n"
-                    f"previous_query:\n{previous_query}"
-                )
-        return query
 
     def _format_table_names(self, query: str, ignore_ctes: bool = True) -> str:
         """Run _format_table_name on all tables in a query.
@@ -429,7 +398,7 @@ class SQLAdapter(ConfigReader):
             sql: The query to remove comments from.
 
         Returns:
-            The sql without comments
+            The sql string without comments.
 
         """
         lines = sql.split("\n")
@@ -454,6 +423,7 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    @require_connection
     def table_as_pandas_df(self, table: str) -> pd.DataFrame:
         """Return all rows in a table as a pandas dataframe.
 
@@ -469,6 +439,7 @@ class SQLAdapter(ConfigReader):
         """
         return self.run_sql_string(f"SELECT * FROM {table}")[0]
 
+    @require_connection
     @abstractmethod
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
         """Creates a table and puts a pandas dataframe in it.
@@ -483,6 +454,7 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    @require_connection
     @abstractmethod
     def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
         """Inserts a pandas dataframe into a table.
@@ -508,6 +480,7 @@ class SQLAdapter(ConfigReader):
         """
         pass
 
+    @require_connection
     def table_is_empty(self, table: str) -> bool:
         """Checks whether a table is empty or not.
 
@@ -522,3 +495,20 @@ class SQLAdapter(ConfigReader):
 
         """
         return len(self.table_as_pandas_df(table)) == 0
+
+    @require_connection
+    def count_rows_in_table(self, table: str) -> int:
+        """Count the number of rows in a table.
+
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
+
+        Args:
+            table: The table to count number of rows.
+
+        Returns:
+            The number of rows as a int.
+
+        """
+        df = self.run_sql_string(sql_string=f"SELECT * FROM {table}")[0]
+        return len(df)

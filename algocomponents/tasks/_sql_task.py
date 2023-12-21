@@ -1,5 +1,6 @@
-from algocomponents.tasks import Task
 import pandas as pd
+
+from algocomponents.tasks import Task
 
 
 class SQLTask(Task):

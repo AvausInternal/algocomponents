@@ -37,6 +37,9 @@ class GroupTask(Task):
         if self.sql_adapter is not None:
             self.propagate_sql_adapter(self.sql_adapter)
 
+        if self.section_is_set:
+            self.propagate_section(self.section)
+
         if self.config is not None:
             self.propagate_config()
 
@@ -50,22 +53,55 @@ class GroupTask(Task):
             task.parent = self
             task.start()
 
-    def add_to_config(self, key, value):
-        """Recursively add values to config for the current section.
+    def add_to_config(self, key, value, recursive=True):
+        """Add values to config for the current section.
 
-        This will also call add_to_config for all tasks in the task_list. As
-        those tasks will either inherit from GroupTasks or Tasks, everything in
-        the task tree below this task will get these values added.
+        If recursive, this will also call add_to_config for all tasks
+        in the task_list. As those tasks will either inherit from GroupTasks
+        or Tasks, everything in the task tree below this task will get these
+        values added.
 
         Args:
             key: Which key to add or update.
             value: What value to give the key.
-
+            recursive: Recursively add key config, for all tasks in the tasklist
         """
         self.config[self.section][key] = str(value)
 
+        if recursive:
+            for task in self.task_list:
+                task.add_to_config(key, value)
+
+    def set_section(self, section: str):
+        """Set the section for this GroupTask and all tasks in it's task list.
+
+        As all tasks in the task list either inherit from GroupTasks or Tasks,
+        everything in the task tree below this task will get this section
+        (unless the Task or GroupTask already has a section).
+
+        Args:
+            section: The section to set.
+        Raises:
+            ValueError: If the section is not in the config
+
+        """
+        self.verify_section_is_in_config(section)
+        self.section = section
+        self.propagate_section(section)
+
+    def propagate_section(self, section: str):
+        """Propagates the section to all tasks in this GroupTasks task_list.
+
+        Unless the Task has already set it's section, this will overwrite it.
+
+        Args:
+            section: The section to set.
+
+        """
         for task in self.task_list:
-            task.add_to_config(key, value)
+            if not task.section_is_set:
+                task.set_section(section)
+                task.update_logger()
 
     def set_sql_adapter(self, sql_adapter):
         """Set the SQLAdapter for this GroupTask and all tasks in it's task list.

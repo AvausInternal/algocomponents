@@ -1,7 +1,6 @@
 import os
 import sys
 from configparser import ConfigParser
-from unittest import TestCase
 
 import pandas as pd
 
@@ -14,8 +13,7 @@ class EmptyTask(Task):
     pass
 
 
-class TestAdapterReturningPandasDataframe(TestCase):
-
+class TestAdapterReturningPandasDataframe:
     sql_adapter = LocalSqliteAdapter()
 
     def test_that_list_of_pandas_dataframe_is_returned(self):

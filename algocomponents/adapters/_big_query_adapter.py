@@ -4,15 +4,18 @@ from typing import List
 import pandas as pd
 
 from algocomponents.adapters import SQLAdapter
-from algocomponents.adapters.custom_exceptions import TableAlreadyExistsException
+from algocomponents.adapters.custom_exceptions import (
+    TableAlreadyExistsException,
+    TableMissingException,
+)
+from algocomponents.utils import require_connection
 
 
 class BigQueryAdapter(SQLAdapter):
     """Used to run queries on BigQuery.
 
-    This adapter is intended for running queries on Google BigQuery.
-    The script expects that the user is authenticated in the affected
-    gcp project using googles python client libraries and setup instructions.
+    The adapter expects that the user is authenticated in the affected gcp
+    project using googles python client libraries and setup instructions.
 
     """
 
@@ -63,6 +66,7 @@ class BigQueryAdapter(SQLAdapter):
         """
         return self.client is not None
 
+    @require_connection
     def disconnect(self):
         """Disconnects the adapter.
 
@@ -84,10 +88,10 @@ class BigQueryAdapter(SQLAdapter):
               gcp-project in the config given)
 
         Args:
-            table: The table to format.
+            table: The table string to format.
 
         Returns:
-            The provided query, with table names formatted.
+            The table name, formatted.
 
         """
         table = table.replace("`", "")
@@ -105,6 +109,7 @@ class BigQueryAdapter(SQLAdapter):
         gcp_project = self.adapter_format_variables["gcp_project"]
         return f"`{gcp_project}.{table}`"
 
+    @require_connection
     def table_exists(self, table: str) -> bool:
         """Checks whether a table exists.
 
@@ -124,6 +129,7 @@ class BigQueryAdapter(SQLAdapter):
         except NotFound:
             return False
 
+    @require_connection
     def get_table_columns(self, table: str) -> List[str]:
         """Gets the columns of a table.
 
@@ -131,7 +137,7 @@ class BigQueryAdapter(SQLAdapter):
             table: The table to look at.
 
         Returns:
-            A list of the table columns
+            A list of the table's columns
 
         """
         formatted_table = self._format_table_name(table).replace("`", "")
@@ -139,6 +145,7 @@ class BigQueryAdapter(SQLAdapter):
         columns_names = [column.name for column in schema]
         return columns_names
 
+    @require_connection
     def _run_formatted_query(self, query: str) -> pd.DataFrame:
         """Runs a query towards BigQuery.
 
@@ -190,8 +197,8 @@ class BigQueryAdapter(SQLAdapter):
         """
         # regex explanation
         match = re.findall(
-            # First, at least 1 newline or whitespace
-            r"\s+"
+            # First, at least 1 newline, whitespace or open parenthesis
+            r"[\s(]+"
             # The extract keyword, followed by some or no whitespace characters
             r"(?:extract)\s*"
             # Everything from open paranthesis to close paranthesis
@@ -278,11 +285,12 @@ class BigQueryAdapter(SQLAdapter):
         """Get the result of the latest query as a pandas dataframe.
 
         Returns:
-            A pandas dataframe of the latest query_job
+            A pandas dataframe of the latest query_job.
 
         """
         return self.query_job.to_dataframe()
 
+    @require_connection
     def pandas_df_as_table(self, df: pd.DataFrame, table: str, overwrite: bool = False):
         """Creates a table and puts a pandas dataframe in it.
 
@@ -292,7 +300,7 @@ class BigQueryAdapter(SQLAdapter):
             overwrite: Whether to overwrite an existing table, defaults to False.
 
         Raises:
-            ValueError: If the dataframe does not have column names
+            ValueError: If the dataframe does not have column names.
 
         """
         if overwrite:
@@ -305,6 +313,7 @@ class BigQueryAdapter(SQLAdapter):
                 )
             self.pandas_df_helper_method(df, table, "WRITE_TRUNCATE")
 
+    @require_connection
     def insert_pandas_df_into_table(self, df: pd.DataFrame, table: str):
         """Inserts a pandas dataframe into a table.
 
@@ -315,11 +324,12 @@ class BigQueryAdapter(SQLAdapter):
             table: The table where you want to insert it.
 
         Raises:
-            ValueError: If the dataframe does not have column names
+            ValueError: If the dataframe does not have column names.
 
         """
         self.pandas_df_helper_method(df, table, "WRITE_APPEND")
 
+    @require_connection
     def pandas_df_helper_method(
         self, df: pd.DataFrame, table: str, write_disposition: str
     ):
@@ -331,7 +341,7 @@ class BigQueryAdapter(SQLAdapter):
             write_disposition: BigQuery argument for handling existing tables.
 
         Raises:
-            ValueError: If the dataframe does not have column names
+            ValueError: If the dataframe does not have column names.
 
         """
         job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
@@ -355,3 +365,21 @@ class BigQueryAdapter(SQLAdapter):
         """
         dataframe = self.latest_query_as_pandas()
         dataframe.to_csv(path)
+
+    @require_connection
+    def count_rows_in_table(self, table: str) -> int:
+        """Count the number of rows in a table.
+
+        Args:
+            table: The table to count number of rows.
+
+        Returns:
+            The number of rows as a int.
+
+        """
+        if not self.table_exists(table):
+            raise TableMissingException(f"Table {table} does not exist.")
+        else:
+            return self.run_sql_string(f"SELECT count(*) as row_count FROM {table}")[0][
+                "row_count"
+            ].iloc[0]

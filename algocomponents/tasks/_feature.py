@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from configparser import ConfigParser
 from typing import List
 
-from algocomponents.adapters import SQLAdapter
 from algocomponents.adapters.custom_exceptions import (
     TableMissingException,
     DataMismatchException,
@@ -58,9 +56,6 @@ class Feature(FeatureBase, ABC):
 
         """
         super().startup()
-        if not self.sql_adapter.is_connected():
-            self.sql_adapter.connect()
-
         if not self.sql_adapter.table_exists(self.input_table):
             raise TableMissingException(
                 f"Input table does not exist: {self.input_table}"

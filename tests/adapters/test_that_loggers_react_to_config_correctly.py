@@ -1,7 +1,6 @@
 import logging
 import os
 from typing import List
-from unittest import TestCase
 
 import pandas as pd
 
@@ -49,9 +48,11 @@ class CustomAdapter(SQLAdapter):
     def latest_query_as_csv(self, path: str):
         pass
 
+    def count_rows_in_table(self, table: str):
+        pass
 
-class TestThatLoggersReactToConfigCorrectly(TestCase):
 
+class TestThatLoggersReactToConfigCorrectly:
     global_config_dir = os.path.join("tests", "adapters", "logging_test_config")
 
     def test_that_task_gets_correct_logger(self):

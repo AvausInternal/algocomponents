@@ -56,7 +56,6 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
 
     sql_adapter = _get_adapter(adapter_type)
     if sql_adapter is not None:
-        sql_adapter.connect()
         task = classes_in_module[0](
             section=section, sql_adapter=sql_adapter, **task_kwargs
         )
@@ -88,7 +87,6 @@ def _find_modules(ignored_files, ignored_dirs) -> Dict[str, str]:
     modules_found = {}
     current_dir = os.getcwd()
     for root, _, files in os.walk(current_dir):
-
         # root/path/project/path
         relative_path = root[len(current_dir) + 1 :]
         # project/path

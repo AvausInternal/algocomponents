@@ -1,12 +1,10 @@
 import os
-from unittest import TestCase
 
 from algocomponents.adapters import LocalSqliteAdapter
 from algocomponents.tasks import SQLTask
 
 
-class TestAdapterHelperMethods(TestCase):
-
+class TestAdapterHelperMethods:
     sql_adapter = LocalSqliteAdapter(
         global_config_dir=os.path.join("tests", "adapters", "config"),
     )

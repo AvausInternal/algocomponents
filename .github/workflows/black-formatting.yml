@@ -3,6 +3,10 @@ on:
   # Triggers the workflow on pull request events but only for the "develop" branch
   pull_request:
     branches: [ "develop" ]
+    
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest

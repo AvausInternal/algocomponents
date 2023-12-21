@@ -19,7 +19,10 @@ jobs:
           pip install pandas
           pip install scipy
           pip install plotly
-          pip install kaleido
+          pip install matplotlib
+          pip install seaborn
+          pip install scikit-learn
+          pip install joblib
       - name: Test with pytest
         run: |
           pytest
