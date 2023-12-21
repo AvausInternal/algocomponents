@@ -2,16 +2,17 @@ from setuptools import setup
 
 setup(
     name="algocomponents",
-    version="0.9.0",
+    version="1.0.0",
     packages=[
         "algocomponents",
         "algocomponents.tasks",
         "algocomponents.tasks.check_significance",
         "algocomponents.tasks.check_significance.sql",
+        "algocomponents.tasks.downsample_table",
+        "algocomponents.tasks.downsample_table.sql",
         "algocomponents.tasks.evaluate_prediction",
         "algocomponents.tasks.evaluate_prediction.sql",
         "algocomponents.tasks.model_trainers",
-        "algocomponents.tasks.synthesize_table",
         "algocomponents.tasks.stratify_groups",
         "algocomponents.tasks.stratify_groups.sql",
         "algocomponents.tasks.stratify_groups.sqlite",
