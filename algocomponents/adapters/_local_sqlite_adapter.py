@@ -30,7 +30,10 @@ class LocalSqliteAdapter(SQLAdapter):
         commit_queries: bool = True,
         **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            adapter_config_file="local_sqlite_adapter_config.ini",
+            **kwargs,
+        )
         self.commit_queries = commit_queries
         self.db_path = self.db_file
         self.connection = None

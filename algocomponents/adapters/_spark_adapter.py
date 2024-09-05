@@ -19,7 +19,11 @@ class SparkAdapter(SQLAdapter):
         self,
         **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            adapter_config_file="spark_adapter_config.ini",
+            **kwargs,
+        )
+
         self.spark = None
         self.sdf = None
 

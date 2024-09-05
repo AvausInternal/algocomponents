@@ -66,6 +66,8 @@ class ConfigReader(ABC):
             self.classpath = ""
 
         self.config = ConfigParser()
+        self.global_config_dir = global_config_dir
+        self.local_config_dir = local_config_dir
 
         # First read global config
         self.config.read(os.path.join(global_config_dir, "config.ini"))

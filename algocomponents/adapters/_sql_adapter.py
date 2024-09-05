@@ -1,3 +1,4 @@
+import os
 import re
 import uuid
 from abc import abstractmethod
@@ -16,12 +17,25 @@ class SQLAdapter(ConfigReader):
     to different databases. Each type of database used in a project should have
     it's own adapter.
 
+    SQLAdapters also have their own config files. They are not necessary, but
+    if present they take priority over other config files.
+
     """
 
     default_max_rows_displayed = 20
 
-    def __init__(self, **kwargs):
+    def __init__(self, adapter_config_file: str = None, **kwargs):
         super().__init__(**kwargs)
+
+        if adapter_config_file:
+            # Also read the SQLAdapter config globally
+            self.config.read(os.path.join(self.global_config_dir, adapter_config_file))
+
+            # Then also read the SQLAdapter config locally
+            self.config.read(
+                os.path.join(self.classpath, self.local_config_dir, adapter_config_file)
+            )
+
         if self.class_name in self.config:
             self.adapter_format_variables = self.config[self.class_name]
         else:

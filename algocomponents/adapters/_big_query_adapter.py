@@ -23,7 +23,10 @@ class BigQueryAdapter(SQLAdapter):
         self,
         **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            adapter_config_file="biq_query_adapter_config.ini",
+            **kwargs,
+        )
         self.client = None
         self.connected = False
         self.query_job = None
