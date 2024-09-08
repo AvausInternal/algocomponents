@@ -36,10 +36,7 @@ class SQLAdapter(ConfigReader):
                 os.path.join(self.classpath, self.local_config_dir, adapter_config_file)
             )
 
-        if self.class_name in self.config:
-            self.adapter_format_variables = self.config[self.class_name]
-        else:
-            self.adapter_format_variables = self.config[self.section]
+        self.format_variables = self.config[self.section]
 
         if "max_rows_displayed" in self.config[self.section]:
             self.max_rows_displayed = int(
