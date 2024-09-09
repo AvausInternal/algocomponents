@@ -18,6 +18,9 @@ class LocalSqliteAdapter(SQLAdapter):
     purposes. Such as mocking a number of queries, testing out a pipeline
     structure, etc.
 
+    Also reads the config file local_sqlite_adapter_config.ini in global and
+    local config folders, if present.
+
     Args:
         commit_queries: Whether tables created should remain once disconnected.
 

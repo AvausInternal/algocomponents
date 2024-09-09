@@ -17,6 +17,9 @@ class BigQueryAdapter(SQLAdapter):
     The adapter expects that the user is authenticated in the affected gcp
     project using googles python client libraries and setup instructions.
 
+    Also reads the config file biq_query_adapter_config.ini in global and local
+    config folders, if present.
+
     """
 
     def __init__(

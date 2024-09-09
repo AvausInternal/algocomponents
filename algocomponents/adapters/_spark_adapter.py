@@ -13,6 +13,9 @@ class SparkAdapter(SQLAdapter):
     with. In case it does not work, consider creating a new class that
     overwrites the connect(), is_connected() and disconnect()-methods.
 
+    Also reads the config file spark_adapter_config.ini in global and local
+    config folders, if present.
+
     """
 
     def __init__(
