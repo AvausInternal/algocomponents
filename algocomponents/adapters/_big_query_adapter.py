@@ -17,13 +17,19 @@ class BigQueryAdapter(SQLAdapter):
     The adapter expects that the user is authenticated in the affected gcp
     project using googles python client libraries and setup instructions.
 
+    Also reads the config file biq_query_adapter_config.ini in global and local
+    config folders, if present.
+
     """
 
     def __init__(
         self,
         **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            adapter_config_file="biq_query_adapter_config.ini",
+            **kwargs,
+        )
         self.client = None
         self.connected = False
         self.query_job = None
@@ -96,7 +102,7 @@ class BigQueryAdapter(SQLAdapter):
         """
         table = table.replace("`", "")
 
-        if "gcp_project" not in list(self.adapter_format_variables):
+        if "gcp_project" not in list(self.format_variables):
             self.logger.info(
                 "The BigQueryAdapter does not have a gcp_project, tables are not formatted"
             )
@@ -106,7 +112,7 @@ class BigQueryAdapter(SQLAdapter):
             self.logger.info("Using the gcp project already present in the table name")
             return f"`{table}`"
 
-        gcp_project = self.adapter_format_variables["gcp_project"]
+        gcp_project = self.format_variables["gcp_project"]
         return f"`{gcp_project}.{table}`"
 
     @require_connection
