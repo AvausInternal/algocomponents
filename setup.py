@@ -8,7 +8,7 @@ def load_requirements(path):
 
 setup(
     name="algocomponents",
-    version="1.0.0",
+    version="1.0.1",
     packages=[
         "algocomponents",
         "algocomponents.tasks",
