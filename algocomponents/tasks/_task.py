@@ -19,6 +19,8 @@ class Task(ConfigReader):
 
     """
 
+    _sql_adapter = None  # Global SQL Adapter used
+
     def __init__(self, sql_adapter: SQLAdapter = None, **kwargs):
         super().__init__(**kwargs)
 
@@ -29,8 +31,10 @@ class Task(ConfigReader):
 
         if sql_adapter:
             self.sql_adapter = sql_adapter
-        if not hasattr(self, "sql_adapter"):
-            self.sql_adapter = None
+            if Task._sql_adapter is None:
+                Task._sql_adapter = sql_adapter
+        else:
+            self.sql_adapter = Task._sql_adapter
 
     def start(self):
         """Starts the task

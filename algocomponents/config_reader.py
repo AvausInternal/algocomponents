@@ -37,6 +37,7 @@ class ConfigReader(ABC):
     """
 
     _default_section = "DEFAULT"
+    _section = None
 
     def __init__(
         self,
@@ -55,9 +56,13 @@ class ConfigReader(ABC):
         if section:
             self.section_is_set = True
             self.section = section
+            if ConfigReader._section is None:
+                ConfigReader._section = section
         else:
             self.section_is_set = False
-            self.section = self._default_section
+            if ConfigReader._section is None:
+                ConfigReader._section = ConfigReader._default_section
+            self.section = ConfigReader._section
 
         module = sys.modules[self.__class__.__module__]
         if hasattr(module, "__file__"):
