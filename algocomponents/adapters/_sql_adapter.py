@@ -25,16 +25,11 @@ class SQLAdapter(ConfigReader):
     default_max_rows_displayed = 20
 
     def __init__(self, adapter_config_file: str = None, **kwargs):
-        super().__init__(**kwargs)
-
         if adapter_config_file:
-            # Also read the SQLAdapter config globally
-            self.config.read(os.path.join(self.global_config_dir, adapter_config_file))
-
-            # Then also read the SQLAdapter config locally
-            self.config.read(
-                os.path.join(self.classpath, self.local_config_dir, adapter_config_file)
-            )
+            config_files = ConfigReader._default_config_files + [adapter_config_file]
+        else:
+            config_files = ConfigReader._default_config_files
+        super().__init__(config_files=config_files, **kwargs)
 
         self.format_variables = self.config[self.section]
 

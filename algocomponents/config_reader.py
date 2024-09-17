@@ -2,7 +2,7 @@ import os
 import sys
 from abc import ABC
 from configparser import ConfigParser
-from typing import Dict
+from typing import Dict, List
 
 from algocomponents.utils import LoggieDoggie, merge_configs
 
@@ -37,11 +37,13 @@ class ConfigReader(ABC):
     """
 
     _default_section = "DEFAULT"
+    _default_config_files = ["config.ini"]
 
     def __init__(
         self,
         global_config_dir: str = "config",
         local_config_dir: str = "config",
+        config_files: List[str] = None,
         config: ConfigParser = None,
         section: str = None,
     ):
@@ -68,12 +70,16 @@ class ConfigReader(ABC):
         self.config = ConfigParser()
         self.global_config_dir = global_config_dir
         self.local_config_dir = local_config_dir
+        self.config_files = config_files or ConfigReader._default_config_files
 
-        # First read global config
-        self.config.read(os.path.join(global_config_dir, "config.ini"))
+        for config_file in self.config_files:
+            # First read global config
+            self.config.read(os.path.join(global_config_dir, config_file))
 
-        # Then append or overwrite from the local config file
-        self.config.read(os.path.join(self.classpath, local_config_dir, "config.ini"))
+            # Then append or overwrite from the local config file
+            self.config.read(
+                os.path.join(self.classpath, local_config_dir, config_file)
+            )
 
         # Then append or overwrite from a passed config
         if config is not None:
