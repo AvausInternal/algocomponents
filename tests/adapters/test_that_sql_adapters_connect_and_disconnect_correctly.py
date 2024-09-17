@@ -4,6 +4,7 @@ from algocomponents.tasks import Task, GroupTask
 
 class TestThatSQLAdaptersConnectAndDisconnectCorrectly:
     def test_that_an_adapter_task_works_with_none_adapter(self):
+        Tas
         task = Task(sql_adapter=None)
         task.start()
         assert task.sql_adapter is None

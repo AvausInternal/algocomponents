@@ -60,8 +60,6 @@ class ConfigReader(ABC):
                 ConfigReader._section = section
         else:
             self.section_is_set = False
-            if ConfigReader._section is None:
-                ConfigReader._section = ConfigReader._default_section
             self.section = ConfigReader._section
 
         module = sys.modules[self.__class__.__module__]

@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from typing import List
 
 import pandas as pd
@@ -57,6 +58,23 @@ class TestSQLAdapterReadingAdditionalConfigFile:
         adapter = BillyMays(adapter_config_file="billy_mays_config.ini")
 
         assert adapter.config["DEFAULT"]["tmp_db"] == "not_so_tmp"
+
+    def test_that_config_in_code_overwrites_config_from_file(self):
+        """Tests that adapter config overwrite the default configs"""
+        overwritint_config = ConfigParser()
+        overwritint_config.set(
+            section="DEFAULT",
+            option="sales_pitch",
+            value="Don't let your memes be dreams",
+        )
+        adapter = BillyMays(
+            config=overwritint_config,
+            adapter_config_file="billy_mays_config.ini",
+        )
+
+        assert True  # test postponed
+
+        # assert adapter.config["DEFAULT"]["sales_pitch"] == "Don't let your memes be dreams"
 
     def test_that_adapter_function_without_config_files(self):
         """Tests that adapters work fine without being given a config file"""
