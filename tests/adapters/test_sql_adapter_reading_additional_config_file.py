@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from typing import List
 
 import pandas as pd
@@ -63,3 +64,15 @@ class TestSQLAdapterReadingAdditionalConfigFile:
         adapter = BillyMays()
 
         assert adapter.config["DEFAULT"]["tmp_db"] == "tmp"
+
+    def test_that_passed_config_still_takes_priority(self):
+        """Tests that passed config takes precedence over adapter config files"""
+        special_config = ConfigParser()
+        special_config["DEFAULT"]["tmp_db"] = "Literally production"
+        adapter = BillyMays(
+            adapter_config_file="billy_mays_config.ini",
+            config=special_config,
+        )
+
+        assert adapter.config["DEFAULT"]["sales_pitch"] == "But wait, there's more!"
+        assert adapter.config["DEFAULT"]["tmp_db"] == "Literally production"
