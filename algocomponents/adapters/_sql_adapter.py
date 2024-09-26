@@ -518,3 +518,20 @@ class SQLAdapter(ConfigReader):
         """
         df = self.run_sql_string(sql_string=f"SELECT * FROM {table}")[0]
         return len(df)
+
+    @require_connection
+    def check_table_has_rows(self, table: str) -> bool:
+        """Checks that there is at least 1 rows in a table
+
+        Adapters may overwrite this method if they have more efficient methods
+        of doing this.
+
+        Args:
+            table: The table to check whether it has at least 1 row
+
+        Returns:
+            True if there is at least 1 row, False otherwise
+
+        """
+        df = self.run_sql_string(sql_string=f"SELECT * FROM {table}")[0]
+        return len(df) == 1
