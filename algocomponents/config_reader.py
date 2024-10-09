@@ -2,7 +2,7 @@ import os
 import sys
 from abc import ABC
 from configparser import ConfigParser
-from typing import Dict
+from typing import Dict, List
 
 from algocomponents.utils import LoggieDoggie, merge_configs
 
@@ -31,17 +31,21 @@ class ConfigReader(ABC):
     Args:
         global_config_dir: Path from project root to global config.ini-file.
         local_config_dir: Relative path to local config.ini-file.
+        config_files: Names of config files to read. Config from files later in
+            the list overwrite earlier elements. Defaults to ["config.ini"]
         config: A passed ConfigParser object, which overwrites any files read.
         section: Which section of the ConfigParsers should be read from.
 
     """
 
     _default_section = "DEFAULT"
+    _default_config_files = ["config.ini"]
 
     def __init__(
         self,
         global_config_dir: str = "config",
         local_config_dir: str = "config",
+        config_files: List[str] = None,
         config: ConfigParser = None,
         section: str = None,
     ):
@@ -66,12 +70,18 @@ class ConfigReader(ABC):
             self.classpath = ""
 
         self.config = ConfigParser()
+        self.global_config_dir = global_config_dir
+        self.local_config_dir = local_config_dir
+        self.config_files = config_files or ConfigReader._default_config_files
 
-        # First read global config
-        self.config.read(os.path.join(global_config_dir, "config.ini"))
+        for config_file in self.config_files:
+            # First read global config
+            self.config.read(os.path.join(global_config_dir, config_file))
 
-        # Then append or overwrite from the local config file
-        self.config.read(os.path.join(self.classpath, local_config_dir, "config.ini"))
+            # Then append or overwrite from the local config file
+            self.config.read(
+                os.path.join(self.classpath, local_config_dir, config_file)
+            )
 
         # Then append or overwrite from a passed config
         if config is not None:

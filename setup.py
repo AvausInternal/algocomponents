@@ -1,8 +1,14 @@
 from setuptools import setup
 
+
+def load_requirements(path):
+    with open(path, "r") as file:
+        return [line.strip() for line in file if line and not line.startswith("#")]
+
+
 setup(
     name="algocomponents",
-    version="1.0.0",
+    version="1.0.1",
     packages=[
         "algocomponents",
         "algocomponents.tasks",
@@ -21,23 +27,7 @@ setup(
         "algocomponents.utils",
         "algocomponents.adapters",
     ],
-    install_requires=[
-        "google-cloud-bigquery==3.3.2",
-        "pandas==1.4.3",
-        "protobuf==4.21.6",
-        "pyspark==3.3.0",
-        "pytest==7.1.2",
-        "setuptools==63.2.0",
-        "db-dtypes",
-        "scipy==1.9.1",
-        "numpy==1.23.4",
-        "plotly==5.10.0",
-        "matplotlib==3.6.2",
-        "seaborn==0.12.0",
-        "scikit-learn==1.1.2",
-        "joblib==1.2.0",
-        "xgboost==2.0.2",
-    ],
+    install_requires=load_requirements("requirements.txt"),
     package_data={"": ["*.sql"]},
     url="",
     license="",
