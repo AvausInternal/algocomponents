@@ -58,20 +58,35 @@ class DataTransferTask(Task):
         self.to_table = to_table
         self.overwrite = overwrite
 
+        self.i_connected_the_from_adapter = False
+        self.i_connected_the_to_adapter = False
+
+    def startup(self):
+        super().startup()
+
+        if self.from_adapter and not self.from_adapter.is_connected():
+            self.i_connected_the_from_adapter = True
+            self.from_adapter.connect()
+
+        if self.to_adapter and not self.to_adapter.is_connected():
+            self.i_connected_the_to_adapter = True
+            self.to_adapter.connect()
+
     def run(self):
         if self.from_table is not None:
+            from_table_formatted = self.from_adapter.format_string(self.from_table)
+            to_table_formatted = self.to_adapter.format_string(self.to_table)
             self.logger.info(
-                f"Copying table: {self.from_table}({self.from_adapter.class_name}) to table: {self.to_table}({self.to_adapter.class_name})"
+                f"Copying table: {self.from_table}, formatted as {from_table_formatted}, "
+                f"using {self.from_adapter.class_name},"
+                f"into table: {self.to_table}, formatted as {to_table_formatted}, "
+                f"using adapter {self.to_adapter.class_name}"
             )
-            self.from_adapter.connect()
-            dataframe = self.from_adapter.table_as_pandas_df(self.from_table)
-            self.from_adapter.disconnect()
+            dataframe = self.from_adapter.table_as_pandas_df(from_table_formatted)
 
-            self.to_adapter.connect()
             self.to_adapter.pandas_df_as_table(
-                df=dataframe, table=self.to_table, overwrite=self.overwrite
+                df=dataframe, table=to_table_formatted, overwrite=self.overwrite
             )
-            self.to_adapter.disconnect()
 
         else:
             self.logger.info(
@@ -89,8 +104,13 @@ class DataTransferTask(Task):
                 .as_pandas()
             )
             # Create table from pandas df
-            self.to_adapter.connect()
             self.to_adapter.pandas_df_as_table(
                 df=dataframe, table=self.to_table, overwrite=self.overwrite
             )
+
+    def shutdown(self):
+        if self.i_connected_the_from_adapter:
+            self.from_adapter.disconnect()
+
+        if self.i_connected_the_to_adapter:
             self.to_adapter.disconnect()
