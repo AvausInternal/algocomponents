@@ -77,6 +77,9 @@ class TestAdapterReturningPandasDataframe:
         df = self.sql_adapter.table_as_pandas_df("test_table_as_pandas")
         assert df.shape[0] == 30
 
+        df = self.sql_adapter.table_as_pandas_df("test_table_as_pandas", max_rows=10)
+        assert df.shape[0] == 10
+
     def test_table_is_empty_empty_table(self):
         self.sql_adapter.connect()
         module = sys.modules[self.__class__.__module__]
