@@ -430,7 +430,7 @@ class SQLAdapter(ConfigReader):
         pass
 
     @require_connection
-    def table_as_pandas_df(self, table: str) -> pd.DataFrame:
+    def table_as_pandas_df(self, table: str, max_rows: int = None) -> pd.DataFrame:
         """Return all rows in a table as a pandas dataframe.
 
         Adapters may overwrite this method if they have more efficient methods
@@ -438,12 +438,16 @@ class SQLAdapter(ConfigReader):
 
         Args:
             table: The table to return as a pandas dataframe.
+            max_rows: The max number of rows to get from the table.
 
         Returns:
             The table as a pandas dataframe.
 
         """
-        return self.run_sql_string(f"SELECT * FROM {table}")[0]
+        if max_rows:
+            return self.run_sql_string(f"SELECT * FROM {table} LIMIT {max_rows}")[0]
+        else:
+            return self.run_sql_string(f"SELECT * FROM {table}")[0]
 
     @require_connection
     @abstractmethod
