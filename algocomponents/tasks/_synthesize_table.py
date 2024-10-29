@@ -1,10 +1,11 @@
-from itertools import product
-from random import shuffle
+import random
+from datetime import timedelta
 from typing import List
 
 import pandas as pd
 
 from algocomponents.tasks import Task
+from algocomponents.utils._tools import deterministic_hash_int, deterministic_hash_str
 
 
 class SynthesizeTable(Task):
@@ -53,25 +54,70 @@ class SynthesizeTable(Task):
         self.hash_columns = hash_columns or []
 
     def run(self):
-        df = self.sql_adapter.table_as_pandas_df(self.input_table)
+        self.logger.info(
+            f"Synthesizing table {self.input_table} into {self.output_table}"
+        )
+        df = self.sql_adapter.table_as_pandas_df(
+            self.input_table, max_rows=self.max_rows
+        )
         distinct_values = {}
 
         for column in df.columns:
             distinct_values[column] = df[column].unique()[: self.max_values_per_column]
 
-        cross_join = list(product(*list(distinct_values.values())))
+        sampled_rows = []
 
-        shuffle(cross_join)
-        df = pd.DataFrame(
-            cross_join[: self.max_rows], columns=list(distinct_values.keys())
+        for _ in range(self.max_rows):
+            sampled_row = [random.choice(distinct_values[col]) for col in df.columns]
+            sampled_rows.append(sampled_row)
+
+        synthesized_df = pd.DataFrame(
+            sampled_rows, columns=list(distinct_values.keys())
         )
 
+        synthesized_df = synthesized_df.sample(frac=1).reset_index(drop=True)
+
         for column in self.row_number_columns:
-            df[column] = df.index % self.max_values_per_column
+            synthesized_df[column] = synthesized_df.index % self.max_values_per_column
+
+        two_years_in_seconds = 2 * 365 * 24 * 60 * 60
+        end_date = pd.Timestamp.today().normalize()
 
         for column in self.hash_columns:
-            df[column] = df[column].astype(str).apply(hash)
+            original_dtype = synthesized_df[column].dtype
+
+            if pd.api.types.is_integer_dtype(original_dtype):
+                synthesized_df[column] = synthesized_df[column].apply(
+                    lambda x: deterministic_hash_int(x, column) % 1_000_00
+                )
+
+            elif pd.api.types.is_float_dtype(original_dtype):
+                synthesized_df[column] = synthesized_df[column].apply(
+                    lambda x: (deterministic_hash_int(x, column) % 10_000) / 100.0
+                )
+
+            elif pd.api.types.is_bool_dtype(original_dtype):
+                synthesized_df[column] = synthesized_df[column].apply(
+                    lambda x: (deterministic_hash_int(x, column) % 2) == 0
+                )
+
+            elif pd.api.types.is_datetime64_any_dtype(original_dtype):
+                synthesized_df[column] = synthesized_df[column].apply(
+                    lambda x: end_date
+                    - timedelta(
+                        seconds=deterministic_hash_int(x, column) % two_years_in_seconds
+                    )
+                )
+
+            else:
+                synthesized_df[column] = synthesized_df[column].apply(
+                    lambda x: deterministic_hash_str(x, column, length=16)
+                )
+
+        self.logger.info(
+            f"Creating output table from dataframe:\n{synthesized_df.head()}"
+        )
 
         self.sql_adapter.pandas_df_as_table(
-            df=df, table=self.output_table, overwrite=self.overwrite
+            df=synthesized_df, table=self.output_table, overwrite=self.overwrite
         )
