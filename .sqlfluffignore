@@ -1,3 +1,4 @@
 algocomponents/tasks/task_verifier/sql/differences_in_two_table.sql
 algocomponents/tasks/evaluate_prediction/sql/1_tmp_threshold_table.sql
 tests/adapters/big_query_adapter_format_queries/query_like_table.sql
+tests/tasks/synthesize_table/synthesization_test_queries/create_datatype_table.sql
