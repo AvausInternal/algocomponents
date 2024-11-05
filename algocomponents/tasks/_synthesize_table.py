@@ -87,9 +87,16 @@ class SynthesizeTable(Task):
             original_dtype = synthesized_df[column].dtype
 
             if pd.api.types.is_integer_dtype(original_dtype):
-                synthesized_df[column] = synthesized_df[column].apply(
-                    lambda x: deterministic_hash_int(x, column) % 1_000_00
-                )
+                # In some cases, bool is saved as integers with the value 0 or 1
+                # If this is such a column, only create such integers
+                if df[column].max() <= 1 and df[column].min() >= 0:
+                    synthesized_df[column] = synthesized_df[column].apply(
+                        lambda x: deterministic_hash_int(x, column) % 2
+                    )
+                else:
+                    synthesized_df[column] = synthesized_df[column].apply(
+                        lambda x: deterministic_hash_int(x, column) % 1_000_00
+                    )
 
             elif pd.api.types.is_float_dtype(original_dtype):
                 synthesized_df[column] = synthesized_df[column].apply(
