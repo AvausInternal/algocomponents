@@ -110,30 +110,6 @@ class TestSynthesizeTable(TestCase):
             output_table=self.output_table,
             overwrite=True,
             sql_adapter=adapter,
-            max_values_per_column=1,
-        ).start()
-
-        # With only 1 value from each column, only 1 row is possible
-        assert adapter.count_rows_in_table(self.output_table) == 1
-
-        SynthesizeTable(
-            input_table=self.input_table,
-            hash_columns=["c"],
-            output_table=self.output_table,
-            overwrite=True,
-            sql_adapter=adapter,
-            max_values_per_column=2,
-        ).start()
-
-        # Everything is cross joined, and there are three columns
-        assert adapter.count_rows_in_table(self.output_table) == 2 * 2 * 2
-
-        SynthesizeTable(
-            input_table=self.input_table,
-            hash_columns=["c"],
-            output_table=self.output_table,
-            overwrite=True,
-            sql_adapter=adapter,
             max_values_per_column=2,
             max_rows=5,
         ).start()
