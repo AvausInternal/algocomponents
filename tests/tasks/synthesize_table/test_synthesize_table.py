@@ -118,3 +118,37 @@ class TestSynthesizeTable(TestCase):
 
         adapter.run_sql_string(f"DROP TABLE {self.output_table}")
         adapter.disconnect()
+
+    def test_max_values_per_column(self):
+        adapter = LocalSqliteAdapter()
+        adapter.connect()
+        adapter.run_sql_file(self.setup_sql_path)
+
+        SynthesizeTable(
+            input_table=self.input_table,
+            hash_columns=["c"],
+            output_table=self.output_table,
+            overwrite=True,
+            sql_adapter=adapter,
+            max_values_per_column=1,
+        ).start()
+
+        output_df = adapter.table_as_pandas_df(self.output_table)
+        single_value_columns = output_df.nunique() == 1
+        assert single_value_columns.all()
+
+        SynthesizeTable(
+            input_table=self.input_table,
+            hash_columns=["c"],
+            output_table=self.output_table,
+            overwrite=True,
+            sql_adapter=adapter,
+            max_values_per_column=2,
+        ).start()
+
+        output_df = adapter.table_as_pandas_df(self.output_table)
+        single_value_columns = output_df.nunique() == 2
+        assert single_value_columns.all()
+
+        adapter.run_sql_string(f"DROP TABLE {self.output_table}")
+        adapter.disconnect()
