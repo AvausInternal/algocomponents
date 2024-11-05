@@ -11,14 +11,14 @@ class TestSynthesizeTable(TestCase):
         "tasks",
         "synthesize_table",
         "synthesization_test_queries",
-        "1_create_test_table.sql",
+        "create_test_table.sql",
     )
     setup_sql_path_two = os.path.join(
         "tests",
         "tasks",
         "synthesize_table",
         "synthesization_test_queries",
-        "2_create_datatype_table.sql",
+        "create_datatype_table.sql",
     )
     input_table_one = "synthesization_test"
     input_table_two = "synthesization_datatype_test"
