@@ -6,23 +6,31 @@ from algocomponents.tasks import SynthesizeTable
 
 
 class TestSynthesizeTable(TestCase):
-    setup_sql_path = os.path.join(
+    setup_sql_path_one = os.path.join(
         "tests",
         "tasks",
         "synthesize_table",
         "synthesization_test_queries",
-        "1_create_test_table.sql",
+        "create_test_table.sql",
     )
-    input_table = "synthesization_test"
+    setup_sql_path_two = os.path.join(
+        "tests",
+        "tasks",
+        "synthesize_table",
+        "synthesization_test_queries",
+        "create_datatype_table.sql",
+    )
+    input_table_one = "synthesization_test"
+    input_table_two = "synthesization_datatype_test"
     output_table = "synthesization_output"
 
     def test_run_synthesization_task(self):
         adapter = LocalSqliteAdapter()
         adapter.connect()
-        adapter.run_sql_file(self.setup_sql_path)
+        adapter.run_sql_file(self.setup_sql_path_one)
 
         SynthesizeTable(
-            input_table=self.input_table,
+            input_table=self.input_table_one,
             hash_columns=["c"],
             output_table=self.output_table,
             overwrite=True,
@@ -37,10 +45,10 @@ class TestSynthesizeTable(TestCase):
     def test_that_hashing_maintains_column_types(self):
         adapter = LocalSqliteAdapter()
         adapter.connect()
-        adapter.run_sql_file(self.setup_sql_path)
+        adapter.run_sql_file(self.setup_sql_path_one)
 
         SynthesizeTable(
-            input_table=self.input_table,
+            input_table=self.input_table_one,
             hash_columns=["c"],
             output_table=self.output_table,
             overwrite=True,
@@ -49,7 +57,7 @@ class TestSynthesizeTable(TestCase):
 
         assert adapter.table_exists(self.output_table)
 
-        input_table_df = adapter.table_as_pandas_df(self.input_table)
+        input_table_df = adapter.table_as_pandas_df(self.input_table_one)
         output_table_df = adapter.table_as_pandas_df(self.output_table)
 
         input_column_set = set(input_table_df["c"].tolist())
@@ -65,10 +73,10 @@ class TestSynthesizeTable(TestCase):
     def test_that_row_number_columns_work(self):
         adapter = LocalSqliteAdapter()
         adapter.connect()
-        adapter.run_sql_file(self.setup_sql_path)
+        adapter.run_sql_file(self.setup_sql_path_one)
 
         SynthesizeTable(
-            input_table=self.input_table,
+            input_table=self.input_table_one,
             row_number_columns=["b"],
             output_table=self.output_table,
             overwrite=True,
@@ -77,7 +85,7 @@ class TestSynthesizeTable(TestCase):
 
         assert adapter.table_exists(self.output_table)
 
-        input_table_df = adapter.table_as_pandas_df(self.input_table)
+        input_table_df = adapter.table_as_pandas_df(self.input_table_one)
         output_table_df = adapter.table_as_pandas_df(self.output_table)
 
         # Can't really test anything else: Due to randomness, we cannot check
@@ -91,10 +99,10 @@ class TestSynthesizeTable(TestCase):
     def test_that_n_rows_changes(self):
         adapter = LocalSqliteAdapter()
         adapter.connect()
-        adapter.run_sql_file(self.setup_sql_path)
+        adapter.run_sql_file(self.setup_sql_path_one)
 
         SynthesizeTable(
-            input_table=self.input_table,
+            input_table=self.input_table_one,
             hash_columns=["c"],
             output_table=self.output_table,
             overwrite=True,
@@ -105,31 +113,7 @@ class TestSynthesizeTable(TestCase):
         assert adapter.count_rows_in_table(self.output_table) == 3
 
         SynthesizeTable(
-            input_table=self.input_table,
-            hash_columns=["c"],
-            output_table=self.output_table,
-            overwrite=True,
-            sql_adapter=adapter,
-            max_values_per_column=1,
-        ).start()
-
-        # With only 1 value from each column, only 1 row is possible
-        assert adapter.count_rows_in_table(self.output_table) == 1
-
-        SynthesizeTable(
-            input_table=self.input_table,
-            hash_columns=["c"],
-            output_table=self.output_table,
-            overwrite=True,
-            sql_adapter=adapter,
-            max_values_per_column=2,
-        ).start()
-
-        # Everything is cross joined, and there are three columns
-        assert adapter.count_rows_in_table(self.output_table) == 2 * 2 * 2
-
-        SynthesizeTable(
-            input_table=self.input_table,
+            input_table=self.input_table_one,
             hash_columns=["c"],
             output_table=self.output_table,
             overwrite=True,
@@ -142,3 +126,64 @@ class TestSynthesizeTable(TestCase):
 
         adapter.run_sql_string(f"DROP TABLE {self.output_table}")
         adapter.disconnect()
+
+    def test_max_values_per_column(self):
+        adapter = LocalSqliteAdapter()
+        adapter.connect()
+        adapter.run_sql_file(self.setup_sql_path_one)
+
+        SynthesizeTable(
+            input_table=self.input_table_one,
+            hash_columns=["c"],
+            output_table=self.output_table,
+            overwrite=True,
+            sql_adapter=adapter,
+            max_values_per_column=1,
+        ).start()
+
+        output_df = adapter.table_as_pandas_df(self.output_table)
+        single_value_columns = output_df.nunique() == 1
+        assert single_value_columns.all()
+
+        SynthesizeTable(
+            input_table=self.input_table_one,
+            hash_columns=["c"],
+            output_table=self.output_table,
+            overwrite=True,
+            sql_adapter=adapter,
+            max_values_per_column=2,
+        ).start()
+
+        output_df = adapter.table_as_pandas_df(self.output_table)
+        single_value_columns = output_df.nunique() == 2
+        assert single_value_columns.all()
+
+        adapter.run_sql_string(f"DROP TABLE {self.output_table}")
+        adapter.disconnect()
+
+    def test_maintaining_data_types_when_synthesizing(self):
+        adapter = LocalSqliteAdapter()
+        adapter.connect()
+        adapter.run_sql_file(self.setup_sql_path_two)
+
+        SynthesizeTable(
+            input_table=self.input_table_two,
+            hash_columns=[
+                "string_column",
+                "int_column",
+                "bool_column",
+                "float_column",
+                "date_column",
+                "datetime_column",
+                "blob_column",
+            ],
+            output_table=self.output_table,
+            overwrite=True,
+            sql_adapter=adapter,
+            max_values_per_column=1,
+        ).start()
+
+        input_df = adapter.table_as_pandas_df(self.input_table_two)
+        output_df = adapter.table_as_pandas_df(self.output_table)
+
+        assert all(input_df.dtypes == output_df.dtypes)
