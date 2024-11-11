@@ -35,5 +35,7 @@ class TestBigQueryAdapterFormatTables:
             if correctly_formatted_query.strip() == "":
                 correctly_formatted_query = input_query
 
-            formatted_query = sql_adapter._format_table_names(query=input_query.strip())
+            formatted_query = sql_adapter.get_formatted_queries(
+                sql_string=input_query.strip()
+            )[0]
             assert formatted_query == correctly_formatted_query.strip()

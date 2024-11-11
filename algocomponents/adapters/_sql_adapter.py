@@ -167,11 +167,28 @@ class SQLAdapter(ConfigReader):
         if sql_string.strip() == "":
             raise ValueError(f"attempted to run an empty query: {sql_string}")
 
+        formatted_queries = self.get_formatted_queries(
+            sql_string=sql_string, format_variables=format_variables
+        )
+
+        dataframes = []
+        for formatted_query in formatted_queries:
+            self.logger.info(f"Executing the following query: \n{formatted_query}")
+
+            df = self._run_formatted_query(query=formatted_query)
+
+            dataframes.append(df)
+
+        return dataframes
+
+    def get_formatted_queries(
+        self, sql_string: str, format_variables: Dict[str, str] = None
+    ) -> List[str]:
         if not format_variables:
             format_variables = {}
 
         queries = sql_string.split(";")
-        dataframes = []
+        formatted_queries = []
         for query in queries:
             query = query.strip()
 
@@ -182,13 +199,9 @@ class SQLAdapter(ConfigReader):
                 string=query, additional_format_variables=format_variables
             )
             query = self._format_table_names(query=query)
-            self.logger.info(f"Executing the following query: \n{query}")
+            formatted_queries.append(query)
 
-            df = self._run_formatted_query(query=query)
-
-            dataframes.append(df)
-
-        return dataframes
+        return formatted_queries
 
     @require_connection
     @abstractmethod
