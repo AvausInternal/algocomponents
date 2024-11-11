@@ -86,3 +86,32 @@ class TestDataTransferTask:
         )
         assert sql_adapter.table_is_empty("data_transfer_table_new") == False
         sql_adapter.disconnect()
+
+    def test_adapters_connect_and_disconnect_correctly(self):
+        from_adapter = LocalSqliteAdapter()
+        to_adapter = LocalSqliteAdapter()
+
+        DataTransferTask(
+            sql_string="""SELECT 1 FROM data_transfer_table """,
+            from_adapter=from_adapter,
+            to_adapter=to_adapter,
+            to_table="data_transfer_table_new",
+            overwrite=True,
+        ).start()
+
+        assert not from_adapter.is_connected()
+        assert not to_adapter.is_connected()
+
+        from_adapter.connect()
+        to_adapter.connect()
+
+        DataTransferTask(
+            sql_string="""SELECT 1 FROM data_transfer_table """,
+            from_adapter=from_adapter,
+            to_adapter=to_adapter,
+            to_table="data_transfer_table_new",
+            overwrite=True,
+        ).start()
+
+        assert from_adapter.is_connected()
+        assert to_adapter.is_connected()
