@@ -71,3 +71,25 @@ class TestAdapterHelperMethods:
             is True
         )
         self.sql_adapter.disconnect()
+
+    def test_format_string_works(self):
+        format_variables = {
+            "var_one": "one",
+            "var_two": "two",
+        }
+        query = "SELECT {var_one}, {var_two}"
+        correct_query = "SELECT one, two"
+
+        formatted_query = self.sql_adapter.get_formatted_queries(
+            sql_string=query, format_variables=format_variables
+        )[0]
+        assert formatted_query == correct_query
+
+        queries = "SELECT {var_one}; SELECT {var_two}"
+        correct_queries = ["SELECT one", "SELECT two"]
+
+        formatted_queries = self.sql_adapter.get_formatted_queries(
+            sql_string=queries, format_variables=format_variables
+        )
+        for formatted_query, correct_query in zip(formatted_queries, correct_queries):
+            assert formatted_query == correct_query
