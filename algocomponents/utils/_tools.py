@@ -110,7 +110,7 @@ def deterministic_hash_int(value, salt: str = None):
     if salt:
         salted_value = f"{value}_{salt}_{today_salt}"
     else:
-        salted_value = f"{value}_{salt}_{today_salt}"
+        salted_value = f"{value}_{today_salt}"
     return int(hashlib.md5(salted_value.encode()).hexdigest(), 16)
 
 
@@ -119,7 +119,7 @@ def deterministic_hash_str(value, salt: str = None, length=16):
     if salt:
         salted_value = f"{value}_{salt}_{today_salt}"
     else:
-        salted_value = f"{value}_{salt}_{today_salt}"
+        salted_value = f"{value}_{today_salt}"
     hash_obj = hashlib.md5(salted_value.encode()).digest()
     hash_str = base64.urlsafe_b64encode(hash_obj).decode("utf-8")[:length]
     return hash_str
