@@ -167,11 +167,28 @@ class SQLAdapter(ConfigReader):
         if sql_string.strip() == "":
             raise ValueError(f"attempted to run an empty query: {sql_string}")
 
+        formatted_queries = self.get_formatted_queries(
+            sql_string=sql_string, format_variables=format_variables
+        )
+
+        dataframes = []
+        for formatted_query in formatted_queries:
+            self.logger.info(f"Executing the following query: \n{formatted_query}")
+
+            df = self._run_formatted_query(query=formatted_query)
+
+            dataframes.append(df)
+
+        return dataframes
+
+    def get_formatted_queries(
+        self, sql_string: str, format_variables: Dict[str, str] = None
+    ) -> List[str]:
         if not format_variables:
             format_variables = {}
 
         queries = sql_string.split(";")
-        dataframes = []
+        formatted_queries = []
         for query in queries:
             query = query.strip()
 
@@ -182,13 +199,9 @@ class SQLAdapter(ConfigReader):
                 string=query, additional_format_variables=format_variables
             )
             query = self._format_table_names(query=query)
-            self.logger.info(f"Executing the following query: \n{query}")
+            formatted_queries.append(query)
 
-            df = self._run_formatted_query(query=query)
-
-            dataframes.append(df)
-
-        return dataframes
+        return formatted_queries
 
     @require_connection
     @abstractmethod
@@ -430,7 +443,7 @@ class SQLAdapter(ConfigReader):
         pass
 
     @require_connection
-    def table_as_pandas_df(self, table: str) -> pd.DataFrame:
+    def table_as_pandas_df(self, table: str, max_rows: int = None) -> pd.DataFrame:
         """Return all rows in a table as a pandas dataframe.
 
         Adapters may overwrite this method if they have more efficient methods
@@ -438,12 +451,16 @@ class SQLAdapter(ConfigReader):
 
         Args:
             table: The table to return as a pandas dataframe.
+            max_rows: The max number of rows to get from the table.
 
         Returns:
             The table as a pandas dataframe.
 
         """
-        return self.run_sql_string(f"SELECT * FROM {table}")[0]
+        if max_rows:
+            return self.run_sql_string(f"SELECT * FROM {table} LIMIT {max_rows}")[0]
+        else:
+            return self.run_sql_string(f"SELECT * FROM {table}")[0]
 
     @require_connection
     @abstractmethod

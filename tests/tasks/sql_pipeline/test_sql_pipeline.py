@@ -1,3 +1,5 @@
+from configparser import ConfigParser
+
 import pytest
 
 from algocomponents.adapters import LocalSqliteAdapter
@@ -34,3 +36,25 @@ class TestSqlPipeline:
         result = pipeline.start()
 
         assert result is not None
+
+    def test_get_all_formatted_queries(self):
+        config = ConfigParser()
+        config.set(section="DEFAULT", option="var_one", value="one")
+        config.set(section="DEFAULT", option="var_two", value="two")
+        config.set(section="DEFAULT", option="var_three", value="three")
+        pipeline = EmptySQLPipeline(
+            config=config,
+            sql_adapter=LocalSqliteAdapter(),
+            sql_folder="templated_sql",
+        )
+
+        correct_queries = [
+            "SELECT one",
+            "SELECT two",
+            "SELECT three",
+        ]
+
+        formatted_queries = pipeline.get_formatted_queries_from_task_list()
+
+        for formatted_query, correct_query in zip(formatted_queries, correct_queries):
+            assert formatted_query == correct_query

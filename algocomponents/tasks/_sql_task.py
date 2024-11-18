@@ -47,6 +47,17 @@ class SQLTask(Task):
                 format_variables=dict(self.config[self.section]),
             )
 
+    def get_all_formatted_queries(self):
+        if self.sql_file_path:
+            with open(self.sql_file_path) as f:
+                sql_string = f.read()
+        else:
+            sql_string = self.sql_string
+
+        return self.sql_adapter.get_formatted_queries(
+            sql_string=sql_string, format_variables=dict(self.config[self.section])
+        )
+
     def as_pandas(self) -> pd.DataFrame:
         """Returns the result as a pandas dataframe.
 

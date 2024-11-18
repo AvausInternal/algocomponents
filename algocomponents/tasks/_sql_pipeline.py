@@ -93,3 +93,12 @@ class SQLPipeline(GroupTask, ABC):
             )
 
         return task_list
+
+    def get_formatted_queries_from_task_list(self):
+        formatted_queries = []
+        for sql_task in self.task_list:
+            sql_task_formatted_queries = sql_task.get_all_formatted_queries()
+            for sql_task_formatted_query in sql_task_formatted_queries:
+                formatted_queries.append(sql_task_formatted_query)
+
+        return formatted_queries

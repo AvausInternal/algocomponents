@@ -1,3 +1,6 @@
+import base64
+import hashlib
+from datetime import datetime
 from typing import Dict
 
 import pandas as pd
@@ -100,3 +103,23 @@ def pre_process_df(df: pd.DataFrame, model_path: str, metadata: Dict) -> pd.Data
     df = preprocessor.transform(df)
 
     return df
+
+
+def deterministic_hash_int(value, salt: str = None):
+    today_salt = datetime.today().strftime("%Y-%m-%d")
+    if salt:
+        salted_value = f"{value}_{salt}_{today_salt}"
+    else:
+        salted_value = f"{value}_{today_salt}"
+    return int(hashlib.md5(salted_value.encode()).hexdigest(), 16)
+
+
+def deterministic_hash_str(value, salt: str = None, length=16):
+    today_salt = datetime.today().strftime("%Y-%m-%d")
+    if salt:
+        salted_value = f"{value}_{salt}_{today_salt}"
+    else:
+        salted_value = f"{value}_{today_salt}"
+    hash_obj = hashlib.md5(salted_value.encode()).digest()
+    hash_str = base64.urlsafe_b64encode(hash_obj).decode("utf-8")[:length]
+    return hash_str
