@@ -54,7 +54,7 @@ def launch_task(task_file_name: str, section: str, adapter_type: str, **task_kwa
             f"but has more than one class, cannot start."
         )
 
-    sql_adapter = _get_adapter(adapter_type)
+    sql_adapter = _get_adapter(adapter_type=adapter_type, section=section)
     if sql_adapter is not None:
         task = classes_in_module[0](
             section=section, sql_adapter=sql_adapter, **task_kwargs
@@ -151,7 +151,7 @@ def _get_classes_in_module(module) -> List[any]:
     return classes
 
 
-def _get_adapter(adapter_type: str):
+def _get_adapter(adapter_type: str, section: str = None):
     """Given an adapter_type (str), return an instantiated adapter.
 
     Args:
@@ -177,7 +177,7 @@ def _get_adapter(adapter_type: str):
     ]:
         from algocomponents.adapters import BigQueryAdapter
 
-        return BigQueryAdapter()
+        return BigQueryAdapter(section=section)
     if adapter_type.lower() in [
         "local_sqlite_adapter",
         "localsqliteadapter",
@@ -190,7 +190,7 @@ def _get_adapter(adapter_type: str):
     ]:
         from algocomponents.adapters import LocalSqliteAdapter
 
-        return LocalSqliteAdapter()
+        return LocalSqliteAdapter(section=section)
     if adapter_type.lower() in [
         "spark_adapter",
         "sparkadapter",
@@ -199,7 +199,7 @@ def _get_adapter(adapter_type: str):
     ]:
         from algocomponents.adapters import SparkAdapter
 
-        return SparkAdapter()
+        return SparkAdapter(section=section)
     if adapter_type.lower() in [
         "databricks_adapter",
         "databricksadapter",
@@ -208,4 +208,4 @@ def _get_adapter(adapter_type: str):
     ]:
         from algocomponents.adapters import DatabricksAdapter
 
-        return DatabricksAdapter()
+        return DatabricksAdapter(section=section)
