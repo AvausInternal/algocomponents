@@ -2,9 +2,9 @@ name: Deploy algocomponents docs to GCP bucket
 
 on:
   push:
-    branches: ["feature/ci-cd-documentation" ]
+    branches: ["develop", "feature/ci-cd-documentation", "main"]
   pull_request:
-    branches: ["feature/ci-cd-documentation" ]
+    branches: ["develop", "feature/ci-cd-documentation", "main"]
 
 jobs:
   deploy:
@@ -37,7 +37,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install sphinx sphinx-rtd-theme pandas scipy 
-          # Scipy and pandas are dependencies from which Sphinx takes some docstrings.
+          # Scipy and pandas are dependencies from which Sphinx takes some docstrings during docs build.
 
       - name: Build Docs
         working-directory: ./docs
