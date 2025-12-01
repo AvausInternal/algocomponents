@@ -371,13 +371,15 @@ class SQLAdapter(ConfigReader):
             # First, any amount of newline or whitespace, including 0
             r"\s*"
             # set of different keywords followed by 1 or more newline or whitespace
+            # \b is used for full word match to avoid columns named for example
+            # something_update to match this
             # ?: is used to make it a non-capturing group. preventing re.findall
             # from only returning the match for the paranthesis
-            r"(?:from|join|table|insert|update|upsert|merge|delete|like|copy|clone|view|function|using)\s+"
+            r"\b(?:from|join|table|insert|update|upsert|merge|delete|like|copy|clone|view|function|using)\b\s+"
             # Maybe if exists / if not exists / into, then maybe newline / whitespace
             r"(?:if exists|if not exists|into)*\s*"
             # The actual table, which can consist of words, .'s, `'s -'s and *'s
-            r"[\w.`\-\*]+",
+            r"([\w.`\-\*]+)",
             # Search in the sql string
             sql,
             # Ignore case

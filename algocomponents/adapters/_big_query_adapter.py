@@ -189,6 +189,7 @@ class BigQueryAdapter(SQLAdapter):
         sql = self.remove_extract_method_calls_from_sql(sql=sql)
         sql = self.remove_unnest_method_calls_from_sql(sql=sql)
         sql = self.remove_ml_methods_from_sql(sql=sql)
+        sql = self.remove_update_set_from_sql(sql=sql)
         return sql
 
     def remove_extract_method_calls_from_sql(self, sql: str) -> str:
@@ -275,6 +276,36 @@ class BigQueryAdapter(SQLAdapter):
             r"(?:ml.)\w+\s*"
             # Everything from open paranthesis to close paranthesis
             r"\([^)]*\)",
+            # Search in the sql string
+            sql,
+            # Ignore case
+            re.IGNORECASE,
+        )
+
+        # replace every match with an empty string
+        for x in match:
+            sql = sql.replace(x, "")
+
+        return sql
+
+    def remove_update_set_from_sql(self, sql: str) -> str:
+        """Removes UPDATE SET statements from the sql.
+
+        Args:
+            sql: The sql to remove from.
+
+        Returns:
+            The sql without UPDATE SET statements.
+
+        """
+        # regex explanation
+        match = re.findall(
+            # First, at least 1 newline or whitespace
+            r"[\s\n]+"
+            # The UPDATE keyword, followed by one or more whitespace characters
+            r"(?:update)\s+"
+            # The SET keyword, possibly with trailing whitespace
+            r"(?:set)\s*",
             # Search in the sql string
             sql,
             # Ignore case
