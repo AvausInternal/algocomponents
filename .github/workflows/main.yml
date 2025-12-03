@@ -49,4 +49,4 @@ jobs:
     - name: Build Package and Upload
       run: |
         python setup.py sdist bdist_wheel
-        python -m twine upload --verbose --repository $GCR_REPO_NAME dist/*
+        python -m twine upload --skip-existing --verbose --repository $GCR_REPO_NAME dist/*
