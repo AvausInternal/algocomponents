@@ -18,9 +18,9 @@ sys.path.insert(0, os.path.abspath(".."))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Algocomponents"
-copyright = "2024, Avaus"
+copyright = "2025, Avaus"
 author = "Avaus"
-release = "1.0.3"
+release = "1.0.5"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
