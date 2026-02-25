@@ -159,7 +159,7 @@ class AvausVisuals:
     ):
         df_short_cols = self.shorten_column_names(df)
         if x_col and y_col:
-            sns.boxplot(x=x_col, y=y_col, data=df, palette=self.primary_colors.values())
+            sns.boxplot(x=x_col, y=y_col, hue=x_col, data=df, palette=self.primary_colors.values(), legend=False)
         else:
             sns.boxplot(
                 data=df_short_cols, palette=self.primary_colors.values(), orient="h"
