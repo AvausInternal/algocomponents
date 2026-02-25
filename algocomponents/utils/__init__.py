@@ -10,7 +10,6 @@ from algocomponents.utils._tools import (
 )
 from algocomponents.utils._wrappers import require_connection
 
-
 """Allows classes to live in separate files while keeping imports short
 
 All the classes are imported into this init-file, and from this file they can

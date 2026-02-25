@@ -94,7 +94,7 @@ class CheckSignificance(Task):
                     data[group][file.replace(".sql", "")] = df.values[0][0]
 
             self.ab_tools.logger.info(f"Significance test for: {target_column}")
-            (t, p_val) = self.ab_tools.is_significant_continuous(
+            t, p_val = self.ab_tools.is_significant_continuous(
                 n1=data[self.group_names[0]]["size"],
                 n2=data[self.group_names[1]]["size"],
                 x1=data[self.group_names[0]]["average"],
