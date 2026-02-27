@@ -65,18 +65,12 @@ class UnionTables(SQLTask):
             else:
                 query += f"{os.linesep}UNION ALL" f"{os.linesep}SELECT * FROM {table}"
 
-        query = (
-            """CREATE TABLE {output_table} AS
-        """
-            + query
-        )
+        query = """CREATE TABLE {output_table} AS
+        """ + query
 
         if overwrite_output_table_if_exists:
-            query = (
-                """DROP TABLE IF EXISTS {output_table};
-            """
-                + query
-            )
+            query = """DROP TABLE IF EXISTS {output_table};
+            """ + query
 
         return query
 
