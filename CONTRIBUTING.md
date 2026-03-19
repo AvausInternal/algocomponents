@@ -1,6 +1,6 @@
-# Contributing to Algo Components
+# Contributing to Algocomponents
 
-First of all, thank you for considering contributing to Algo Components! This repository contains the algo components that aim to make writing code faster, easier, and more fun.
+First of all, thank you for considering contributing to Algocomponents! This repository contains the algo components that aim to make writing code faster, easier, and more fun.
 
 ## Commit Customs
 

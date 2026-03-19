@@ -1,4 +1,4 @@
-# Algo Components
+# Algocomponents
 
 **The Agent-Friendly ML Pipeline Structuring Tool**
 
