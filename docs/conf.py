@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "Algocomponents"
 copyright = "2026, Avaus"
 author = "Avaus"
-release = "1.0.6"
+release = "1.1.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
