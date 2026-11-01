@@ -9,7 +9,7 @@
   <a href="https://github.com/AvausInternal/algocomponents/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/AvausInternal/algocomponents?style=flat-square"></a>
 </p>
 
-Algocomponents is a python package that makes it easy to build scalable python and SQL pipelines. Because there's no UI and all pipeline structure remains directly in your repository as code, it is extremely easy for AI agents to write, use, and maintain complex data workflows.
+The Python package algocomponents makes it easy to build scalable Python and SQL pipelines. Because there's no UI and all pipeline structure remains directly in your repository as code, it is extremely easy for AI agents to write, use, and maintain complex data workflows.
 
 It builds scalable pipelines in 5 ways:
 
@@ -17,9 +17,9 @@ It builds scalable pipelines in 5 ways:
 * Connect to any type of database provider using Adapters.
 * Put templated variables in queries to make them reusable.
 * Organize Tasks and GroupTasks in task trees to build complex pipelines.
-* Read, inherit and propagate global and local config files in your tasks and group tasks
+* Read, inherit and propagate global and local config files in your tasks and group tasks.
 
-Algocomponents consist of these five basic building blocks. With them, many other functionalities have been created that are also included. You can use these tools to build your own custom classes too!
+It consist of these five basic building blocks. With them, many other functionalities have been created that are also included. You can use these tools to build your own custom classes too!
 
 ## Get started
 
@@ -35,7 +35,7 @@ On Windows, activate the environment with `.venv\Scripts\activate` instead.
 
 If you want to work from a local checkout, you can clone algocomponents and, from your project's root, run `python -m pip install -e ../algocomponents` instead of the GitHub install command.
 
-To verify the installation, you can run the following python code within the virtual environment where algocomponents was instaled. This example uses SQLite because it needs no external database:
+To verify the installation, you can run the following Python code within the virtual environment where algocomponents was installed. This example uses SQLite because it needs no external database:
 
 ```python
 from algocomponents.adapters import LocalSqliteAdapter
