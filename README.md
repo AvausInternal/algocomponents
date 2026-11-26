@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/AvausInternal/algocomponents/blob/develop/setup.py"><img alt="Current version" src="https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FAvausInternal%2Falgocomponents%2Frefs%2Fheads%2Fdevelop%2Fsetup.py&amp;search=version%3D%22(%5B0-9.%5D%2B)%22&amp;replace=%241&amp;label=version&amp;color=2b6cb0&amp;style=flat-square"></a>
   <a href="https://algocomponents.avaus.com"><img alt="Documentation" src="https://img.shields.io/badge/docs-online-0b7285?style=flat-square"></a>
-  <a href="LICENSE"><img alt="License: GPLv3" src="https://img.shields.io/badge/license-GPLv3-blue?style=flat-square"></a>
+  <a href="LICENSE"><img alt="License: MPL-2.0" src="https://img.shields.io/badge/license-MPL--2.0-blue?style=flat-square"></a>
   <a href="https://github.com/AvausInternal/algocomponents/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/AvausInternal/algocomponents?style=flat-square"></a>
 </p>
 
@@ -105,4 +105,4 @@ Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to con
 Please read and follow our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
-This project is licensed under the [GNU General Public License v3.0](LICENSE).
+This project is licensed under the [Mozilla Public License 2.0 (MPL-2.0)](LICENSE).
