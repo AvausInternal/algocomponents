@@ -8,7 +8,7 @@ def load_requirements(path):
 
 setup(
     name="algocomponents",
-    version="1.1.0",
+    version="1.1.1",
     packages=[
         "algocomponents",
         "algocomponents.tasks",
@@ -30,7 +30,7 @@ setup(
     install_requires=load_requirements("requirements.txt"),
     package_data={"": ["*.sql"]},
     url="",
-    license="",
+    license="MPL-2.0",
     author="erichorberg",
     author_email="eric.horberg@avaus.se",
     description="Tools for creating ML models in Python and SQL",
